@@ -1,0 +1,52 @@
+@import "tailwindcss";
+
+@theme {
+  /* Brand colors */
+  --color-asa-gold: #D4A853;
+  --color-asa-wine: #6B2D3C;
+  --color-asa-terracotta: #C75B39;
+  --color-asa-charcoal: #1A1A1A;
+  --color-asa-cream: #F8F7F4;
+
+  /* shadcn semantic colors */
+  --color-background: #F8F7F4;
+  --color-foreground: #1A1A1A;
+
+  --color-card: #FFFFFF;
+  --color-card-foreground: #1A1A1A;
+
+  --color-popover: #FFFFFF;
+  --color-popover-foreground: #1A1A1A;
+
+  --color-primary: #1A1A1A;
+  --color-primary-foreground: #F8F7F4;
+
+  --color-secondary: #F0EDE8;
+  --color-secondary-foreground: #1A1A1A;
+
+  --color-muted: #F0EDE8;
+  --color-muted-foreground: #737373;
+
+  --color-accent: #F0EDE8;
+  --color-accent-foreground: #1A1A1A;
+
+  --color-destructive: #DC2626;
+  --color-destructive-foreground: #FFFFFF;
+
+  --color-border: #E5E2DC;
+  --color-input: #E5E2DC;
+  --color-ring: #D4A853;
+
+  /* Radius */
+  --radius: 0.5rem;
+
+  /* Fonts */
+  --font-sans: 'Inter', ui-sans-serif, system-ui, sans-serif;
+  --font-serif: 'Playfair Display', ui-serif, Georgia, serif;
+}
+
+body {
+  background: var(--color-background);
+  color: var(--color-foreground);
+  font-family: var(--font-sans);
+}
