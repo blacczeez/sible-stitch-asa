@@ -2,40 +2,40 @@
 
 @theme {
   /* Brand colors */
-  --color-asa-gold: #D4A853;
+  --color-asa-gold: #C19A3E;
   --color-asa-wine: #6B2D3C;
   --color-asa-terracotta: #C75B39;
-  --color-asa-charcoal: #1A1A1A;
-  --color-asa-cream: #F8F7F4;
+  --color-asa-charcoal: #1A1714;
+  --color-asa-cream: #F8F6F1;
 
   /* shadcn semantic colors */
-  --color-background: #F8F7F4;
-  --color-foreground: #1A1A1A;
+  --color-background: #F8F6F1;
+  --color-foreground: #1A1714;
 
   --color-card: #FFFFFF;
-  --color-card-foreground: #1A1A1A;
+  --color-card-foreground: #1A1714;
 
   --color-popover: #FFFFFF;
-  --color-popover-foreground: #1A1A1A;
+  --color-popover-foreground: #1A1714;
 
-  --color-primary: #D4A853;
-  --color-primary-foreground: #1A1A1A;
+  --color-primary: #C19A3E;
+  --color-primary-foreground: #1A1714;
 
   --color-secondary: #F0EDE8;
-  --color-secondary-foreground: #1A1A1A;
+  --color-secondary-foreground: #1A1714;
 
-  --color-muted: #F0EDE8;
-  --color-muted-foreground: #737373;
+  --color-muted: #EFECE6;
+  --color-muted-foreground: #6B6B6B;
 
-  --color-accent: #F0EDE8;
-  --color-accent-foreground: #1A1A1A;
+  --color-accent: #EFECE6;
+  --color-accent-foreground: #1A1714;
 
   --color-destructive: #DC2626;
   --color-destructive-foreground: #FFFFFF;
 
-  --color-border: #E5E2DC;
-  --color-input: #E5E2DC;
-  --color-ring: #D4A853;
+  --color-border: #E3E0D9;
+  --color-input: #E3E0D9;
+  --color-ring: #C19A3E;
 
   /* Radius */
   --radius: 0.5rem;
@@ -56,8 +56,8 @@ body {
 }
 
 ::selection {
-  background-color: #D4A853;
-  color: #1A1A1A;
+  background-color: #C19A3E;
+  color: #1A1714;
 }
 
 /* Scrollbar hide utility for carousel */

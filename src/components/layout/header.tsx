@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
+import { usePathname } from 'next/navigation'
 import { ShoppingBag, Heart, Search, Menu } from 'lucide-react'
 import { useCart } from '@/hooks/use-cart'
 import { useUIStore } from '@/store/ui-store'
@@ -16,6 +17,11 @@ export function Header() {
   const { itemCount } = useCart()
   const { setMobileMenuOpen, setSearchOpen, setCartDrawerOpen } = useUIStore()
   const [scrolled, setScrolled] = useState(false)
+  const pathname = usePathname()
+  const isHome = pathname === '/'
+
+  // On non-homepage pages, always use solid header styling
+  const solid = scrolled || !isHome
 
   useEffect(() => {
     const handleScroll = () => {
@@ -31,7 +37,7 @@ export function Header() {
         <AnnouncementBar />
         <header
           className={`transition-all duration-300 ${
-            scrolled
+            solid
               ? 'bg-white/95 backdrop-blur-md shadow-sm'
               : 'bg-transparent'
           }`}
@@ -47,7 +53,7 @@ export function Header() {
                 >
                   <Menu
                     className={`w-6 h-6 transition-colors ${
-                      scrolled ? 'text-asa-charcoal' : 'text-white'
+                      solid ? 'text-asa-charcoal' : 'text-white'
                     }`}
                   />
                 </button>
@@ -57,7 +63,7 @@ export function Header() {
                       key={link.href}
                       href={link.href}
                       className={`text-[11px] font-medium tracking-[0.15em] uppercase transition-colors ${
-                        scrolled
+                        solid
                           ? 'text-asa-charcoal hover:text-asa-gold'
                           : 'text-white/90 hover:text-white'
                       }`}
@@ -72,7 +78,7 @@ export function Header() {
               <Link
                 href="/"
                 className={`text-3xl md:text-4xl font-serif font-bold tracking-wide transition-colors ${
-                  scrolled ? 'text-asa-charcoal' : 'text-white'
+                  solid ? 'text-asa-charcoal' : 'text-white'
                 }`}
               >
                 ÀṢÀ
@@ -83,7 +89,7 @@ export function Header() {
                 <button
                   onClick={() => setSearchOpen(true)}
                   className={`hidden sm:flex items-center gap-2 px-4 py-1.5 rounded-full border text-xs transition-colors ${
-                    scrolled
+                    solid
                       ? 'border-border text-muted-foreground hover:border-asa-charcoal'
                       : 'border-white/30 text-white/70 hover:border-white/60'
                   }`}
@@ -95,19 +101,19 @@ export function Header() {
                 <button
                   onClick={() => setSearchOpen(true)}
                   className={`sm:hidden p-2 rounded-full transition-colors ${
-                    scrolled ? 'text-asa-charcoal hover:bg-secondary' : 'text-white hover:bg-white/10'
+                    solid ? 'text-asa-charcoal hover:bg-secondary' : 'text-white hover:bg-white/10'
                   }`}
                   aria-label="Search"
                 >
                   <Search className="w-5 h-5" />
                 </button>
-                <div className={scrolled ? '' : '[&_button]:text-white'}>
+                <div className={solid ? '' : '[&_button]:text-white'}>
                   <CurrencySelector />
                 </div>
                 <Link
                   href="/wishlist"
                   className={`p-2 rounded-full transition-colors ${
-                    scrolled
+                    solid
                       ? 'text-asa-charcoal hover:bg-secondary'
                       : 'text-white hover:bg-white/10'
                   }`}
@@ -118,7 +124,7 @@ export function Header() {
                 <button
                   onClick={() => setCartDrawerOpen(true)}
                   className={`relative p-2 rounded-full transition-colors ${
-                    scrolled
+                    solid
                       ? 'text-asa-charcoal hover:bg-secondary'
                       : 'text-white hover:bg-white/10'
                   }`}

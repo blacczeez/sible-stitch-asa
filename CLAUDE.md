@@ -56,8 +56,8 @@ pnpm prisma migrate dev  # Run migrations
 See `.env.example` for all required variables. Never commit `.env.local`.
 
 ## Brand Colors
-- Primary Gold: #D4A853
+- Antique Gold: #C19A3E
 - Deep Wine: #6B2D3C
 - Terracotta: #C75B39
-- Charcoal: #1A1A1A
-- Cream Background: #F8F7F4
+- Noir: #1A1714
+- Cream Background: #F8F6F1

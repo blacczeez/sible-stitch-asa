@@ -66,12 +66,12 @@ export async function sendOrderConfirmation(params: OrderConfirmationParams) {
       <!DOCTYPE html>
       <html>
       <head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"></head>
-      <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #1A1A1A; max-width: 600px; margin: 0 auto; padding: 20px;">
+      <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #1A1714; max-width: 600px; margin: 0 auto; padding: 20px;">
         <div style="text-align: center; margin-bottom: 30px;">
-          <h1 style="color: #D4A853; margin: 0;">ÀṢÀ</h1>
+          <h1 style="color: #C19A3E; margin: 0;">ÀṢÀ</h1>
           <p style="color: #666; margin: 5px 0;">Premium African Fashion</p>
         </div>
-        <div style="background: #F8F7F4; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
+        <div style="background: #F8F6F1; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
           <h2 style="margin-top: 0;">Thank you for your order!</h2>
           <p>We've received your order and are preparing it for shipment.</p>
           <p><strong>Order Number:</strong> ${orderNumber}</p>
@@ -94,7 +94,7 @@ export async function sendOrderConfirmation(params: OrderConfirmationParams) {
           </tfoot>
         </table>
         <h3 style="margin-top: 30px;">Shipping Address</h3>
-        <p style="background: #F8F7F4; padding: 15px; border-radius: 8px;">
+        <p style="background: #F8F6F1; padding: 15px; border-radius: 8px;">
           ${shippingAddress.name}<br>
           ${shippingAddress.line1}<br>
           ${shippingAddress.line2 ? shippingAddress.line2 + '<br>' : ''}
@@ -134,11 +134,11 @@ export async function sendShippingNotification(params: {
       <!DOCTYPE html>
       <html>
       <head><meta charset="utf-8"></head>
-      <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #1A1A1A; max-width: 600px; margin: 0 auto; padding: 20px;">
+      <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #1A1714; max-width: 600px; margin: 0 auto; padding: 20px;">
         <div style="text-align: center; margin-bottom: 30px;">
-          <h1 style="color: #D4A853; margin: 0;">ÀṢÀ</h1>
+          <h1 style="color: #C19A3E; margin: 0;">ÀṢÀ</h1>
         </div>
-        <div style="background: #F8F7F4; padding: 20px; border-radius: 8px;">
+        <div style="background: #F8F6F1; padding: 20px; border-radius: 8px;">
           <h2 style="margin-top: 0;">Your order is on its way!</h2>
           <p><strong>Order:</strong> ${params.orderNumber}</p>
           <p><strong>Carrier:</strong> ${params.carrier}</p>
