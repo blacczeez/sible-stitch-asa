@@ -7,10 +7,10 @@ export function HeroSection() {
     <section className="relative h-[90vh] min-h-[600px] overflow-hidden bg-asa-charcoal">
       {/* Background Image */}
       <Image
-        src="https://images.unsplash.com/photo-1663044022557-7d5d4c1d5318?w=1920&q=80&fit=crop"
+        src="https://images.unsplash.com/photo-1663044022557-7d5d4c1d5318?w=1920&h=1080&fit=crop&crop=faces,center&q=80"
         alt="African fashion model wearing vibrant Ankara print clothing"
         fill
-        className="object-cover object-top"
+        className="object-cover object-center"
         priority
         sizes="100vw"
       />

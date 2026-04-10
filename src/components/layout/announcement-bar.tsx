@@ -9,10 +9,10 @@ export function AnnouncementBar() {
   if (dismissed) return null
 
   return (
-    <div className="bg-asa-wine text-white text-center py-2 px-4 text-xs tracking-widest uppercase relative">
+    <div className="bg-asa-charcoal text-white/80 text-center py-2 px-4 text-xs tracking-widest uppercase relative">
       <span>
         Free shipping on orders over $150 &mdash; Use code{' '}
-        <span className="font-semibold">WELCOME15</span> for 15% off
+        <span className="font-semibold text-asa-gold">WELCOME15</span> for 15% off
       </span>
       <button
         onClick={() => setDismissed(true)}
