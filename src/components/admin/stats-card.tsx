@@ -1,5 +1,6 @@
 import { type LucideIcon } from 'lucide-react'
 import { Card, CardContent } from '@/components/ui/card'
+import { adminGlassCard } from '@/lib/admin-ui'
 import { cn } from '@/lib/utils'
 
 interface StatsCardProps {
@@ -12,7 +13,7 @@ interface StatsCardProps {
 
 export function StatsCard({ title, value, change, icon: Icon, className }: StatsCardProps) {
   return (
-    <Card className={className}>
+    <Card className={cn(adminGlassCard, className)}>
       <CardContent className="pt-6">
         <div className="flex items-center justify-between">
           <div>

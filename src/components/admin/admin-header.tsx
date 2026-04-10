@@ -41,15 +41,15 @@ export function AdminHeader() {
   })
 
   return (
-    <header className="h-16 border-b bg-white flex items-center justify-between px-6">
-      <div className="flex items-center gap-2 text-sm">
+    <header className="sticky top-0 z-30 flex h-16 shrink-0 items-center justify-between border-b border-white/60 bg-white/75 px-6 shadow-sm backdrop-blur-xl supports-backdrop-filter:bg-white/65">
+      <div className="flex min-w-0 items-center gap-2 text-sm">
         {breadcrumbs.map((crumb, idx) => (
           <span key={crumb.path} className="flex items-center gap-2">
             {idx > 0 && <span className="text-muted-foreground">/</span>}
             <span
               className={
                 idx === breadcrumbs.length - 1
-                  ? 'font-medium'
+                  ? 'font-medium text-asa-charcoal'
                   : 'text-muted-foreground'
               }
             >

@@ -12,6 +12,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
+import { adminGlassDataPanel, adminPageTitleClass } from '@/lib/admin-ui'
 import { formatCurrency, formatDate } from '@/lib/utils'
 
 type CustomerRow = {
@@ -64,7 +65,7 @@ export default function AdminCustomersPage() {
   if (loading) {
     return (
       <div className="space-y-6">
-        <h1 className="text-2xl font-bold">Customers</h1>
+        <h1 className={adminPageTitleClass}>Customers</h1>
         <p className="text-muted-foreground">Loading...</p>
       </div>
     )
@@ -73,7 +74,7 @@ export default function AdminCustomersPage() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold">Customers</h1>
+        <h1 className={adminPageTitleClass}>Customers</h1>
         <p className="text-sm text-muted-foreground">
           {customers.length} total customers
         </p>
@@ -89,7 +90,7 @@ export default function AdminCustomersPage() {
         />
       </div>
 
-      <div className="border rounded-lg overflow-hidden bg-white">
+      <div className={adminGlassDataPanel}>
         <Table>
           <TableHeader>
             <TableRow>

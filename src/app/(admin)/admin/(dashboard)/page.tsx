@@ -2,6 +2,7 @@ import { DollarSign, ShoppingCart, Package, AlertTriangle } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { StatsCard } from '@/components/admin/stats-card'
+import { adminGlassCard, adminPageTitleClass } from '@/lib/admin-ui'
 import { formatCurrency } from '@/lib/utils'
 import { getDashboardStats } from '@/lib/data/dashboard'
 
@@ -18,7 +19,7 @@ export default async function AdminDashboardPage() {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-bold">Dashboard</h1>
+      <h1 className={adminPageTitleClass}>Dashboard</h1>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <StatsCard
@@ -45,7 +46,7 @@ export default async function AdminDashboardPage() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <Card>
+        <Card className={adminGlassCard}>
           <CardHeader>
             <CardTitle>Recent Orders</CardTitle>
           </CardHeader>
@@ -74,7 +75,7 @@ export default async function AdminDashboardPage() {
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className={adminGlassCard}>
           <CardHeader>
             <CardTitle>Top Products</CardTitle>
           </CardHeader>

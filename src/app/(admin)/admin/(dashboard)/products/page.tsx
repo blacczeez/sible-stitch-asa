@@ -16,7 +16,12 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
-import { formatCurrency } from '@/lib/utils'
+import {
+  adminGlassDataPanel,
+  adminPageTitleClass,
+  adminPrimaryButtonClass,
+} from '@/lib/admin-ui'
+import { cn, formatCurrency } from '@/lib/utils'
 import type { Product } from '@/types'
 
 const statusColors: Record<string, string> = {
@@ -66,7 +71,7 @@ export default function AdminProductsPage() {
   if (loading) {
     return (
       <div className="space-y-6">
-        <h1 className="text-2xl font-bold">Products</h1>
+        <h1 className={adminPageTitleClass}>Products</h1>
         <p className="text-muted-foreground">Loading...</p>
       </div>
     )
@@ -75,8 +80,8 @@ export default function AdminProductsPage() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold">Products</h1>
-        <Button asChild className="bg-asa-charcoal">
+        <h1 className={adminPageTitleClass}>Products</h1>
+        <Button asChild className={cn(adminPrimaryButtonClass)}>
           <Link href="/admin/products/new">
             <Plus className="w-4 h-4 mr-2" />
             Add Product
@@ -104,7 +109,7 @@ export default function AdminProductsPage() {
         </Tabs>
       </div>
 
-      <div className="border rounded-lg overflow-hidden bg-white">
+      <div className={adminGlassDataPanel}>
         <Table>
           <TableHeader>
             <TableRow>

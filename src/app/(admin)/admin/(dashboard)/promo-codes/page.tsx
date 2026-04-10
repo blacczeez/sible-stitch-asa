@@ -16,7 +16,12 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
-import { formatCurrency } from '@/lib/utils'
+import {
+  adminGlassDataPanel,
+  adminPageTitleClass,
+  adminPrimaryButtonClass,
+} from '@/lib/admin-ui'
+import { cn, formatCurrency } from '@/lib/utils'
 import { toast } from 'sonner'
 
 type PromoRow = {
@@ -98,7 +103,7 @@ export default function AdminPromoCodesPage() {
   if (loading) {
     return (
       <div className="space-y-6">
-        <h1 className="text-2xl font-bold">Promo Codes</h1>
+        <h1 className={adminPageTitleClass}>Promo Codes</h1>
         <p className="text-muted-foreground">Loading...</p>
       </div>
     )
@@ -107,11 +112,11 @@ export default function AdminPromoCodesPage() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold">Promo Codes</h1>
+        <h1 className={adminPageTitleClass}>Promo Codes</h1>
         <Dialog open={open} onOpenChange={setOpen}>
           <DialogTrigger asChild>
-            <Button className="bg-asa-charcoal">
-              <Plus className="w-4 h-4 mr-2" />
+            <Button className={cn(adminPrimaryButtonClass)}>
+              <Plus className="mr-2 h-4 w-4" />
               Create Code
             </Button>
           </DialogTrigger>
@@ -178,7 +183,7 @@ export default function AdminPromoCodesPage() {
                   className="mt-1"
                 />
               </div>
-              <Button type="submit" className="w-full bg-asa-charcoal">
+              <Button type="submit" className={cn('w-full', adminPrimaryButtonClass)}>
                 Create
               </Button>
             </form>
@@ -186,7 +191,7 @@ export default function AdminPromoCodesPage() {
         </Dialog>
       </div>
 
-      <div className="border rounded-lg overflow-hidden bg-white">
+      <div className={adminGlassDataPanel}>
         <Table>
           <TableHeader>
             <TableRow>

@@ -26,15 +26,15 @@ export function AdminSidebar() {
   const pathname = usePathname()
 
   return (
-    <aside className="w-64 bg-asa-charcoal text-white flex flex-col min-h-screen">
+    <aside className="flex min-h-screen w-64 shrink-0 flex-col border-r border-white/10 bg-asa-charcoal text-white shadow-[4px_0_24px_-12px_rgba(26,23,20,0.2)]">
       <div className="p-6">
         <Link href="/admin" className="text-2xl font-serif font-bold text-asa-gold">
           ÀṢÀ
         </Link>
-        <p className="text-xs text-gray-400 mt-1">Admin Dashboard</p>
+        <p className="mt-1 text-xs text-white/50">Admin Dashboard</p>
       </div>
 
-      <nav className="flex-1 px-3 space-y-1">
+      <nav className="flex-1 space-y-1 px-3">
         {navItems.map((item) => {
           const isActive =
             pathname === item.href ||
@@ -44,10 +44,10 @@ export function AdminSidebar() {
               key={item.href}
               href={item.href}
               className={cn(
-                'flex items-center gap-3 px-3 py-2.5 rounded-md text-sm transition-colors',
+                'flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm transition-colors',
                 isActive
-                  ? 'bg-white/10 text-white font-medium'
-                  : 'text-gray-400 hover:bg-white/5 hover:text-white'
+                  ? 'bg-asa-gold/15 font-medium text-asa-gold'
+                  : 'text-white/55 hover:bg-white/5 hover:text-white'
               )}
             >
               <item.icon className="w-5 h-5" />
@@ -57,10 +57,10 @@ export function AdminSidebar() {
         })}
       </nav>
 
-      <div className="p-3 border-t border-white/10">
+      <div className="border-t border-white/10 p-3">
         <Link
           href="/"
-          className="flex items-center gap-3 px-3 py-2.5 rounded-md text-sm text-gray-400 hover:bg-white/5 hover:text-white transition-colors"
+          className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm text-white/55 transition-colors hover:bg-white/5 hover:text-white"
         >
           <LogOut className="w-5 h-5" />
           Back to Store

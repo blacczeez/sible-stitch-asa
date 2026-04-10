@@ -19,6 +19,11 @@ import {
 } from '@/components/ui/table'
 import { StatsCard } from '@/components/admin/stats-card'
 import { STOCK_THRESHOLDS } from '@/lib/constants'
+import {
+  adminGlassDataPanel,
+  adminPageTitleClass,
+  adminPrimaryButtonClass,
+} from '@/lib/admin-ui'
 import { cn } from '@/lib/utils'
 import { toast } from 'sonner'
 
@@ -115,7 +120,7 @@ export default function AdminInventoryPage() {
   if (loading) {
     return (
       <div className="space-y-6">
-        <h1 className="text-2xl font-bold">Inventory</h1>
+        <h1 className={adminPageTitleClass}>Inventory</h1>
         <p className="text-muted-foreground">Loading...</p>
       </div>
     )
@@ -123,7 +128,7 @@ export default function AdminInventoryPage() {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-bold">Inventory</h1>
+      <h1 className={adminPageTitleClass}>Inventory</h1>
 
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <StatsCard
@@ -162,7 +167,7 @@ export default function AdminInventoryPage() {
         </Tabs>
       </div>
 
-      <div className="border rounded-lg overflow-hidden bg-white">
+      <div className={adminGlassDataPanel}>
         <Table>
           <TableHeader>
             <TableRow>
@@ -249,7 +254,7 @@ export default function AdminInventoryPage() {
                 />
               </div>
               <Button
-                className="w-full bg-asa-charcoal"
+                className={cn('w-full', adminPrimaryButtonClass)}
                 type="button"
                 onClick={applyAdjustment}
               >

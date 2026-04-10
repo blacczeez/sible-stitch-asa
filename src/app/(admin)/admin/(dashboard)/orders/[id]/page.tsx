@@ -15,7 +15,8 @@ import {
 import { Separator } from '@/components/ui/separator'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { formatCurrency, formatDate } from '@/lib/utils'
+import { adminGlassCard, adminPrimaryButtonClass } from '@/lib/admin-ui'
+import { cn, formatCurrency, formatDate } from '@/lib/utils'
 import { toast } from 'sonner'
 import type { Order } from '@/types'
 
@@ -113,7 +114,9 @@ export default function AdminOrderDetailPage() {
     <div className="max-w-4xl space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold">{order.orderNumber}</h1>
+          <h1 className="font-serif text-3xl font-bold tracking-tight text-asa-charcoal">
+            {order.orderNumber}
+          </h1>
           <p className="text-sm text-muted-foreground">
             Placed on {formatDate(order.createdAt)}
           </p>
@@ -123,7 +126,7 @@ export default function AdminOrderDetailPage() {
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2 space-y-6">
-          <Card>
+          <Card className={adminGlassCard}>
             <CardHeader>
               <CardTitle>Order Items</CardTitle>
             </CardHeader>
@@ -170,7 +173,7 @@ export default function AdminOrderDetailPage() {
             </CardContent>
           </Card>
 
-          <Card>
+          <Card className={adminGlassCard}>
             <CardHeader>
               <CardTitle>Shipping Address</CardTitle>
             </CardHeader>
@@ -187,7 +190,7 @@ export default function AdminOrderDetailPage() {
           </Card>
         </div>
 
-        <Card>
+        <Card className={adminGlassCard}>
           <CardHeader>
             <CardTitle>Update Status</CardTitle>
           </CardHeader>
@@ -226,7 +229,7 @@ export default function AdminOrderDetailPage() {
             <Button
               type="button"
               onClick={handleStatusUpdate}
-              className="w-full bg-asa-charcoal"
+              className={cn('w-full', adminPrimaryButtonClass)}
             >
               Update Order
             </Button>

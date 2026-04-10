@@ -15,6 +15,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
+import { adminGlassDataPanel, adminPageTitleClass } from '@/lib/admin-ui'
 import { formatCurrency, formatDate } from '@/lib/utils'
 import type { Order } from '@/types'
 
@@ -73,7 +74,7 @@ export default function AdminOrdersPage() {
   if (loading) {
     return (
       <div className="space-y-6">
-        <h1 className="text-2xl font-bold">Orders</h1>
+        <h1 className={adminPageTitleClass}>Orders</h1>
         <p className="text-muted-foreground">Loading...</p>
       </div>
     )
@@ -81,7 +82,7 @@ export default function AdminOrdersPage() {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-bold">Orders</h1>
+      <h1 className={adminPageTitleClass}>Orders</h1>
 
       <div className="flex flex-col sm:flex-row gap-4">
         <div className="relative flex-1">
@@ -104,7 +105,7 @@ export default function AdminOrdersPage() {
         </Tabs>
       </div>
 
-      <div className="border rounded-lg overflow-hidden bg-white">
+      <div className={adminGlassDataPanel}>
         <Table>
           <TableHeader>
             <TableRow>

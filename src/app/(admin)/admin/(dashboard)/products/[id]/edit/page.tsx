@@ -15,6 +15,8 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import type { Product } from '@/types'
+import { adminGlassCard, adminPageTitleClass, adminPrimaryButtonClass } from '@/lib/admin-ui'
+import { cn } from '@/lib/utils'
 import { toast } from 'sonner'
 
 export default function EditProductPage() {
@@ -94,10 +96,10 @@ export default function EditProductPage() {
 
   return (
     <div className="max-w-3xl">
-      <h1 className="text-2xl font-bold mb-6">Edit Product</h1>
+      <h1 className={cn(adminPageTitleClass, 'mb-6')}>Edit Product</h1>
 
       <form onSubmit={handleSubmit} className="space-y-6">
-        <Card>
+        <Card className={adminGlassCard}>
           <CardHeader>
             <CardTitle>Basic Information</CardTitle>
           </CardHeader>
@@ -130,7 +132,7 @@ export default function EditProductPage() {
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className={adminGlassCard}>
           <CardHeader>
             <CardTitle>Pricing & Status</CardTitle>
           </CardHeader>
@@ -176,7 +178,7 @@ export default function EditProductPage() {
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className={adminGlassCard}>
           <CardHeader>
             <CardTitle>Variants (read-only)</CardTitle>
           </CardHeader>
@@ -198,7 +200,7 @@ export default function EditProductPage() {
         </Card>
 
         <div className="flex gap-3">
-          <Button type="submit" className="bg-asa-charcoal">
+          <Button type="submit" className={cn(adminPrimaryButtonClass)}>
             Save Changes
           </Button>
           <Button type="button" variant="outline" onClick={() => router.back()}>

@@ -13,7 +13,8 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Checkbox } from '@/components/ui/checkbox'
 import { createProductSchema, type CreateProduct } from '@/validations/product'
 import type { Category } from '@/types'
-import { slugify } from '@/lib/utils'
+import { adminGlassCard, adminPageTitleClass, adminPrimaryButtonClass } from '@/lib/admin-ui'
+import { cn, slugify } from '@/lib/utils'
 import { toast } from 'sonner'
 
 export default function NewProductPage() {
@@ -85,10 +86,10 @@ export default function NewProductPage() {
 
   return (
     <div className="max-w-3xl">
-      <h1 className="text-2xl font-bold mb-6">New Product</h1>
+      <h1 className={cn(adminPageTitleClass, 'mb-6')}>New Product</h1>
 
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-        <Card>
+        <Card className={adminGlassCard}>
           <CardHeader>
             <CardTitle>Basic Information</CardTitle>
           </CardHeader>
@@ -110,7 +111,7 @@ export default function NewProductPage() {
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className={adminGlassCard}>
           <CardHeader>
             <CardTitle>Pricing & Category</CardTitle>
           </CardHeader>
@@ -162,7 +163,7 @@ export default function NewProductPage() {
         </Card>
 
         <div className="flex gap-3">
-          <Button type="submit" className="bg-asa-charcoal">
+          <Button type="submit" className={cn(adminPrimaryButtonClass)}>
             Create Product
           </Button>
           <Button type="button" variant="outline" onClick={() => router.back()}>

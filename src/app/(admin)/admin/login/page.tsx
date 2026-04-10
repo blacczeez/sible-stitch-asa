@@ -8,6 +8,8 @@ import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { createClient } from '@/lib/supabase'
 import { resolveAdminLoginEmail } from '@/lib/admin-login'
+import { adminGlassCard, adminPrimaryButtonClass } from '@/lib/admin-ui'
+import { cn } from '@/lib/utils'
 
 export default function AdminLoginPage() {
   const router = useRouter()
@@ -63,8 +65,8 @@ export default function AdminLoginPage() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-asa-cream p-4">
-      <Card className="w-full max-w-md">
+    <div className="flex min-h-screen items-center justify-center bg-background p-4">
+      <Card className={cn('w-full max-w-md', adminGlassCard)}>
         <CardHeader className="text-center">
           <div className="mb-2 font-serif text-3xl font-bold text-asa-gold">
             ÀṢÀ
@@ -100,7 +102,7 @@ export default function AdminLoginPage() {
             <Button
               type="submit"
               disabled={loading}
-              className="w-full bg-asa-charcoal"
+              className={cn('w-full', adminPrimaryButtonClass)}
             >
               {loading ? 'Signing in…' : 'Sign in'}
             </Button>
