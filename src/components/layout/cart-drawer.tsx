@@ -40,7 +40,7 @@ export function CartDrawer() {
           </div>
         ) : (
           <>
-            <div className="flex-1 overflow-y-auto py-4 space-y-4">
+            <div className="flex-1 overflow-y-auto py-4 px-4 space-y-4">
               {items.map((item) => (
                 <div key={item.id} className="flex gap-3">
                   <div className="relative w-20 h-24 bg-muted rounded-xl overflow-hidden flex-shrink-0">
@@ -103,7 +103,7 @@ export function CartDrawer() {
               ))}
             </div>
 
-            <div className="border-t pt-4 space-y-3">
+            <div className="border-t pt-4 px-4 pb-4 space-y-3">
               <Separator />
               <div className="flex justify-between text-sm">
                 <span className="text-muted-foreground">Subtotal</span>
