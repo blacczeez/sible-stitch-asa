@@ -13,7 +13,7 @@ export function CartContent() {
 
   if (!hydrated) {
     return (
-      <div className="container mx-auto px-4 py-16 text-center">
+      <div className="container mx-auto px-4 pb-16 text-center">
         <p className="text-muted-foreground">Loading cart...</p>
       </div>
     )
@@ -21,13 +21,16 @@ export function CartContent() {
 
   if (items.length === 0) {
     return (
-      <div className="container mx-auto px-4 py-16">
+      <div className="container mx-auto px-4 pb-16">
         <EmptyState
           icon={ShoppingBag}
           title="Your bag is empty"
           description="Looks like you haven't added any items to your bag yet."
         >
-          <Button asChild className="mt-4 bg-asa-charcoal">
+          <Button
+            asChild
+            className="mt-4 bg-asa-gold font-semibold text-asa-charcoal hover:bg-asa-gold/90 hover:text-asa-charcoal"
+          >
             <Link href="/products">Continue Shopping</Link>
           </Button>
         </EmptyState>
@@ -36,7 +39,7 @@ export function CartContent() {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
+    <div className="container mx-auto px-4 pb-12 sm:pb-16">
       <h1 className="text-3xl font-serif font-bold text-asa-charcoal mb-8">
         Shopping Bag
       </h1>

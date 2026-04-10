@@ -13,13 +13,13 @@ export function OrderReview() {
   const total = subtotal - discount + shippingCost
 
   return (
-    <div className="bg-white border rounded-lg p-6 sticky top-28">
+    <div className="rounded-2xl bg-white/65 backdrop-blur-xl p-6 shadow-[0_8px_40px_-12px_rgba(26,23,20,0.12)] ring-1 ring-white/80 sticky top-(--storefront-header-offset) md:top-(--storefront-header-offset-md)">
       <h2 className="text-lg font-semibold mb-4">Order Summary</h2>
 
       <div className="space-y-3 mb-4">
         {items.map((item) => (
           <div key={item.id} className="flex gap-3">
-            <div className="relative w-14 h-18 bg-muted rounded overflow-hidden flex-shrink-0">
+            <div className="relative w-14 h-18 bg-muted rounded overflow-hidden shrink-0">
               <Image
                 src={item.image}
                 alt={item.name}

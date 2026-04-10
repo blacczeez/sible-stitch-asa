@@ -1,6 +1,6 @@
 'use client'
 
-import { usePathname } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import {
   DropdownMenu,
@@ -8,6 +8,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
+import { createClient } from '@/lib/supabase'
 
 const breadcrumbMap: Record<string, string> = {
   '/admin': 'Dashboard',
@@ -21,6 +22,14 @@ const breadcrumbMap: Record<string, string> = {
 
 export function AdminHeader() {
   const pathname = usePathname()
+  const router = useRouter()
+
+  async function handleSignOut() {
+    const supabase = createClient()
+    await supabase.auth.signOut()
+    router.push('/admin/login')
+    router.refresh()
+  }
 
   const segments = pathname.split('/').filter(Boolean)
   const breadcrumbs = segments.map((_, idx) => {
@@ -59,8 +68,7 @@ export function AdminHeader() {
           </Avatar>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
-          <DropdownMenuItem>Admin Settings</DropdownMenuItem>
-          <DropdownMenuItem>Sign Out</DropdownMenuItem>
+          <DropdownMenuItem onSelect={handleSignOut}>Sign out</DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
     </header>

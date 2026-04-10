@@ -35,7 +35,10 @@ export function ShippingForm() {
   })
 
   return (
-    <form id="checkout-form" className="space-y-6 bg-white border rounded-lg p-6">
+    <form
+      id="checkout-form"
+      className="space-y-6 rounded-2xl bg-white/70 backdrop-blur-md p-6 shadow-sm ring-1 ring-white/80"
+    >
       <h2 className="text-lg font-semibold">Shipping Information</h2>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">

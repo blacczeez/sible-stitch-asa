@@ -1,26 +1,40 @@
 import { NextResponse } from 'next/server'
-import { createServerSupabase } from '@/lib/supabase'
+import { redirect } from 'next/navigation'
+import { createServerSupabase } from '@/lib/supabase-server'
 import { prisma } from '@/lib/prisma'
 
-const isPlaceholder = (val: string | undefined) =>
-  !val || val.includes('placeholder')
+export type AdminUser = {
+  id: string
+  email: string
+  role: 'admin'
+  name: string | null
+}
 
-export async function requireAdmin() {
-  // Bypass auth in dev when using placeholder credentials
-  if (
-    process.env.NODE_ENV === 'development' &&
-    isPlaceholder(process.env.NEXT_PUBLIC_SUPABASE_URL)
-  ) {
-    return {
-      user: {
-        id: 'dev-admin',
-        email: 'admin@asa-fashion.com',
-        role: 'admin' as const,
-        name: 'Admin',
-      },
-    }
+/** Use in server components under /admin (not on /admin/login). */
+export async function assertAdminAccess(): Promise<AdminUser> {
+  const supabase = await createServerSupabase()
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+
+  if (!user?.email) {
+    redirect('/admin/login')
   }
 
+  const dbUser = await prisma.user.findUnique({
+    where: { email: user.email },
+    select: { id: true, email: true, role: true, name: true },
+  })
+
+  if (!dbUser || dbUser.role !== 'admin') {
+    redirect('/admin/login?error=forbidden')
+  }
+
+  return { id: dbUser.id, email: dbUser.email, role: 'admin', name: dbUser.name }
+}
+
+export async function requireAdmin() {
   const supabase = await createServerSupabase()
 
   const {

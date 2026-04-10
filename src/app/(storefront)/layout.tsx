@@ -1,5 +1,6 @@
 import { Header } from '@/components/layout/header'
 import { Footer } from '@/components/layout/footer'
+import { StorefrontMain } from '@/components/layout/storefront-main'
 
 export default function StorefrontLayout({
   children,
@@ -9,7 +10,7 @@ export default function StorefrontLayout({
   return (
     <div className="min-h-screen flex flex-col">
       <Header />
-      <main className="flex-1">{children}</main>
+      <StorefrontMain>{children}</StorefrontMain>
       <Footer />
     </div>
   )

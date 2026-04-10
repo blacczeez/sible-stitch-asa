@@ -18,14 +18,14 @@ export function CheckoutContent() {
 
   if (!hydrated || items.length === 0) {
     return (
-      <div className="container mx-auto px-4 py-16 text-center">
+      <div className="container mx-auto px-4 pb-16 text-center">
         <p className="text-muted-foreground">Loading...</p>
       </div>
     )
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
+    <div className="container mx-auto px-4 pb-12 sm:pb-16">
       <h1 className="text-3xl font-serif font-bold text-asa-charcoal mb-8">
         Checkout
       </h1>

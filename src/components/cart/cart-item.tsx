@@ -16,7 +16,7 @@ export function CartItemRow({ item }: CartItemRowProps) {
   const { updateQuantity, removeItem } = useCart()
 
   return (
-    <div className="flex gap-4 p-4 bg-white rounded-lg border">
+    <div className="flex gap-4 p-4 rounded-2xl bg-white/70 backdrop-blur-md shadow-sm ring-1 ring-white/80">
       <div className="relative w-24 h-32 bg-muted rounded-md overflow-hidden flex-shrink-0">
         <Image
           src={item.image}

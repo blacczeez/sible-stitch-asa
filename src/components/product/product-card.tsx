@@ -82,7 +82,7 @@ export function ProductCard({ product }: ProductCardProps) {
   }
 
   return (
-    <div className="group relative min-w-[220px] sm:min-w-[260px]">
+    <div className="group relative">
       {/* Image Container */}
       <div className="relative aspect-[3/4] overflow-hidden rounded-2xl bg-asa-cream">
         <Link href={`/products/${product.slug}`}>

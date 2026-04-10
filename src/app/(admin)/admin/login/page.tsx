@@ -1,19 +1,31 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { createClient } from '@/lib/supabase'
+import { resolveAdminLoginEmail } from '@/lib/admin-login'
 
 export default function AdminLoginPage() {
   const router = useRouter()
   const searchParams = useSearchParams()
-  const redirect = searchParams.get('redirect') || '/admin'
+  const redirectTo = searchParams.get('redirect') || '/admin'
+  const urlError = searchParams.get('error')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+
+  useEffect(() => {
+    if (urlError === 'forbidden') {
+      setError('This account does not have admin access.')
+    } else if (urlError === 'config') {
+      setError(
+        'Supabase is not configured. Set NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY.',
+      )
+    }
+  }, [urlError])
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
@@ -21,22 +33,20 @@ export default function AdminLoginPage() {
     setError(null)
 
     const form = new FormData(e.currentTarget)
-    const email = String(form.get('email') || '')
+    const usernameOrEmail = String(form.get('username') || '')
     const password = String(form.get('password') || '')
 
-    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || ''
-    if (supabaseUrl.includes('placeholder')) {
-      setTimeout(() => {
-        router.push(redirect)
-        setLoading(false)
-      }, 300)
+    const resolved = resolveAdminLoginEmail(usernameOrEmail)
+    if ('error' in resolved) {
+      setError(resolved.error)
+      setLoading(false)
       return
     }
 
     try {
       const supabase = createClient()
       const { error: signError } = await supabase.auth.signInWithPassword({
-        email,
+        email: resolved.email,
         password,
       })
       if (signError) {
@@ -44,35 +54,35 @@ export default function AdminLoginPage() {
         setLoading(false)
         return
       }
-      router.push(redirect)
+      router.push(redirectTo)
       router.refresh()
     } catch {
-      setError('Sign in failed')
+      setError('Sign in failed.')
       setLoading(false)
     }
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-asa-cream p-4">
+    <div className="flex min-h-screen items-center justify-center bg-asa-cream p-4">
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
-          <div className="text-3xl font-serif font-bold text-asa-gold mb-2">
+          <div className="mb-2 font-serif text-3xl font-bold text-asa-gold">
             ÀṢÀ
           </div>
-          <CardTitle>Admin Login</CardTitle>
+          <CardTitle>Admin sign in</CardTitle>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <Label htmlFor="email">Email</Label>
+              <Label htmlFor="username">Username or email</Label>
               <Input
-                id="email"
-                name="email"
-                type="email"
-                defaultValue="admin@asa-fashion.com"
+                id="username"
+                name="username"
+                type="text"
+                autoComplete="username"
                 className="mt-1"
                 required
-                autoComplete="email"
+                placeholder="e.g. admin or admin@yourdomain.com"
               />
             </div>
             <div>
@@ -81,26 +91,22 @@ export default function AdminLoginPage() {
                 id="password"
                 name="password"
                 type="password"
-                defaultValue="admin123"
+                autoComplete="current-password"
                 className="mt-1"
                 required
-                autoComplete="current-password"
               />
             </div>
-            {error && (
-              <p className="text-sm text-red-600">{error}</p>
-            )}
+            {error && <p className="text-sm text-red-600">{error}</p>}
             <Button
               type="submit"
               disabled={loading}
               className="w-full bg-asa-charcoal"
             >
-              {loading ? 'Signing in...' : 'Sign In'}
+              {loading ? 'Signing in…' : 'Sign in'}
             </Button>
-            <p className="text-xs text-center text-muted-foreground">
-              With placeholder Supabase credentials, dev mode redirects without
-              signing in. Configure real Supabase + an admin user in the database
-              for production.
+            <p className="text-center text-xs text-muted-foreground">
+              Only accounts with the admin role in the database can access this
+              area. Use your Supabase user email and password.
             </p>
           </form>
         </CardContent>

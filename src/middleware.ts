@@ -1,29 +1,68 @@
-import { NextResponse } from 'next/server'
-import type { NextRequest } from 'next/server'
+import { createServerClient } from '@supabase/ssr'
+import { NextResponse, type NextRequest } from 'next/server'
 
-export function middleware(request: NextRequest) {
+export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
 
-  // Protect admin routes
-  if (pathname.startsWith('/admin') && pathname !== '/admin/login') {
-    // In development with placeholder credentials, allow access
-    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
-    if (supabaseUrl?.includes('placeholder')) {
-      return NextResponse.next()
-    }
+  let response = NextResponse.next({
+    request: {
+      headers: request.headers,
+    },
+  })
 
-    // In production, check for auth cookie
-    const hasAuth = request.cookies.has('sb-access-token') ||
-      request.cookies.getAll().some((c) => c.name.includes('auth-token'))
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL
+  const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
 
-    if (!hasAuth) {
+  if (!url || !key) {
+    if (pathname.startsWith('/admin') && pathname !== '/admin/login') {
       const loginUrl = new URL('/admin/login', request.url)
-      loginUrl.searchParams.set('redirect', pathname)
+      loginUrl.searchParams.set('error', 'config')
       return NextResponse.redirect(loginUrl)
     }
+    return response
   }
 
-  return NextResponse.next()
+  const supabase = createServerClient(url, key, {
+    cookies: {
+      getAll() {
+        return request.cookies.getAll()
+      },
+      setAll(
+        cookiesToSet: {
+          name: string
+          value: string
+          options: Record<string, unknown>
+        }[],
+      ) {
+        cookiesToSet.forEach(({ name, value }) =>
+          request.cookies.set(name, value),
+        )
+        response = NextResponse.next({
+          request: {
+            headers: request.headers,
+          },
+        })
+        cookiesToSet.forEach(({ name, value, options }) =>
+          response.cookies.set(name, value, options),
+        )
+      },
+    },
+  })
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+
+  const isLogin =
+    pathname === '/admin/login' || pathname.startsWith('/admin/login/')
+
+  if (pathname.startsWith('/admin') && !isLogin && !user) {
+    const loginUrl = new URL('/admin/login', request.url)
+    loginUrl.searchParams.set('redirect', pathname)
+    return NextResponse.redirect(loginUrl)
+  }
+
+  return response
 }
 
 export const config = {

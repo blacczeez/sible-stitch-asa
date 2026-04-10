@@ -45,6 +45,15 @@
   --font-serif: 'Cormorant Garamond', ui-serif, Georgia, serif;
 }
 
+/*
+ * Space below fixed header (announcement bar + nav). Tune if header height changes.
+ * Used by StorefrontMain and sticky sidebars (cart summary, order review).
+ */
+:root {
+  --storefront-header-offset: 8rem;
+  --storefront-header-offset-md: 7rem;
+}
+
 html {
   scroll-behavior: smooth;
 }

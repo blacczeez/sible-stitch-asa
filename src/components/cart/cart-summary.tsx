@@ -15,7 +15,7 @@ export function CartSummary() {
   const finalTotal = total + shippingCost
 
   return (
-    <div className="bg-white border rounded-lg p-6 sticky top-28">
+    <div className="rounded-2xl bg-white/65 backdrop-blur-xl p-6 shadow-[0_8px_40px_-12px_rgba(26,23,20,0.12)] ring-1 ring-white/80 sticky top-(--storefront-header-offset) md:top-(--storefront-header-offset-md)">
       <h2 className="font-semibold text-lg mb-4">Order Summary</h2>
 
       <PromoCodeInput />
@@ -60,7 +60,7 @@ export function CartSummary() {
       </div>
 
       <Button
-        className="w-full mt-6 bg-asa-charcoal hover:bg-asa-charcoal/90"
+        className="w-full mt-6 bg-asa-gold font-semibold text-asa-charcoal shadow-sm hover:bg-asa-gold/90 hover:text-asa-charcoal focus-visible:ring-asa-gold/40"
         size="lg"
         asChild
       >
