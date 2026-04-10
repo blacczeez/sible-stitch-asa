@@ -15,9 +15,20 @@ export const shippingAddressSchema = z.object({
 
 export type ShippingAddress = z.infer<typeof shippingAddressSchema>
 
-export const checkoutSessionSchema = z.object({
-  shipping: shippingAddressSchema,
-  currency: z.enum(['USD', 'GBP', 'EUR', 'CAD']).default('USD'),
+export const checkoutLineItemSchema = z.object({
+  variantId: z.string().uuid(),
+  quantity: z.number().int().min(1).max(99),
 })
 
-export type CheckoutSession = z.infer<typeof checkoutSessionSchema>
+export const checkoutBodySchema = z.object({
+  shipping: shippingAddressSchema,
+  currency: z.enum(['USD', 'GBP', 'EUR', 'CAD']).default('USD'),
+  items: z.array(checkoutLineItemSchema).min(1),
+  promoCode: z.string().nullable().optional(),
+})
+
+export type CheckoutBody = z.infer<typeof checkoutBodySchema>
+
+/** @deprecated Use checkoutBodySchema */
+export const checkoutSessionSchema = checkoutBodySchema
+export type CheckoutSession = CheckoutBody

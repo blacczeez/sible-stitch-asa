@@ -1,56 +1,47 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { mockProducts } from '@/lib/mock-data'
+import { Prisma } from '@prisma/client'
+import { requireAdmin } from '@/lib/admin-auth'
+import { prisma } from '@/lib/prisma'
+import { mapProduct } from '@/lib/data/mappers'
 import { inventoryUpdateSchema } from '@/validations/admin'
 
-export async function GET(request: NextRequest) {
-  try {
-    const { searchParams } = new URL(request.url)
-    const filter = searchParams.get('filter') // 'low-stock' | 'out-of-stock' | null
-    const search = searchParams.get('search')
+const include = {
+  category: true,
+  variants: true,
+  reviews: { select: { rating: true } },
+} satisfies Prisma.ProductInclude
 
-    // Build inventory view from product variants
-    let inventoryItems = mockProducts.flatMap((product) =>
-      product.variants.map((variant) => ({
+export async function GET() {
+  const auth = await requireAdmin()
+  if ('error' in auth) return auth.error
+
+  try {
+    const products = await prisma.product.findMany({
+      include,
+      orderBy: { createdAt: 'desc' },
+    })
+
+    const inventoryItems = products.flatMap((product) =>
+      product.variants.map((v) => ({
+        variantId: v.id,
+        sku: v.sku,
         productId: product.id,
         productName: product.name,
-        productSlug: product.slug,
-        variantId: variant.id,
-        sku: variant.sku,
-        size: variant.size,
-        color: variant.color,
-        stock: variant.stock,
-        price: variant.price || product.price,
-        status: variant.stock === 0 ? 'out-of-stock' : variant.stock <= 5 ? 'low-stock' : 'in-stock',
+        size: v.size,
+        color: v.color,
+        stock: v.stock,
+        price: v.price?.toNumber() ?? product.price.toNumber(),
       }))
     )
 
-    // Filter by stock status
-    if (filter === 'low-stock') {
-      inventoryItems = inventoryItems.filter((item) => item.stock > 0 && item.stock <= 5)
-    } else if (filter === 'out-of-stock') {
-      inventoryItems = inventoryItems.filter((item) => item.stock === 0)
-    }
-
-    // Filter by search
-    if (search) {
-      const term = search.toLowerCase()
-      inventoryItems = inventoryItems.filter(
-        (item) =>
-          item.productName.toLowerCase().includes(term) ||
-          item.sku.toLowerCase().includes(term)
-      )
-    }
-
-    const summary = {
-      totalVariants: inventoryItems.length,
-      inStock: inventoryItems.filter((i) => i.status === 'in-stock').length,
-      lowStock: inventoryItems.filter((i) => i.status === 'low-stock').length,
-      outOfStock: inventoryItems.filter((i) => i.status === 'out-of-stock').length,
-    }
-
     return NextResponse.json({
-      inventory: inventoryItems,
-      summary,
+      inventoryItems,
+      products: products.map((p) =>
+        mapProduct({
+          ...p,
+          reviews: p.reviews.map((r) => ({ rating: r.rating })),
+        })
+      ),
     })
   } catch (error) {
     console.error('Error fetching inventory:', error)
@@ -62,31 +53,39 @@ export async function GET(request: NextRequest) {
 }
 
 export async function PATCH(request: NextRequest) {
+  const auth = await requireAdmin()
+  if ('error' in auth) return auth.error
+
   try {
     const body = await request.json()
-
     const parsed = inventoryUpdateSchema.safeParse(body)
     if (!parsed.success) {
       return NextResponse.json(
-        { error: 'Invalid inventory update data', details: parsed.error.flatten() },
+        { error: 'Invalid inventory update', details: parsed.error.flatten() },
         { status: 400 }
       )
     }
 
     const { variantId, action, quantity } = parsed.data
 
-    // In production, this would update the variant stock in the database via Prisma
-    // action: 'set' -> set stock to quantity
-    // action: 'add' -> add quantity to current stock
-    // action: 'remove' -> subtract quantity from current stock
-
-    return NextResponse.json({
-      success: true,
-      message: `Inventory updated: ${action} ${quantity} for variant ${variantId}`,
-      variantId,
-      action,
-      quantity,
+    const variant = await prisma.productVariant.findUnique({
+      where: { id: variantId },
     })
+    if (!variant) {
+      return NextResponse.json({ error: 'Variant not found' }, { status: 404 })
+    }
+
+    let next = variant.stock
+    if (action === 'set') next = quantity
+    if (action === 'add') next = variant.stock + quantity
+    if (action === 'remove') next = Math.max(0, variant.stock - quantity)
+
+    await prisma.productVariant.update({
+      where: { id: variantId },
+      data: { stock: next },
+    })
+
+    return NextResponse.json({ success: true, stock: next })
   } catch (error) {
     console.error('Error updating inventory:', error)
     return NextResponse.json(

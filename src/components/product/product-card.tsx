@@ -16,6 +16,31 @@ interface ProductCardProps {
   product: Product
 }
 
+function getBadge(product: Product): { label: string; className: string } | null {
+  if (product.comparePrice && product.comparePrice > product.price) {
+    return {
+      label: 'Promotion',
+      className: 'bg-asa-terracotta text-white',
+    }
+  }
+  const createdDate = new Date(product.createdAt)
+  const thirtyDaysAgo = new Date()
+  thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 60)
+  if (createdDate > thirtyDaysAgo) {
+    return {
+      label: 'New',
+      className: 'bg-asa-charcoal text-white',
+    }
+  }
+  if (product.reviewCount >= 20) {
+    return {
+      label: 'Customer Favorite',
+      className: 'bg-asa-gold text-asa-charcoal',
+    }
+  }
+  return null
+}
+
 export function ProductCard({ product }: ProductCardProps) {
   const { toggleWishlist, isInWishlist } = useWishlist()
   const addItem = useCartStore((s) => s.addItem)
@@ -23,6 +48,7 @@ export function ProductCard({ product }: ProductCardProps) {
   const wishlisted = isInWishlist(product.id)
 
   const defaultVariant = product.variants.find((v) => v.stock > 0)
+  const badge = getBadge(product)
 
   function handleQuickAdd(e: React.MouseEvent) {
     e.preventDefault()
@@ -56,9 +82,9 @@ export function ProductCard({ product }: ProductCardProps) {
   }
 
   return (
-    <div className="group relative">
+    <div className="group relative min-w-[220px] sm:min-w-[260px]">
       {/* Image Container */}
-      <div className="relative aspect-[3/4] overflow-hidden rounded-lg bg-asa-cream">
+      <div className="relative aspect-[3/4] overflow-hidden rounded-2xl bg-asa-cream">
         <Link href={`/products/${product.slug}`}>
           <Image
             src={product.images[0] ?? '/placeholder.png'}
@@ -69,11 +95,23 @@ export function ProductCard({ product }: ProductCardProps) {
           />
         </Link>
 
+        {/* Badge */}
+        {badge && (
+          <span
+            className={cn(
+              'absolute top-3 left-3 z-10 px-3 py-1 rounded-full text-[10px] font-semibold tracking-wide uppercase',
+              badge.className
+            )}
+          >
+            {badge.label}
+          </span>
+        )}
+
         {/* Wishlist Button */}
         <Button
           variant="ghost"
           size="icon"
-          className="absolute top-2 right-2 z-10 size-8 rounded-full bg-white/80 backdrop-blur-sm hover:bg-white"
+          className="absolute top-3 right-3 z-10 size-8 rounded-full bg-white/80 backdrop-blur-sm hover:bg-white"
           onClick={handleToggleWishlist}
           aria-label={wishlisted ? 'Remove from wishlist' : 'Add to wishlist'}
         >
@@ -90,7 +128,7 @@ export function ProductCard({ product }: ProductCardProps) {
         {/* Quick Add Button */}
         <div className="absolute inset-x-0 bottom-0 translate-y-full p-3 transition-transform duration-300 group-hover:translate-y-0">
           <Button
-            className="w-full bg-asa-charcoal text-white hover:bg-asa-charcoal/90"
+            className="w-full bg-asa-gold text-asa-charcoal hover:bg-asa-gold/90 rounded-full font-semibold"
             size="sm"
             onClick={handleQuickAdd}
             disabled={!defaultVariant}
@@ -103,13 +141,15 @@ export function ProductCard({ product }: ProductCardProps) {
 
       {/* Product Info */}
       <div className="mt-3 space-y-1">
+        <p className="text-[10px] font-semibold tracking-[0.15em] uppercase text-asa-gold">
+          {product.category.name}
+        </p>
         <Link
           href={`/products/${product.slug}`}
-          className="block text-sm font-medium text-asa-charcoal hover:text-asa-wine transition-colors line-clamp-1"
+          className="block text-sm font-serif font-medium text-asa-charcoal hover:text-asa-wine transition-colors line-clamp-1"
         >
           {product.name}
         </Link>
-        <p className="text-xs text-muted-foreground">{product.category.name}</p>
         <PriceDisplay
           price={product.price}
           comparePrice={product.comparePrice}

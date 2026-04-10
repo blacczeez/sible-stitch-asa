@@ -10,24 +10,29 @@ export function MobileNav() {
 
   return (
     <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
-      <SheetContent side="left" className="w-80">
+      <SheetContent side="left" className="w-80 bg-asa-cream">
         <SheetHeader>
-          <SheetTitle className="text-2xl font-serif text-asa-gold">
+          <SheetTitle className="text-3xl font-serif font-bold text-asa-charcoal">
             ÀṢÀ
           </SheetTitle>
         </SheetHeader>
-        <nav className="mt-8 flex flex-col gap-1">
+        <nav className="mt-10 flex flex-col gap-1">
           {NAV_LINKS.map((link) => (
             <Link
               key={link.href}
               href={link.href}
               onClick={() => setMobileMenuOpen(false)}
-              className="px-4 py-3 text-lg font-medium rounded-md hover:bg-secondary transition-colors"
+              className="px-4 py-3.5 text-lg font-serif font-medium tracking-wide text-asa-charcoal hover:text-asa-gold hover:bg-white/60 rounded-lg transition-colors"
             >
               {link.label}
             </Link>
           ))}
         </nav>
+        <div className="mt-auto pt-10 px-4">
+          <p className="text-xs text-muted-foreground tracking-widest uppercase">
+            Premium African Fashion
+          </p>
+        </div>
       </SheetContent>
     </Sheet>
   )

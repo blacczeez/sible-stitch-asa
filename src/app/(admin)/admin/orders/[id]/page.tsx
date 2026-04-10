@@ -1,18 +1,34 @@
 'use client'
 
-import { useRouter } from 'next/navigation'
+import { useParams, useRouter } from 'next/navigation'
+import { useEffect, useState } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
 import { Separator } from '@/components/ui/separator'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { mockOrders } from '@/lib/mock-data'
 import { formatCurrency, formatDate } from '@/lib/utils'
 import { toast } from 'sonner'
+import type { Order } from '@/types'
 
-const statusOptions = ['pending', 'paid', 'processing', 'shipped', 'delivered', 'canceled']
+const statusOptions = [
+  'pending',
+  'paid',
+  'processing',
+  'shipped',
+  'delivered',
+  'canceled',
+  'refunded',
+]
+
 const statusColors: Record<string, string> = {
   pending: 'bg-yellow-100 text-yellow-800',
   paid: 'bg-blue-100 text-blue-800',
@@ -20,14 +36,77 @@ const statusColors: Record<string, string> = {
   shipped: 'bg-purple-100 text-purple-800',
   delivered: 'bg-green-100 text-green-800',
   canceled: 'bg-red-100 text-red-800',
+  refunded: 'bg-gray-100 text-gray-800',
 }
 
 export default function AdminOrderDetailPage() {
   const router = useRouter()
-  const order = mockOrders[0]
+  const params = useParams<{ id: string }>()
+  const id = params.id
 
-  const handleStatusUpdate = () => {
-    toast.success('Order status updated (mock)')
+  const [order, setOrder] = useState<Order | null>(null)
+  const [loading, setLoading] = useState(true)
+  const [status, setStatus] = useState<string>('')
+  const [trackingNumber, setTrackingNumber] = useState('')
+  const [trackingCarrier, setTrackingCarrier] = useState('')
+
+  useEffect(() => {
+    let cancelled = false
+
+    async function load() {
+      if (!id) return
+      setLoading(true)
+      try {
+        const res = await fetch(`/api/admin/orders/${id}`, {
+          credentials: 'include',
+        })
+        const data = await res.json()
+        if (!cancelled && res.ok && data.order) {
+          const o = data.order as Order
+          setOrder(o)
+          setStatus(o.status)
+          setTrackingNumber(o.trackingNumber || '')
+          setTrackingCarrier(o.trackingCarrier || '')
+        }
+      } finally {
+        if (!cancelled) setLoading(false)
+      }
+    }
+
+    void load()
+    return () => {
+      cancelled = true
+    }
+  }, [id])
+
+  async function handleStatusUpdate() {
+    if (!id || !order) return
+    try {
+      const res = await fetch(`/api/admin/orders/${id}`, {
+        method: 'PATCH',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          status,
+          trackingNumber: trackingNumber || undefined,
+          trackingCarrier: trackingCarrier || undefined,
+        }),
+      })
+      const data = await res.json()
+      if (!res.ok) throw new Error('Update failed')
+      setOrder(data.order)
+      toast.success('Order updated')
+    } catch {
+      toast.error('Could not update order')
+    }
+  }
+
+  if (loading || !order) {
+    return (
+      <div className="max-w-4xl space-y-6">
+        <p className="text-muted-foreground">Loading...</p>
+      </div>
+    )
   }
 
   return (
@@ -44,19 +123,25 @@ export default function AdminOrderDetailPage() {
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2 space-y-6">
-          {/* Items */}
           <Card>
             <CardHeader>
               <CardTitle>Order Items</CardTitle>
             </CardHeader>
             <CardContent>
               {order.items.map((item) => (
-                <div key={item.id} className="flex justify-between py-3 border-b last:border-0">
+                <div
+                  key={item.id}
+                  className="flex justify-between py-3 border-b last:border-0"
+                >
                   <div>
                     <p className="font-medium text-sm">{item.productName}</p>
-                    <p className="text-xs text-muted-foreground">{item.variantName} &times; {item.quantity}</p>
+                    <p className="text-xs text-muted-foreground">
+                      {item.variantName} &times; {item.quantity}
+                    </p>
                   </div>
-                  <p className="font-medium text-sm">{formatCurrency(item.totalPrice)}</p>
+                  <p className="font-medium text-sm">
+                    {formatCurrency(item.totalPrice)}
+                  </p>
                 </div>
               ))}
               <Separator className="my-3" />
@@ -73,7 +158,9 @@ export default function AdminOrderDetailPage() {
                 )}
                 <div className="flex justify-between">
                   <span>Shipping</span>
-                  <span>{order.shipping === 0 ? 'Free' : formatCurrency(order.shipping)}</span>
+                  <span>
+                    {order.shipping === 0 ? 'Free' : formatCurrency(order.shipping)}
+                  </span>
                 </div>
                 <div className="flex justify-between font-semibold text-base pt-2">
                   <span>Total</span>
@@ -83,7 +170,6 @@ export default function AdminOrderDetailPage() {
             </CardContent>
           </Card>
 
-          {/* Shipping */}
           <Card>
             <CardHeader>
               <CardTitle>Shipping Address</CardTitle>
@@ -92,13 +178,15 @@ export default function AdminOrderDetailPage() {
               <p className="font-medium">{order.shippingAddress.name}</p>
               <p>{order.shippingAddress.line1}</p>
               {order.shippingAddress.line2 && <p>{order.shippingAddress.line2}</p>}
-              <p>{order.shippingAddress.city}, {order.shippingAddress.state} {order.shippingAddress.postalCode}</p>
+              <p>
+                {order.shippingAddress.city}, {order.shippingAddress.state}{' '}
+                {order.shippingAddress.postalCode}
+              </p>
               <p>{order.shippingAddress.country}</p>
             </CardContent>
           </Card>
         </div>
 
-        {/* Status Update */}
         <Card>
           <CardHeader>
             <CardTitle>Update Status</CardTitle>
@@ -106,7 +194,7 @@ export default function AdminOrderDetailPage() {
           <CardContent className="space-y-4">
             <div>
               <Label>Status</Label>
-              <Select defaultValue={order.status}>
+              <Select value={status} onValueChange={setStatus}>
                 <SelectTrigger className="mt-1">
                   <SelectValue />
                 </SelectTrigger>
@@ -121,16 +209,33 @@ export default function AdminOrderDetailPage() {
             </div>
             <div>
               <Label>Tracking Number</Label>
-              <Input defaultValue={order.trackingNumber || ''} className="mt-1" />
+              <Input
+                value={trackingNumber}
+                onChange={(e) => setTrackingNumber(e.target.value)}
+                className="mt-1"
+              />
             </div>
             <div>
               <Label>Carrier</Label>
-              <Input defaultValue={order.trackingCarrier || ''} className="mt-1" />
+              <Input
+                value={trackingCarrier}
+                onChange={(e) => setTrackingCarrier(e.target.value)}
+                className="mt-1"
+              />
             </div>
-            <Button onClick={handleStatusUpdate} className="w-full bg-asa-charcoal">
+            <Button
+              type="button"
+              onClick={handleStatusUpdate}
+              className="w-full bg-asa-charcoal"
+            >
               Update Order
             </Button>
-            <Button variant="outline" className="w-full" onClick={() => router.back()}>
+            <Button
+              type="button"
+              variant="outline"
+              className="w-full"
+              onClick={() => router.back()}
+            >
               Back to Orders
             </Button>
           </CardContent>

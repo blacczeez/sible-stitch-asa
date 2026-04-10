@@ -1,5 +1,6 @@
 'use client'
 
+import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -11,12 +12,32 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Checkbox } from '@/components/ui/checkbox'
 import { createProductSchema, type CreateProduct } from '@/validations/product'
-import { mockCategories } from '@/lib/mock-data'
+import type { Category } from '@/types'
 import { slugify } from '@/lib/utils'
 import { toast } from 'sonner'
 
 export default function NewProductPage() {
   const router = useRouter()
+  const [categories, setCategories] = useState<Category[]>([])
+
+  useEffect(() => {
+    let cancelled = false
+    async function load() {
+      try {
+        const res = await fetch('/api/categories')
+        const data = await res.json()
+        if (!cancelled && res.ok) {
+          setCategories(data.categories ?? [])
+        }
+      } catch {
+        if (!cancelled) setCategories([])
+      }
+    }
+    void load()
+    return () => {
+      cancelled = true
+    }
+  }, [])
   const {
     register,
     handleSubmit,
@@ -29,15 +50,37 @@ export default function NewProductPage() {
       status: 'draft',
       isFeatured: false,
       images: ['https://picsum.photos/seed/new/800/1000'],
-      variants: [{ size: 'M', color: 'Default', sku: '', stock: 0 }],
+      variants: [
+        { size: 'M', color: 'Default', sku: `NEW-${Date.now().toString(36)}`, stock: 10 },
+      ],
     },
   })
 
   const name = watch('name')
 
-  const onSubmit = async (_data: CreateProduct) => {
-    toast.success('Product created (mock)')
-    router.push('/admin/products')
+  useEffect(() => {
+    if (name) setValue('slug', slugify(name))
+  }, [name, setValue])
+
+  const onSubmit = async (data: CreateProduct) => {
+    const slug = (data.slug && data.slug.trim()) || slugify(data.name)
+    try {
+      const res = await fetch('/api/admin/products', {
+        method: 'POST',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ...data, slug }),
+      })
+      const err = await res.json().catch(() => ({}))
+      if (!res.ok) {
+        toast.error(err.error || 'Could not create product')
+        return
+      }
+      toast.success('Product created')
+      router.push('/admin/products')
+    } catch {
+      toast.error('Could not create product')
+    }
   }
 
   return (
@@ -57,12 +100,7 @@ export default function NewProductPage() {
             </div>
             <div>
               <Label htmlFor="slug">Slug</Label>
-              <Input
-                id="slug"
-                {...register('slug')}
-                value={name ? slugify(name) : ''}
-                className="mt-1"
-              />
+              <Input id="slug" {...register('slug')} className="mt-1" readOnly />
             </div>
             <div>
               <Label htmlFor="description">Description</Label>
@@ -95,7 +133,7 @@ export default function NewProductPage() {
                   <SelectValue placeholder="Select category" />
                 </SelectTrigger>
                 <SelectContent>
-                  {mockCategories.map((cat) => (
+                  {categories.map((cat) => (
                     <SelectItem key={cat.id} value={cat.id}>
                       {cat.name}
                     </SelectItem>

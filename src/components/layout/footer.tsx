@@ -24,18 +24,18 @@ const footerLinks = {
 
 export function Footer() {
   return (
-    <footer className="bg-asa-charcoal text-white">
-      <div className="container mx-auto px-4 py-12">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+    <footer className="bg-asa-charcoal text-white border-t-2 border-asa-gold">
+      <div className="container mx-auto px-4 py-14">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-10">
           {/* Brand */}
-          <div>
-            <Link href="/" className="text-3xl font-serif font-bold text-asa-gold">
+          <div className="lg:col-span-2">
+            <Link href="/" className="text-3xl font-serif font-bold text-white">
               ÀṢÀ
             </Link>
-            <p className="mt-3 text-sm text-gray-400">
+            <p className="mt-3 text-sm text-gray-400 max-w-xs leading-relaxed">
               {BRAND.tagline}. Celebrating African heritage through modern fashion.
             </p>
-            <div className="flex gap-4 mt-4">
+            <div className="flex gap-4 mt-5">
               <a href={BRAND.social.instagram} target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-asa-gold transition-colors text-sm">
                 Instagram
               </a>
@@ -50,11 +50,13 @@ export function Footer() {
 
           {/* Shop */}
           <div>
-            <h3 className="font-semibold mb-4">Shop</h3>
-            <ul className="space-y-2">
+            <h3 className="font-serif text-lg font-semibold mb-4">
+              <span className="text-asa-gold">—</span> Shop
+            </h3>
+            <ul className="space-y-2.5">
               {footerLinks.shop.map((link) => (
                 <li key={link.href}>
-                  <Link href={link.href} className="text-sm text-gray-400 hover:text-white transition-colors">
+                  <Link href={link.href} className="text-sm text-gray-400 hover:text-asa-gold transition-colors">
                     {link.label}
                   </Link>
                 </li>
@@ -64,11 +66,13 @@ export function Footer() {
 
           {/* Help */}
           <div>
-            <h3 className="font-semibold mb-4">Help</h3>
-            <ul className="space-y-2">
+            <h3 className="font-serif text-lg font-semibold mb-4">
+              <span className="text-asa-gold">—</span> Help
+            </h3>
+            <ul className="space-y-2.5">
               {footerLinks.help.map((link) => (
                 <li key={link.label}>
-                  <Link href={link.href} className="text-sm text-gray-400 hover:text-white transition-colors">
+                  <Link href={link.href} className="text-sm text-gray-400 hover:text-asa-gold transition-colors">
                     {link.label}
                   </Link>
                 </li>
@@ -78,27 +82,31 @@ export function Footer() {
 
           {/* Newsletter */}
           <div>
-            <h3 className="font-semibold mb-4">Stay Connected</h3>
+            <h3 className="font-serif text-lg font-semibold mb-4">
+              <span className="text-asa-gold">—</span> Stay Connected
+            </h3>
             <p className="text-sm text-gray-400 mb-3">
               Subscribe for exclusive offers and new arrivals.
             </p>
-            <form className="flex gap-2" action="#">
-              <input
-                type="email"
-                placeholder="Your email"
-                className="flex-1 px-3 py-2 bg-white/10 border border-white/20 rounded-md text-sm placeholder:text-gray-500 focus:outline-none focus:ring-1 focus:ring-asa-gold"
-              />
-              <button
-                type="submit"
-                className="px-4 py-2 bg-asa-gold text-asa-charcoal font-medium rounded-md text-sm hover:bg-asa-gold/90 transition-colors"
-              >
-                Join
-              </button>
+            <form className="flex" action="#">
+              <div className="flex w-full rounded-full overflow-hidden border border-white/20 focus-within:border-asa-gold transition-colors">
+                <input
+                  type="email"
+                  placeholder="Your email"
+                  className="flex-1 px-4 py-2 bg-transparent text-sm placeholder:text-gray-500 focus:outline-none min-w-0"
+                />
+                <button
+                  type="submit"
+                  className="px-4 py-2 bg-asa-gold text-asa-charcoal font-medium text-sm hover:bg-asa-gold/90 transition-colors whitespace-nowrap"
+                >
+                  Join
+                </button>
+              </div>
             </form>
           </div>
         </div>
 
-        <div className="border-t border-white/10 mt-10 pt-6 flex flex-col md:flex-row justify-between items-center gap-4">
+        <div className="border-t border-white/10 mt-12 pt-6 flex flex-col md:flex-row justify-between items-center gap-4">
           <p className="text-xs text-gray-500">
             &copy; {new Date().getFullYear()} ÀṢÀ Fashion. All rights reserved.
           </p>

@@ -1,11 +1,14 @@
 import { NextResponse } from 'next/server'
-import { mockDashboardStats } from '@/lib/mock-data'
+import { requireAdmin } from '@/lib/admin-auth'
+import { getDashboardStats } from '@/lib/data/dashboard'
 
 export async function GET() {
+  const auth = await requireAdmin()
+  if ('error' in auth) return auth.error
+
   try {
-    // In production, this would query the database for real-time stats
-    // and verify admin authentication
-    return NextResponse.json(mockDashboardStats)
+    const stats = await getDashboardStats()
+    return NextResponse.json(stats)
   } catch (error) {
     console.error('Error fetching dashboard stats:', error)
     return NextResponse.json(

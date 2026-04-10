@@ -3,6 +3,17 @@ import { PrismaClient } from '@prisma/client'
 const prisma = new PrismaClient()
 
 async function main() {
+  // Anonymous product reviews are stored under this system user (no customer login).
+  await prisma.user.upsert({
+    where: { email: 'guest-reviews@asa.local' },
+    create: {
+      email: 'guest-reviews@asa.local',
+      name: 'Guest',
+      role: 'customer',
+    },
+    update: {},
+  })
+
   // Create categories
   const ankara = await prisma.category.create({
     data: {

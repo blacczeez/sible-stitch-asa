@@ -1,7 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { mockOrders } from '@/lib/mock-data'
+import { Prisma } from '@prisma/client'
+import { requireAdmin } from '@/lib/admin-auth'
+import { prisma } from '@/lib/prisma'
+import { mapOrder } from '@/lib/data/mappers'
 
 export async function GET(request: NextRequest) {
+  const auth = await requireAdmin()
+  if ('error' in auth) return auth.error
+
   try {
     const { searchParams } = new URL(request.url)
     const status = searchParams.get('status')
@@ -9,36 +15,35 @@ export async function GET(request: NextRequest) {
     const page = parseInt(searchParams.get('page') || '1', 10)
     const limit = parseInt(searchParams.get('limit') || '20', 10)
 
-    let filtered = [...mockOrders]
-
-    // Filter by status
-    if (status) {
-      filtered = filtered.filter((o) => o.status === status)
+    const where: Prisma.OrderWhereInput = {
+      ...(status && status !== 'all'
+        ? { status: status as Prisma.OrderWhereInput['status'] }
+        : {}),
+      ...(search
+        ? {
+            OR: [
+              { orderNumber: { contains: search, mode: 'insensitive' } },
+              { email: { contains: search, mode: 'insensitive' } },
+            ],
+          }
+        : {}),
     }
 
-    // Filter by search (order number or email)
-    if (search) {
-      const term = search.toLowerCase()
-      filtered = filtered.filter(
-        (o) =>
-          o.orderNumber.toLowerCase().includes(term) ||
-          o.email.toLowerCase().includes(term)
-      )
-    }
+    const [totalItems, rows] = await prisma.$transaction([
+      prisma.order.count({ where }),
+      prisma.order.findMany({
+        where,
+        include: { shippingAddress: true, items: true },
+        orderBy: { createdAt: 'desc' },
+        skip: (page - 1) * limit,
+        take: limit,
+      }),
+    ])
 
-    // Sort by most recent
-    filtered.sort(
-      (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-    )
-
-    // Pagination
-    const totalItems = filtered.length
     const totalPages = Math.ceil(totalItems / limit)
-    const startIndex = (page - 1) * limit
-    const paginatedOrders = filtered.slice(startIndex, startIndex + limit)
 
     return NextResponse.json({
-      orders: paginatedOrders,
+      orders: rows.map(mapOrder),
       pagination: {
         page,
         limit,

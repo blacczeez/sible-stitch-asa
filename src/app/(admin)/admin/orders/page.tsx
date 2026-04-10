@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { Search } from 'lucide-react'
 import { Input } from '@/components/ui/input'
@@ -15,8 +15,8 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
-import { mockDashboardStats } from '@/lib/mock-data'
 import { formatCurrency, formatDate } from '@/lib/utils'
+import type { Order } from '@/types'
 
 const statusColors: Record<string, string> = {
   pending: 'bg-yellow-100 text-yellow-800',
@@ -25,19 +25,59 @@ const statusColors: Record<string, string> = {
   shipped: 'bg-purple-100 text-purple-800',
   delivered: 'bg-green-100 text-green-800',
   canceled: 'bg-red-100 text-red-800',
+  refunded: 'bg-gray-100 text-gray-800',
 }
 
 export default function AdminOrdersPage() {
   const [statusFilter, setStatusFilter] = useState('all')
   const [search, setSearch] = useState('')
+  const [orders, setOrders] = useState<Order[]>([])
+  const [loading, setLoading] = useState(true)
 
-  const orders = mockDashboardStats.recentOrders.filter((o) => {
+  useEffect(() => {
+    let cancelled = false
+
+    async function load() {
+      setLoading(true)
+      try {
+        const res = await fetch('/api/admin/orders?limit=200', {
+          credentials: 'include',
+        })
+        const data = await res.json()
+        if (!cancelled && res.ok) {
+          setOrders(data.orders ?? [])
+        }
+      } catch {
+        if (!cancelled) setOrders([])
+      } finally {
+        if (!cancelled) setLoading(false)
+      }
+    }
+
+    void load()
+    return () => {
+      cancelled = true
+    }
+  }, [])
+
+  const filtered = orders.filter((o) => {
     const matchesStatus = statusFilter === 'all' || o.status === statusFilter
+    const term = search.toLowerCase()
     const matchesSearch =
-      o.orderNumber.toLowerCase().includes(search.toLowerCase()) ||
-      o.customer.toLowerCase().includes(search.toLowerCase())
+      o.orderNumber.toLowerCase().includes(term) ||
+      o.email.toLowerCase().includes(term) ||
+      o.shippingAddress.name.toLowerCase().includes(term)
     return matchesStatus && matchesSearch
   })
+
+  if (loading) {
+    return (
+      <div className="space-y-6">
+        <h1 className="text-2xl font-bold">Orders</h1>
+        <p className="text-muted-foreground">Loading...</p>
+      </div>
+    )
+  }
 
   return (
     <div className="space-y-6">
@@ -77,12 +117,14 @@ export default function AdminOrdersPage() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {orders.map((order) => (
+            {filtered.map((order) => (
               <TableRow key={order.id}>
                 <TableCell className="font-medium text-sm">
                   {order.orderNumber}
                 </TableCell>
-                <TableCell className="text-sm">{order.customer}</TableCell>
+                <TableCell className="text-sm">
+                  {order.shippingAddress.name}
+                </TableCell>
                 <TableCell>
                   <Badge className={statusColors[order.status]}>
                     {order.status}

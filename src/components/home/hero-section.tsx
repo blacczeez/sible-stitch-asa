@@ -1,40 +1,56 @@
 import Link from 'next/link'
-import { Button } from '@/components/ui/button'
+import Image from 'next/image'
+import { ArrowRight } from 'lucide-react'
 
 export function HeroSection() {
   return (
-    <section className="relative bg-asa-charcoal text-white overflow-hidden">
-      <div className="absolute inset-0 bg-gradient-to-r from-asa-charcoal via-asa-charcoal/95 to-asa-charcoal/70" />
-      <div className="relative container mx-auto px-4 py-24 md:py-32 lg:py-40">
+    <section className="relative h-[90vh] min-h-[600px] overflow-hidden">
+      {/* Background Image */}
+      <Image
+        src="https://picsum.photos/seed/asa-hero/1920/1080"
+        alt="Premium African Fashion"
+        fill
+        className="object-cover"
+        priority
+        sizes="100vw"
+      />
+
+      {/* Gradient Overlay */}
+      <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/40 to-black/20" />
+
+      {/* Content */}
+      <div className="relative h-full container mx-auto px-4 flex items-end pb-20 md:items-center md:pb-0">
         <div className="max-w-2xl">
-          <p className="text-asa-gold text-sm font-medium tracking-widest uppercase mb-4">
-            Premium African Fashion
+          <p className="text-asa-gold text-xs font-semibold tracking-[0.25em] uppercase mb-5">
+            New Collection 2026
           </p>
-          <h1 className="text-4xl md:text-5xl lg:text-6xl font-serif font-bold leading-tight mb-6">
-            Wear Your Heritage
+          <h1 className="text-4xl md:text-5xl lg:text-7xl font-serif font-semibold leading-[1.1] text-white mb-6">
+            Premium African{' '}
+            <em className="italic font-light">Fashion</em>
             <br />
-            <span className="text-asa-gold">With Pride</span>
+            for the Modern Citizen
           </h1>
-          <p className="text-lg text-gray-300 mb-8 max-w-lg">
+          <p className="text-base md:text-lg text-white/70 mb-8 max-w-lg leading-relaxed">
             Discover our curated collection of Ankara prints, casual wear, and
             handcrafted accessories for the modern global citizen.
           </p>
-          <div className="flex flex-col sm:flex-row gap-4">
-            <Button
-              size="lg"
-              className="bg-asa-gold text-asa-charcoal hover:bg-asa-gold/90 font-semibold"
-              asChild
-            >
-              <Link href="/products">Shop Collection</Link>
-            </Button>
-            <Button
-              size="lg"
-              variant="outline"
-              className="border-white text-white hover:bg-white/10"
-              asChild
-            >
-              <Link href="/products?category=ankara">Explore Ankara</Link>
-            </Button>
+          <Link
+            href="/products"
+            className="inline-flex items-center gap-2 bg-asa-gold text-asa-charcoal px-8 py-3.5 rounded-full font-semibold text-sm tracking-wide hover:bg-asa-gold/90 transition-colors"
+          >
+            Shop Collection
+            <ArrowRight className="w-4 h-4" />
+          </Link>
+        </div>
+
+        {/* Floating Glassmorphism Stat Card (desktop only) */}
+        <div className="hidden lg:block absolute right-12 bottom-24">
+          <div className="bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl p-6 text-white min-w-[200px]">
+            <p className="text-3xl font-serif font-bold">500+</p>
+            <p className="text-sm text-white/70 mt-1">Handcrafted pieces</p>
+            <div className="h-px bg-white/20 my-3" />
+            <p className="text-3xl font-serif font-bold">30+</p>
+            <p className="text-sm text-white/70 mt-1">Countries shipped</p>
           </div>
         </div>
       </div>

@@ -11,7 +11,14 @@ export async function requireAdmin() {
     process.env.NODE_ENV === 'development' &&
     isPlaceholder(process.env.NEXT_PUBLIC_SUPABASE_URL)
   ) {
-    return { user: { id: 'dev-admin', email: 'admin@asa-fashion.com', role: 'admin' } }
+    return {
+      user: {
+        id: 'dev-admin',
+        email: 'admin@asa-fashion.com',
+        role: 'admin' as const,
+        name: 'Admin',
+      },
+    }
   }
 
   const supabase = await createServerSupabase()
@@ -20,15 +27,15 @@ export async function requireAdmin() {
     data: { user },
   } = await supabase.auth.getUser()
 
-  if (!user) {
+  if (!user?.email) {
     return {
       error: NextResponse.json({ error: 'Unauthorized' }, { status: 401 }),
     }
   }
 
   const dbUser = await prisma.user.findUnique({
-    where: { id: user.id },
-    select: { role: true },
+    where: { email: user.email },
+    select: { id: true, email: true, role: true, name: true },
   })
 
   if (dbUser?.role !== 'admin') {
@@ -37,5 +44,5 @@ export async function requireAdmin() {
     }
   }
 
-  return { user }
+  return { user: dbUser }
 }

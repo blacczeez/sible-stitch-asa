@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'
+import { prisma } from '@/lib/prisma'
+import { validatePromoDiscount } from '@/lib/data/orders'
 
 const validatePromoSchema = z.object({
   code: z.string().min(1),
@@ -19,22 +21,28 @@ export async function POST(request: NextRequest) {
     }
 
     const { code, subtotal } = parsed.data
-    const normalizedCode = code.toUpperCase().trim()
+    const { discount, promoCodeId } = await validatePromoDiscount({
+      code,
+      subtotal,
+    })
 
-    // Mock promo code validation
-    if (normalizedCode === 'WELCOME15' && subtotal >= 100) {
-      const discount = Math.round(subtotal * 0.15 * 100) / 100
+    if (!promoCodeId || discount <= 0) {
       return NextResponse.json({
-        valid: true,
-        discount,
-        type: 'percent',
-        value: 15,
+        valid: false,
+        message: 'Invalid promo code',
       })
     }
 
+    const promo = await prisma.promoCode.findUnique({
+      where: { id: promoCodeId },
+      select: { type: true, value: true },
+    })
+
     return NextResponse.json({
-      valid: false,
-      message: 'Invalid promo code',
+      valid: true,
+      discount,
+      type: promo?.type ?? 'percent',
+      value: promo?.value.toNumber() ?? 0,
     })
   } catch (error) {
     console.error('Error validating promo code:', error)

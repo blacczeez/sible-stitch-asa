@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { Plus, Search } from 'lucide-react'
@@ -16,8 +16,8 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
-import { mockProducts } from '@/lib/mock-data'
 import { formatCurrency } from '@/lib/utils'
+import type { Product } from '@/types'
 
 const statusColors: Record<string, string> = {
   published: 'bg-green-100 text-green-800',
@@ -26,14 +26,51 @@ const statusColors: Record<string, string> = {
 }
 
 export default function AdminProductsPage() {
+  const [products, setProducts] = useState<Product[]>([])
+  const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState('')
   const [statusFilter, setStatusFilter] = useState('all')
 
-  const filtered = mockProducts.filter((p) => {
+  useEffect(() => {
+    let cancelled = false
+
+    async function load() {
+      setLoading(true)
+      try {
+        const res = await fetch('/api/admin/products?limit=200', {
+          credentials: 'include',
+        })
+        const data = await res.json()
+        if (!cancelled && res.ok) {
+          setProducts(data.products ?? [])
+        }
+      } catch {
+        if (!cancelled) setProducts([])
+      } finally {
+        if (!cancelled) setLoading(false)
+      }
+    }
+
+    void load()
+    return () => {
+      cancelled = true
+    }
+  }, [])
+
+  const filtered = products.filter((p) => {
     const matchesSearch = p.name.toLowerCase().includes(search.toLowerCase())
     const matchesStatus = statusFilter === 'all' || p.status === statusFilter
     return matchesSearch && matchesStatus
   })
+
+  if (loading) {
+    return (
+      <div className="space-y-6">
+        <h1 className="text-2xl font-bold">Products</h1>
+        <p className="text-muted-foreground">Loading...</p>
+      </div>
+    )
+  }
 
   return (
     <div className="space-y-6">
@@ -98,14 +135,10 @@ export default function AdminProductsPage() {
                           sizes="40px"
                         />
                       </div>
-                      <span className="font-medium text-sm">
-                        {product.name}
-                      </span>
+                      <span className="font-medium text-sm">{product.name}</span>
                     </div>
                   </TableCell>
-                  <TableCell className="text-sm">
-                    {product.category.name}
-                  </TableCell>
+                  <TableCell className="text-sm">{product.category.name}</TableCell>
                   <TableCell className="text-sm">
                     {formatCurrency(product.price)}
                   </TableCell>
@@ -117,9 +150,7 @@ export default function AdminProductsPage() {
                   </TableCell>
                   <TableCell className="text-right">
                     <Button variant="ghost" size="sm" asChild>
-                      <Link href={`/admin/products/${product.id}/edit`}>
-                        Edit
-                      </Link>
+                      <Link href={`/admin/products/${product.id}/edit`}>Edit</Link>
                     </Button>
                   </TableCell>
                 </TableRow>

@@ -2,10 +2,8 @@ import { DollarSign, ShoppingCart, Package, AlertTriangle } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { StatsCard } from '@/components/admin/stats-card'
-import { mockDashboardStats } from '@/lib/mock-data'
 import { formatCurrency } from '@/lib/utils'
-
-const stats = mockDashboardStats
+import { getDashboardStats } from '@/lib/data/dashboard'
 
 const statusColors: Record<string, string> = {
   pending: 'bg-yellow-100 text-yellow-800',
@@ -15,12 +13,13 @@ const statusColors: Record<string, string> = {
   delivered: 'bg-green-100 text-green-800',
 }
 
-export default function AdminDashboardPage() {
+export default async function AdminDashboardPage() {
+  const stats = await getDashboardStats()
+
   return (
     <div className="space-y-6">
       <h1 className="text-2xl font-bold">Dashboard</h1>
 
-      {/* Stats */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <StatsCard
           title="Revenue (This Month)"
@@ -46,7 +45,6 @@ export default function AdminDashboardPage() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Recent Orders */}
         <Card>
           <CardHeader>
             <CardTitle>Recent Orders</CardTitle>
@@ -60,9 +58,7 @@ export default function AdminDashboardPage() {
                 >
                   <div>
                     <p className="text-sm font-medium">{order.orderNumber}</p>
-                    <p className="text-xs text-muted-foreground">
-                      {order.customer}
-                    </p>
+                    <p className="text-xs text-muted-foreground">{order.customer}</p>
                   </div>
                   <div className="flex items-center gap-3">
                     <Badge className={statusColors[order.status] || ''}>
@@ -78,7 +74,6 @@ export default function AdminDashboardPage() {
           </CardContent>
         </Card>
 
-        {/* Top Products */}
         <Card>
           <CardHeader>
             <CardTitle>Top Products</CardTitle>

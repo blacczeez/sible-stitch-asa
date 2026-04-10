@@ -14,7 +14,7 @@ interface CheckoutButtonProps {
 
 export function CheckoutButton({ onSubmit }: CheckoutButtonProps) {
   const router = useRouter()
-  const { items, subtotal, discount, clearCart } = useCart()
+  const { items, subtotal, discount, clearCart, promoCode } = useCart()
   const [loading, setLoading] = useState(false)
 
   const handleCheckout = onSubmit(async (data) => {
@@ -26,30 +26,29 @@ export function CheckoutButton({ onSubmit }: CheckoutButtonProps) {
         body: JSON.stringify({
           shipping: data,
           items: items.map((i) => ({
-            productId: i.productId,
             variantId: i.variantId,
             quantity: i.quantity,
-            price: i.price,
           })),
-          subtotal,
-          discount,
+          currency: 'USD',
+          promoCode: promoCode ?? null,
         }),
       })
+
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}))
+        throw new Error(err.error || 'Checkout failed')
+      }
 
       const result = await res.json()
 
       if (result.checkoutUrl) {
-        // Real Stripe checkout
         window.location.href = result.checkoutUrl
       } else if (result.orderId) {
-        // Mock checkout redirect
         clearCart()
         router.push(`/orders/${result.orderId}?success=true`)
       }
     } catch {
-      // Fallback: mock order
-      clearCart()
-      router.push('/orders/mock-order?success=true')
+      router.push('/checkout?error=1')
     } finally {
       setLoading(false)
     }

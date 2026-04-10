@@ -1,8 +1,6 @@
 'use client'
 
 import { useState } from 'react'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
 
 export function NewsletterSignup() {
   const [email, setEmail] = useState('')
@@ -16,38 +14,42 @@ export function NewsletterSignup() {
   }
 
   return (
-    <section className="bg-asa-wine text-white">
-      <div className="container mx-auto px-4 py-16 text-center">
-        <h2 className="text-3xl font-serif font-bold mb-3">
-          Join the ÀṢÀ Community
+    <section className="bg-asa-charcoal text-white">
+      <div className="container mx-auto px-4 py-20 text-center">
+        <h2 className="text-3xl md:text-4xl font-serif font-semibold mb-3">
+          Join the{' '}
+          <em className="italic text-asa-gold">ÀṢÀ</em>{' '}
+          Community
         </h2>
-        <p className="text-white/80 mb-8 max-w-md mx-auto">
+        <p className="text-white/60 mb-8 max-w-md mx-auto text-sm leading-relaxed">
           Subscribe for exclusive offers, new arrivals, and styling inspiration
           delivered to your inbox.
         </p>
         {submitted ? (
-          <p className="text-asa-gold font-medium">
+          <p className="text-asa-gold font-serif font-medium text-lg italic">
             Thank you for subscribing! Welcome to the ÀṢÀ family.
           </p>
         ) : (
           <form
             onSubmit={handleSubmit}
-            className="flex flex-col sm:flex-row gap-3 max-w-md mx-auto"
+            className="max-w-md mx-auto"
           >
-            <Input
-              type="email"
-              placeholder="Enter your email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-              className="bg-white/10 border-white/20 text-white placeholder:text-white/50 focus-visible:ring-asa-gold"
-            />
-            <Button
-              type="submit"
-              className="bg-asa-gold text-asa-charcoal hover:bg-asa-gold/90 font-semibold whitespace-nowrap"
-            >
-              Subscribe
-            </Button>
+            <div className="flex rounded-full overflow-hidden border border-white/20 focus-within:border-asa-gold transition-colors">
+              <input
+                type="email"
+                placeholder="Enter your email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+                className="flex-1 px-6 py-3 bg-transparent text-sm text-white placeholder:text-white/40 focus:outline-none min-w-0"
+              />
+              <button
+                type="submit"
+                className="px-6 py-3 bg-asa-gold text-asa-charcoal font-semibold text-sm hover:bg-asa-gold/90 transition-colors whitespace-nowrap"
+              >
+                Subscribe
+              </button>
+            </div>
           </form>
         )}
       </div>

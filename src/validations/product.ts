@@ -8,6 +8,8 @@ export const productQuerySchema = z.object({
   size: z.string().optional(),
   color: z.string().optional(),
   sort: z.enum(['newest', 'price-asc', 'price-desc', 'popular']).optional(),
+  /** Comma-separated product UUIDs (e.g. wishlist). */
+  ids: z.string().optional(),
   page: z.coerce.number().min(1).default(1),
   limit: z.coerce.number().min(1).max(50).default(12),
 })

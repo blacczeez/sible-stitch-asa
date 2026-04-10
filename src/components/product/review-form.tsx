@@ -25,9 +25,15 @@ interface ReviewFormProps {
     title: string
     body: string
   }) => Promise<void>
+  onReviewCreated?: (review: import('@/types').Review) => void
 }
 
-export function ReviewForm({ productId, productName, onSubmit }: ReviewFormProps) {
+export function ReviewForm({
+  productId,
+  productName,
+  onSubmit,
+  onReviewCreated,
+}: ReviewFormProps) {
   const [open, setOpen] = useState(false)
   const [rating, setRating] = useState(0)
   const [hoveredRating, setHoveredRating] = useState(0)
@@ -56,14 +62,19 @@ export function ReviewForm({ productId, productName, onSubmit }: ReviewFormProps
       if (onSubmit) {
         await onSubmit({ rating, title, body })
       } else {
-        const res = await fetch(`/api/products/${productId}/reviews`, {
+        const res = await fetch('/api/reviews', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ rating, title, body }),
+          body: JSON.stringify({ productId, rating, title, body }),
         })
 
         if (!res.ok) {
           throw new Error('Failed to submit review')
+        }
+
+        const data = await res.json()
+        if (data.review && onReviewCreated) {
+          onReviewCreated(data.review)
         }
       }
 

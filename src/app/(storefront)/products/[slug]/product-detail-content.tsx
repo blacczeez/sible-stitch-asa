@@ -1,8 +1,7 @@
 'use client'
 
-import { useState, useMemo } from 'react'
-import { useParams } from 'next/navigation'
-import { mockProducts, mockReviews } from '@/lib/mock-data'
+import { useEffect, useMemo, useState } from 'react'
+import type { Product, Review } from '@/types'
 import { ImageGallery } from '@/components/product/image-gallery'
 import { SizeSelector } from '@/components/product/size-selector'
 import { ColorSelector } from '@/components/product/color-selector'
@@ -17,63 +16,49 @@ import { Badge } from '@/components/ui/badge'
 import { Separator } from '@/components/ui/separator'
 import { Truck, RotateCcw, Shield } from 'lucide-react'
 
-export function ProductDetailContent() {
-  const { slug } = useParams<{ slug: string }>()
-  const product = mockProducts.find((p) => p.slug === slug)
+interface ProductDetailContentProps {
+  product: Product
+  initialReviews: Review[]
+  relatedProducts: Product[]
+}
 
+export function ProductDetailContent({
+  product,
+  initialReviews,
+  relatedProducts,
+}: ProductDetailContentProps) {
   const [selectedSize, setSelectedSize] = useState<string | null>(null)
   const [selectedColor, setSelectedColor] = useState<string | null>(null)
   const [quantity, setQuantity] = useState(1)
+  const [reviews, setReviews] = useState<Review[]>(initialReviews)
 
   const sizes = useMemo(
-    () => [...new Set(product?.variants.map((v) => v.size) || [])],
+    () => [...new Set(product.variants.map((v) => v.size))],
     [product]
   )
   const colors = useMemo(
-    () => [...new Set(product?.variants.map((v) => v.color) || [])],
+    () => [...new Set(product.variants.map((v) => v.color))],
     [product]
   )
 
+  useEffect(() => {
+    if (colors.length === 1 && !selectedColor) {
+      setSelectedColor(colors[0])
+    }
+  }, [colors, selectedColor])
+
   const selectedVariant = useMemo(() => {
-    if (!product || !selectedSize || !selectedColor) return null
+    if (!selectedSize || !selectedColor) return null
     return product.variants.find(
       (v) => v.size === selectedSize && v.color === selectedColor
     )
   }, [product, selectedSize, selectedColor])
 
-  const reviews = mockReviews.filter((r) => r.productId === product?.id)
-
-  const relatedProducts = useMemo(
-    () =>
-      mockProducts
-        .filter(
-          (p) =>
-            p.categoryId === product?.categoryId && p.id !== product?.id
-        )
-        .slice(0, 4),
-    [product]
-  )
-
-  if (!product) {
-    return (
-      <div className="container mx-auto px-4 py-16 text-center">
-        <h1 className="text-2xl font-semibold">Product not found</h1>
-      </div>
-    )
-  }
-
-  // Set default color if only one option
-  if (colors.length === 1 && !selectedColor) {
-    setSelectedColor(colors[0])
-  }
-
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12">
-        {/* Images */}
         <ImageGallery images={product.images} />
 
-        {/* Product Info */}
         <div>
           <div className="mb-4">
             <p className="text-sm text-muted-foreground mb-1">
@@ -84,7 +69,7 @@ export function ProductDetailContent() {
             </h1>
           </div>
 
-          {product.averageRating && (
+          {product.averageRating != null && (
             <div className="flex items-center gap-2 mb-4">
               <RatingStars rating={product.averageRating} />
               <span className="text-sm text-muted-foreground">
@@ -101,7 +86,11 @@ export function ProductDetailContent() {
 
           {product.comparePrice && product.comparePrice > product.price && (
             <Badge variant="secondary" className="mb-4 bg-asa-terracotta/10 text-asa-terracotta">
-              Save {Math.round(((product.comparePrice - product.price) / product.comparePrice) * 100)}%
+              Save{' '}
+              {Math.round(
+                ((product.comparePrice - product.price) / product.comparePrice) * 100
+              )}
+              %
             </Badge>
           )}
 
@@ -109,7 +98,6 @@ export function ProductDetailContent() {
 
           <Separator className="my-6" />
 
-          {/* Color Selector */}
           {colors.length > 1 && (
             <div className="mb-6">
               <label className="text-sm font-medium mb-2 block">Color</label>
@@ -121,7 +109,6 @@ export function ProductDetailContent() {
             </div>
           )}
 
-          {/* Size Selector */}
           <div className="mb-6">
             <div className="flex items-center justify-between mb-2">
               <label className="text-sm font-medium">Size</label>
@@ -137,7 +124,6 @@ export function ProductDetailContent() {
             />
           </div>
 
-          {/* Quantity */}
           <div className="mb-6">
             <label className="text-sm font-medium mb-2 block">Quantity</label>
             <QuantitySelector
@@ -147,14 +133,12 @@ export function ProductDetailContent() {
             />
           </div>
 
-          {/* Add to Cart */}
           <AddToCartButton
             product={product}
             selectedVariant={selectedVariant}
             quantity={quantity}
           />
 
-          {/* Benefits */}
           <div className="mt-8 space-y-3">
             <div className="flex items-center gap-3 text-sm text-muted-foreground">
               <Truck className="w-4 h-4" />
@@ -172,16 +156,18 @@ export function ProductDetailContent() {
         </div>
       </div>
 
-      {/* Reviews */}
       <div className="mt-16">
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-2xl font-serif font-bold">Customer Reviews</h2>
-          <ReviewForm productId={product.id} productName={product.name} />
+          <ReviewForm
+            productId={product.id}
+            productName={product.name}
+            onReviewCreated={(r) => setReviews((prev) => [r, ...prev])}
+          />
         </div>
         <ReviewList reviews={reviews} />
       </div>
 
-      {/* Related Products */}
       {relatedProducts.length > 0 && (
         <RelatedProducts products={relatedProducts} />
       )}

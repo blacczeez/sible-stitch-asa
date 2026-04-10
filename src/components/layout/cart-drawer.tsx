@@ -18,15 +18,20 @@ export function CartDrawer() {
     <Sheet open={cartDrawerOpen} onOpenChange={setCartDrawerOpen}>
       <SheetContent side="right" className="w-full sm:w-96 flex flex-col">
         <SheetHeader>
-          <SheetTitle>Shopping Bag ({hydrated ? items.length : 0})</SheetTitle>
+          <SheetTitle className="font-serif text-2xl font-semibold">
+            Shopping Bag ({hydrated ? items.length : 0})
+          </SheetTitle>
         </SheetHeader>
 
         {!hydrated || items.length === 0 ? (
           <div className="flex-1 flex items-center justify-center">
             <div className="text-center">
-              <p className="text-muted-foreground mb-4">Your bag is empty</p>
+              <p className="text-muted-foreground mb-4 font-serif italic">
+                Your bag is empty
+              </p>
               <Button
                 onClick={() => setCartDrawerOpen(false)}
+                className="bg-asa-gold text-asa-charcoal hover:bg-asa-gold/90 rounded-full px-8"
                 asChild
               >
                 <Link href="/products">Continue Shopping</Link>
@@ -38,7 +43,7 @@ export function CartDrawer() {
             <div className="flex-1 overflow-y-auto py-4 space-y-4">
               {items.map((item) => (
                 <div key={item.id} className="flex gap-3">
-                  <div className="relative w-20 h-24 bg-muted rounded-md overflow-hidden flex-shrink-0">
+                  <div className="relative w-20 h-24 bg-muted rounded-xl overflow-hidden flex-shrink-0">
                     <Image
                       src={item.image}
                       alt={item.name}
@@ -51,7 +56,7 @@ export function CartDrawer() {
                     <div className="flex justify-between">
                       <Link
                         href={`/products/${item.slug}`}
-                        className="text-sm font-medium truncate hover:text-asa-gold"
+                        className="text-sm font-serif font-medium truncate hover:text-asa-gold transition-colors"
                         onClick={() => setCartDrawerOpen(false)}
                       >
                         {item.name}
@@ -73,7 +78,7 @@ export function CartDrawer() {
                           onClick={() =>
                             updateQuantity(item.id, item.quantity - 1)
                           }
-                          className="w-7 h-7 rounded-md border flex items-center justify-center hover:bg-secondary"
+                          className="w-7 h-7 rounded-full border flex items-center justify-center hover:bg-secondary"
                         >
                           <Minus className="w-3 h-3" />
                         </button>
@@ -84,7 +89,7 @@ export function CartDrawer() {
                           onClick={() =>
                             updateQuantity(item.id, item.quantity + 1)
                           }
-                          className="w-7 h-7 rounded-md border flex items-center justify-center hover:bg-secondary"
+                          className="w-7 h-7 rounded-full border flex items-center justify-center hover:bg-secondary"
                         >
                           <Plus className="w-3 h-3" />
                         </button>
@@ -101,14 +106,16 @@ export function CartDrawer() {
             <div className="border-t pt-4 space-y-3">
               <Separator />
               <div className="flex justify-between text-sm">
-                <span>Subtotal</span>
-                <span className="font-medium">{formatCurrency(subtotal)}</span>
+                <span className="text-muted-foreground">Subtotal</span>
+                <span className="font-serif font-semibold text-base">
+                  {formatCurrency(subtotal)}
+                </span>
               </div>
               <p className="text-xs text-muted-foreground">
                 Shipping and taxes calculated at checkout
               </p>
               <Button
-                className="w-full bg-asa-charcoal hover:bg-asa-charcoal/90"
+                className="w-full bg-asa-gold text-asa-charcoal hover:bg-asa-gold/90 rounded-full font-semibold"
                 asChild
                 onClick={() => setCartDrawerOpen(false)}
               >

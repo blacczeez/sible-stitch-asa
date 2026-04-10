@@ -1,12 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { mockReviews } from '@/lib/mock-data'
 import { z } from 'zod'
+import { listReviewsForProduct, createGuestProductReview } from '@/lib/data/reviews'
 
 const createReviewSchema = z.object({
   rating: z.number().int().min(1).max(5),
   title: z.string().min(1).max(200),
   body: z.string().min(1).max(2000),
-  productId: z.string().min(1),
+  productId: z.string().uuid(),
 })
 
 export async function GET(request: NextRequest) {
@@ -21,15 +21,16 @@ export async function GET(request: NextRequest) {
       )
     }
 
-    const reviews = mockReviews.filter((r) => r.productId === productId)
+    const reviews = await listReviewsForProduct(productId)
+    const averageRating =
+      reviews.length > 0
+        ? reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length
+        : null
 
     return NextResponse.json({
       reviews,
       total: reviews.length,
-      averageRating:
-        reviews.length > 0
-          ? reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length
-          : null,
+      averageRating,
     })
   } catch (error) {
     console.error('Error fetching reviews:', error)
@@ -52,27 +53,13 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    const { rating, title, body: reviewBody, productId } = parsed.data
+    const review = await createGuestProductReview(parsed.data)
 
-    // In production, this would save to the database
-    const newReview = {
-      id: `rev-${Date.now()}`,
-      rating,
-      title,
-      body: reviewBody,
-      isVerified: false,
-      userId: 'mock-user',
-      userName: 'Guest User',
-      productId,
-      createdAt: new Date().toISOString(),
-    }
-
-    return NextResponse.json({ review: newReview }, { status: 201 })
+    return NextResponse.json({ review }, { status: 201 })
   } catch (error) {
     console.error('Error creating review:', error)
-    return NextResponse.json(
-      { error: 'Failed to create review' },
-      { status: 500 }
-    )
+    const message = error instanceof Error ? error.message : 'Failed to create review'
+    const status = message.includes('not found') ? 404 : 500
+    return NextResponse.json({ error: message }, { status })
   }
 }

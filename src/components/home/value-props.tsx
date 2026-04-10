@@ -25,14 +25,20 @@ const props = [
 
 export function ValueProps() {
   return (
-    <section className="bg-white border-y border-border">
-      <div className="container mx-auto px-4 py-12">
+    <section className="bg-asa-cream">
+      <div className="container mx-auto px-4 py-14">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
           {props.map((prop) => (
             <div key={prop.title} className="text-center">
-              <prop.icon className="w-8 h-8 mx-auto mb-3 text-asa-gold" />
-              <h3 className="font-semibold text-sm mb-1">{prop.title}</h3>
-              <p className="text-xs text-muted-foreground">{prop.description}</p>
+              <div className="w-14 h-14 rounded-full bg-asa-gold/10 flex items-center justify-center mx-auto mb-4">
+                <prop.icon className="w-6 h-6 text-asa-gold" />
+              </div>
+              <h3 className="font-serif font-semibold text-base mb-1">
+                {prop.title}
+              </h3>
+              <p className="text-xs text-muted-foreground leading-relaxed">
+                {prop.description}
+              </p>
             </div>
           ))}
         </div>

@@ -1,14 +1,14 @@
 'use client'
 
 import { useParams, useSearchParams } from 'next/navigation'
-import { Suspense } from 'react'
+import { Suspense, useEffect, useState } from 'react'
 import { CheckCircle, Package, Truck, MapPin } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Separator } from '@/components/ui/separator'
 import { Button } from '@/components/ui/button'
-import { mockOrders } from '@/lib/mock-data'
 import { formatCurrency, formatDate } from '@/lib/utils'
+import type { Order } from '@/types'
 import Link from 'next/link'
 
 const statusConfig: Record<string, { label: string; color: string }> = {
@@ -35,48 +35,61 @@ function OrderContent() {
   const searchParams = useSearchParams()
   const isSuccess = searchParams.get('success') === 'true'
 
-  // Use mock order data
-  const order = mockOrders[0] || {
-    id,
-    orderNumber: `ASA-${id?.slice(0, 8).toUpperCase()}`,
-    status: 'paid',
-    email: 'customer@example.com',
-    subtotal: 285,
-    discount: 0,
-    shipping: 0,
-    tax: 0,
-    total: 285,
-    currency: 'USD',
-    stripePaymentId: null,
-    paidAt: new Date().toISOString(),
-    shippedAt: null,
-    deliveredAt: null,
-    trackingNumber: null,
-    trackingCarrier: null,
-    notes: null,
-    shippingAddress: {
-      id: 'addr-1',
-      name: 'Customer',
-      phone: '+1234567890',
-      line1: '123 Main St',
-      line2: null,
-      city: 'New York',
-      state: 'NY',
-      postalCode: '10001',
-      country: 'US',
-    },
-    items: [
-      {
-        id: 'oi-1',
-        productName: 'Ankara Blazer - Gold Pattern',
-        variantName: 'M / Gold',
-        quantity: 1,
-        unitPrice: 285,
-        totalPrice: 285,
-      },
-    ],
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
+  const [order, setOrder] = useState<Order | null>(null)
+  const [error, setError] = useState<string | null>(null)
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    let cancelled = false
+
+    async function load() {
+      if (!id) return
+      setLoading(true)
+      try {
+        const res = await fetch(`/api/orders/${id}`)
+        const data = await res.json()
+        if (!cancelled) {
+          if (res.ok && data.order) {
+            setOrder(data.order)
+            setError(null)
+          } else {
+            setOrder(null)
+            setError('Order not found')
+          }
+        }
+      } catch {
+        if (!cancelled) {
+          setOrder(null)
+          setError('Failed to load order')
+        }
+      } finally {
+        if (!cancelled) setLoading(false)
+      }
+    }
+
+    void load()
+    return () => {
+      cancelled = true
+    }
+  }, [id])
+
+  if (loading) {
+    return (
+      <div className="container mx-auto px-4 py-16 text-center max-w-3xl">
+        <p className="text-muted-foreground">Loading order...</p>
+      </div>
+    )
+  }
+
+  if (error || !order) {
+    return (
+      <div className="container mx-auto px-4 py-16 text-center max-w-3xl">
+        <h1 className="text-2xl font-semibold mb-2">{error || 'Order not found'}</h1>
+        <Button asChild variant="outline" className="mt-4">
+          <Link href="/products">Continue shopping</Link>
+        </Button>
+      </div>
+    )
   }
 
   const currentStepIndex = statusOrder.indexOf(order.status)
@@ -91,7 +104,7 @@ function OrderContent() {
             Order Confirmed!
           </h1>
           <p className="text-green-700">
-            Thank you for your purchase. A confirmation email has been sent to{' '}
+            Thank you for your purchase. A confirmation email will be sent to{' '}
             <strong>{order.email}</strong>
           </p>
         </div>
@@ -100,9 +113,7 @@ function OrderContent() {
       <Card className="mb-6">
         <CardHeader>
           <div className="flex items-center justify-between">
-            <CardTitle className="text-xl">
-              Order {order.orderNumber}
-            </CardTitle>
+            <CardTitle className="text-xl">Order {order.orderNumber}</CardTitle>
             <Badge className={statusInfo.color}>{statusInfo.label}</Badge>
           </div>
           <p className="text-sm text-muted-foreground">
@@ -110,7 +121,6 @@ function OrderContent() {
           </p>
         </CardHeader>
         <CardContent>
-          {/* Timeline */}
           <div className="flex items-center justify-between mb-8">
             {timelineSteps.map((step, idx) => {
               const stepIdx = statusOrder.indexOf(step.key)
@@ -158,7 +168,6 @@ function OrderContent() {
 
           <Separator className="my-4" />
 
-          {/* Items */}
           <h3 className="font-semibold mb-3">Items</h3>
           <div className="space-y-3">
             {order.items.map((item) => (
@@ -169,16 +178,13 @@ function OrderContent() {
                     {item.variantName} &times; {item.quantity}
                   </p>
                 </div>
-                <p className="font-medium">
-                  {formatCurrency(item.totalPrice)}
-                </p>
+                <p className="font-medium">{formatCurrency(item.totalPrice)}</p>
               </div>
             ))}
           </div>
 
           <Separator className="my-4" />
 
-          {/* Totals */}
           <div className="space-y-2 text-sm">
             <div className="flex justify-between">
               <span>Subtotal</span>
@@ -192,7 +198,9 @@ function OrderContent() {
             )}
             <div className="flex justify-between">
               <span>Shipping</span>
-              <span>{order.shipping === 0 ? 'Free' : formatCurrency(order.shipping)}</span>
+              <span>
+                {order.shipping === 0 ? 'Free' : formatCurrency(order.shipping)}
+              </span>
             </div>
             <Separator />
             <div className="flex justify-between font-semibold text-base">
@@ -203,7 +211,6 @@ function OrderContent() {
 
           <Separator className="my-4" />
 
-          {/* Shipping Address */}
           <h3 className="font-semibold mb-2">Shipping Address</h3>
           <div className="text-sm text-muted-foreground">
             <p>{order.shippingAddress.name}</p>

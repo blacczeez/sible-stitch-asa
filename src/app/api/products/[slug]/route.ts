@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { mockProducts } from '@/lib/mock-data'
+import { getProductBySlug, getRelatedProducts } from '@/lib/data/products'
 
 export async function GET(
   request: NextRequest,
@@ -8,19 +8,17 @@ export async function GET(
   try {
     const { slug } = await params
 
-    const product = mockProducts.find((p) => p.slug === slug)
+    const product = await getProductBySlug(slug)
 
     if (!product) {
-      return NextResponse.json(
-        { error: 'Product not found' },
-        { status: 404 }
-      )
+      return NextResponse.json({ error: 'Product not found' }, { status: 404 })
     }
 
-    // Find related products from the same category, excluding the current product
-    const relatedProducts = mockProducts
-      .filter((p) => p.categoryId === product.categoryId && p.id !== product.id && p.status === 'published')
-      .slice(0, 4)
+    const relatedProducts = await getRelatedProducts(
+      product.categoryId,
+      product.id,
+      4
+    )
 
     return NextResponse.json({
       product,

@@ -1,12 +1,12 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { Search, AlertTriangle, Package } from 'lucide-react'
 import { Input } from '@/components/ui/input'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import {
@@ -18,34 +18,107 @@ import {
   TableRow,
 } from '@/components/ui/table'
 import { StatsCard } from '@/components/admin/stats-card'
-import { mockProducts, mockDashboardStats } from '@/lib/mock-data'
+import { STOCK_THRESHOLDS } from '@/lib/constants'
 import { cn } from '@/lib/utils'
 import { toast } from 'sonner'
+
+type InventoryRow = {
+  variantId: string
+  sku: string
+  productId: string
+  productName: string
+  size: string
+  color: string
+  stock: number
+}
 
 export default function AdminInventoryPage() {
   const [search, setSearch] = useState('')
   const [filter, setFilter] = useState('all')
-  const [adjustDialogOpen, setAdjustDialogOpen] = useState(false)
+  const [rows, setRows] = useState<InventoryRow[]>([])
+  const [loading, setLoading] = useState(true)
+  const [adjustOpen, setAdjustOpen] = useState(false)
+  const [selected, setSelected] = useState<InventoryRow | null>(null)
+  const [action, setAction] = useState<'set' | 'add' | 'remove'>('set')
+  const [qty, setQty] = useState('0')
 
-  const allVariants = mockProducts.flatMap((p) =>
-    p.variants.map((v) => ({
-      ...v,
-      productName: p.name,
-      productId: p.id,
-    }))
-  )
+  async function loadInventory() {
+    setLoading(true)
+    try {
+      const res = await fetch('/api/admin/inventory', { credentials: 'include' })
+      const data = await res.json()
+      if (res.ok) {
+        setRows(data.inventoryItems ?? [])
+      }
+    } catch {
+      setRows([])
+    } finally {
+      setLoading(false)
+    }
+  }
 
-  const filtered = allVariants.filter((v) => {
-    const matchesSearch = v.productName.toLowerCase().includes(search.toLowerCase()) || v.sku.toLowerCase().includes(search.toLowerCase())
-    if (filter === 'low') return matchesSearch && v.stock > 0 && v.stock <= 5
+  useEffect(() => {
+    void loadInventory()
+  }, [])
+
+  const stats = useMemo(() => {
+    const low = rows.filter(
+      (r) => r.stock > 0 && r.stock <= STOCK_THRESHOLDS.LOW
+    ).length
+    const out = rows.filter((r) => r.stock === STOCK_THRESHOLDS.OUT).length
+    return { total: rows.length, low, out }
+  }, [rows])
+
+  const filtered = rows.filter((v) => {
+    const matchesSearch =
+      v.productName.toLowerCase().includes(search.toLowerCase()) ||
+      v.sku.toLowerCase().includes(search.toLowerCase())
+    if (filter === 'low')
+      return matchesSearch && v.stock > 0 && v.stock <= STOCK_THRESHOLDS.LOW
     if (filter === 'out') return matchesSearch && v.stock === 0
     return matchesSearch
   })
 
   const stockColor = (stock: number) => {
     if (stock === 0) return 'text-red-600 bg-red-50'
-    if (stock <= 5) return 'text-yellow-600 bg-yellow-50'
+    if (stock <= STOCK_THRESHOLDS.LOW) return 'text-yellow-600 bg-yellow-50'
     return 'text-green-600 bg-green-50'
+  }
+
+  async function applyAdjustment() {
+    if (!selected) return
+    const quantity = parseInt(qty, 10)
+    if (Number.isNaN(quantity) || quantity < 0) {
+      toast.error('Invalid quantity')
+      return
+    }
+    try {
+      const res = await fetch('/api/admin/inventory', {
+        method: 'PATCH',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          variantId: selected.variantId,
+          action,
+          quantity,
+        }),
+      })
+      if (!res.ok) throw new Error('Update failed')
+      toast.success('Stock updated')
+      setAdjustOpen(false)
+      await loadInventory()
+    } catch {
+      toast.error('Could not update stock')
+    }
+  }
+
+  if (loading) {
+    return (
+      <div className="space-y-6">
+        <h1 className="text-2xl font-bold">Inventory</h1>
+        <p className="text-muted-foreground">Loading...</p>
+      </div>
+    )
   }
 
   return (
@@ -55,17 +128,17 @@ export default function AdminInventoryPage() {
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <StatsCard
           title="Total Variants"
-          value={allVariants.length.toString()}
+          value={stats.total.toString()}
           icon={Package}
         />
         <StatsCard
           title="Low Stock"
-          value={mockDashboardStats.inventory.lowStock.toString()}
+          value={stats.low.toString()}
           icon={AlertTriangle}
         />
         <StatsCard
           title="Out of Stock"
-          value={mockDashboardStats.inventory.outOfStock.toString()}
+          value={stats.out.toString()}
           icon={AlertTriangle}
         />
       </div>
@@ -103,13 +176,11 @@ export default function AdminInventoryPage() {
           </TableHeader>
           <TableBody>
             {filtered.map((variant) => (
-              <TableRow key={variant.id}>
+              <TableRow key={variant.variantId}>
                 <TableCell className="font-medium text-sm">
                   {variant.productName}
                 </TableCell>
-                <TableCell className="font-mono text-xs">
-                  {variant.sku}
-                </TableCell>
+                <TableCell className="font-mono text-xs">{variant.sku}</TableCell>
                 <TableCell className="text-sm">{variant.size}</TableCell>
                 <TableCell className="text-sm">{variant.color}</TableCell>
                 <TableCell>
@@ -118,58 +189,76 @@ export default function AdminInventoryPage() {
                   </Badge>
                 </TableCell>
                 <TableCell className="text-right">
-                  <Dialog open={adjustDialogOpen} onOpenChange={setAdjustDialogOpen}>
-                    <DialogTrigger asChild>
-                      <Button variant="ghost" size="sm">
-                        Adjust
-                      </Button>
-                    </DialogTrigger>
-                    <DialogContent>
-                      <DialogHeader>
-                        <DialogTitle>Adjust Stock</DialogTitle>
-                      </DialogHeader>
-                      <div className="space-y-4">
-                        <p className="text-sm">
-                          <strong>{variant.productName}</strong> - {variant.size} / {variant.color}
-                        </p>
-                        <p className="text-sm text-muted-foreground">
-                          Current stock: {variant.stock}
-                        </p>
-                        <div>
-                          <Label>Action</Label>
-                          <Select defaultValue="set">
-                            <SelectTrigger className="mt-1">
-                              <SelectValue />
-                            </SelectTrigger>
-                            <SelectContent>
-                              <SelectItem value="set">Set to</SelectItem>
-                              <SelectItem value="add">Add</SelectItem>
-                              <SelectItem value="remove">Remove</SelectItem>
-                            </SelectContent>
-                          </Select>
-                        </div>
-                        <div>
-                          <Label>Quantity</Label>
-                          <Input type="number" min="0" defaultValue="0" className="mt-1" />
-                        </div>
-                        <Button
-                          className="w-full bg-asa-charcoal"
-                          onClick={() => {
-                            toast.success('Stock updated (mock)')
-                            setAdjustDialogOpen(false)
-                          }}
-                        >
-                          Update Stock
-                        </Button>
-                      </div>
-                    </DialogContent>
-                  </Dialog>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    type="button"
+                    onClick={() => {
+                      setSelected(variant)
+                      setQty(String(variant.stock))
+                      setAction('set')
+                      setAdjustOpen(true)
+                    }}
+                  >
+                    Adjust
+                  </Button>
                 </TableCell>
               </TableRow>
             ))}
           </TableBody>
         </Table>
       </div>
+
+      <Dialog open={adjustOpen} onOpenChange={setAdjustOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Adjust Stock</DialogTitle>
+          </DialogHeader>
+          {selected && (
+            <div className="space-y-4">
+              <p className="text-sm">
+                <strong>{selected.productName}</strong> — {selected.size} / {selected.color}
+              </p>
+              <p className="text-sm text-muted-foreground">
+                Current stock: {selected.stock}
+              </p>
+              <div>
+                <Label>Action</Label>
+                <Select
+                  value={action}
+                  onValueChange={(v) => setAction(v as typeof action)}
+                >
+                  <SelectTrigger className="mt-1">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="set">Set to</SelectItem>
+                    <SelectItem value="add">Add</SelectItem>
+                    <SelectItem value="remove">Remove</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <Label>Quantity</Label>
+                <Input
+                  type="number"
+                  min="0"
+                  value={qty}
+                  onChange={(e) => setQty(e.target.value)}
+                  className="mt-1"
+                />
+              </div>
+              <Button
+                className="w-full bg-asa-charcoal"
+                type="button"
+                onClick={applyAdjustment}
+              >
+                Update Stock
+              </Button>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }

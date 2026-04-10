@@ -1,21 +1,31 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { mockProducts } from '@/lib/mock-data'
+import { Prisma } from '@prisma/client'
+import { requireAdmin } from '@/lib/admin-auth'
+import { prisma } from '@/lib/prisma'
+import { mapProduct } from '@/lib/data/mappers'
+import { getProductById } from '@/lib/data/products'
 import { updateProductSchema } from '@/validations/product'
+
+const include = {
+  category: true,
+  variants: true,
+  reviews: { select: { rating: true } },
+} satisfies Prisma.ProductInclude
 
 export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  const auth = await requireAdmin()
+  if ('error' in auth) return auth.error
+
   try {
     const { id } = await params
 
-    const product = mockProducts.find((p) => p.id === id)
+    const product = await getProductById(id)
 
     if (!product) {
-      return NextResponse.json(
-        { error: 'Product not found' },
-        { status: 404 }
-      )
+      return NextResponse.json({ error: 'Product not found' }, { status: 404 })
     }
 
     return NextResponse.json({ product })
@@ -32,16 +42,16 @@ export async function PATCH(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  const auth = await requireAdmin()
+  if ('error' in auth) return auth.error
+
   try {
     const { id } = await params
     const body = await request.json()
 
-    const product = mockProducts.find((p) => p.id === id)
-    if (!product) {
-      return NextResponse.json(
-        { error: 'Product not found' },
-        { status: 404 }
-      )
+    const existing = await prisma.product.findUnique({ where: { id } })
+    if (!existing) {
+      return NextResponse.json({ error: 'Product not found' }, { status: 404 })
     }
 
     const parsed = updateProductSchema.safeParse(body)
@@ -52,14 +62,59 @@ export async function PATCH(
       )
     }
 
-    // In production, this would update the product in the database via Prisma
-    const updatedProduct = {
-      ...product,
-      ...parsed.data,
-      updatedAt: new Date().toISOString(),
-    }
+    const data = parsed.data
 
-    return NextResponse.json({ product: updatedProduct })
+    const updated = await prisma.$transaction(async (tx) => {
+      if (data.variants) {
+        await tx.productVariant.deleteMany({ where: { productId: id } })
+      }
+
+      const scalar: Prisma.ProductUpdateInput = {}
+      if (data.name !== undefined) scalar.name = data.name
+      if (data.slug !== undefined) scalar.slug = data.slug
+      if (data.description !== undefined) scalar.description = data.description
+      if (data.price !== undefined) scalar.price = new Prisma.Decimal(data.price)
+      if (data.comparePrice !== undefined) {
+        scalar.comparePrice =
+          data.comparePrice != null
+            ? new Prisma.Decimal(data.comparePrice)
+            : null
+      }
+      if (data.images !== undefined) scalar.images = data.images
+      if (data.isFeatured !== undefined) scalar.isFeatured = data.isFeatured
+      if (data.status !== undefined) scalar.status = data.status
+      if (data.categoryId !== undefined) {
+        scalar.category = { connect: { id: data.categoryId } }
+      }
+
+      return tx.product.update({
+        where: { id },
+        data: {
+          ...scalar,
+          ...(data.variants
+            ? {
+                variants: {
+                  create: data.variants.map((v) => ({
+                    size: v.size,
+                    color: v.color,
+                    sku: v.sku,
+                    stock: v.stock,
+                    price: v.price != null ? new Prisma.Decimal(v.price) : null,
+                  })),
+                },
+              }
+            : {}),
+        },
+        include,
+      })
+    })
+
+    return NextResponse.json({
+      product: mapProduct({
+        ...updated,
+        reviews: updated.reviews.map((r) => ({ rating: r.rating })),
+      }),
+    })
   } catch (error) {
     console.error('Error updating product:', error)
     return NextResponse.json(
@@ -73,18 +128,19 @@ export async function DELETE(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  const auth = await requireAdmin()
+  if ('error' in auth) return auth.error
+
   try {
     const { id } = await params
 
-    const product = mockProducts.find((p) => p.id === id)
-    if (!product) {
-      return NextResponse.json(
-        { error: 'Product not found' },
-        { status: 404 }
-      )
+    const existing = await prisma.product.findUnique({ where: { id } })
+    if (!existing) {
+      return NextResponse.json({ error: 'Product not found' }, { status: 404 })
     }
 
-    // In production, this would delete (or soft-delete) the product via Prisma
+    await prisma.product.delete({ where: { id } })
+
     return NextResponse.json({
       success: true,
       message: `Product ${id} deleted successfully`,

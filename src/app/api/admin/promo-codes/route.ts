@@ -1,67 +1,58 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { Prisma } from '@prisma/client'
+import { requireAdmin } from '@/lib/admin-auth'
+import { prisma } from '@/lib/prisma'
 import { promoCodeSchema } from '@/validations/admin'
 
-// Mock promo codes data
-const mockPromoCodes = [
-  {
-    id: 'promo-1',
-    code: 'WELCOME15',
-    type: 'percent' as const,
-    value: 15,
-    minOrderAmount: 100,
-    maxUses: 1000,
-    usedCount: 245,
-    validFrom: '2026-01-01T00:00:00Z',
-    validUntil: '2026-12-31T23:59:59Z',
-    isActive: true,
-    createdAt: '2026-01-01T00:00:00Z',
-    updatedAt: '2026-01-01T00:00:00Z',
-  },
-  {
-    id: 'promo-2',
-    code: 'SUMMER20',
-    type: 'percent' as const,
-    value: 20,
-    minOrderAmount: 150,
-    maxUses: 500,
-    usedCount: 89,
-    validFrom: '2026-06-01T00:00:00Z',
-    validUntil: '2026-08-31T23:59:59Z',
-    isActive: false,
-    createdAt: '2026-05-15T00:00:00Z',
-    updatedAt: '2026-05-15T00:00:00Z',
-  },
-  {
-    id: 'promo-3',
-    code: 'FLAT25OFF',
-    type: 'fixed' as const,
-    value: 25,
-    minOrderAmount: 200,
-    maxUses: null,
-    usedCount: 32,
-    validFrom: '2026-03-01T00:00:00Z',
-    validUntil: null,
-    isActive: true,
-    createdAt: '2026-03-01T00:00:00Z',
-    updatedAt: '2026-03-01T00:00:00Z',
-  },
-]
+function mapPromo(p: {
+  id: string
+  code: string
+  type: string
+  value: Prisma.Decimal
+  minOrderAmount: Prisma.Decimal | null
+  maxUses: number | null
+  usesCount: number
+  validFrom: Date
+  validUntil: Date | null
+  isActive: boolean
+  createdAt: Date
+  updatedAt: Date
+}) {
+  return {
+    id: p.id,
+    code: p.code,
+    type: p.type,
+    value: p.value.toNumber(),
+    minOrderAmount: p.minOrderAmount?.toNumber() ?? null,
+    maxUses: p.maxUses,
+    usedCount: p.usesCount,
+    validFrom: p.validFrom.toISOString(),
+    validUntil: p.validUntil?.toISOString() ?? null,
+    isActive: p.isActive,
+    createdAt: p.createdAt.toISOString(),
+    updatedAt: p.updatedAt.toISOString(),
+  }
+}
 
 export async function GET(request: NextRequest) {
+  const auth = await requireAdmin()
+  if ('error' in auth) return auth.error
+
   try {
     const { searchParams } = new URL(request.url)
     const active = searchParams.get('active')
 
-    let filtered = [...mockPromoCodes]
+    const where =
+      active !== null ? { isActive: active === 'true' } : {}
 
-    if (active !== null) {
-      const isActive = active === 'true'
-      filtered = filtered.filter((p) => p.isActive === isActive)
-    }
+    const rows = await prisma.promoCode.findMany({
+      where,
+      orderBy: { createdAt: 'desc' },
+    })
 
     return NextResponse.json({
-      promoCodes: filtered,
-      total: filtered.length,
+      promoCodes: rows.map(mapPromo),
+      total: rows.length,
     })
   } catch (error) {
     console.error('Error fetching promo codes:', error)
@@ -73,6 +64,9 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
+  const auth = await requireAdmin()
+  if ('error' in auth) return auth.error
+
   try {
     const body = await request.json()
 
@@ -84,16 +78,25 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // In production, this would save to the database via Prisma
-    const newPromoCode = {
-      id: `promo-${Date.now()}`,
-      ...parsed.data,
-      usedCount: 0,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-    }
+    const data = parsed.data
 
-    return NextResponse.json({ promoCode: newPromoCode }, { status: 201 })
+    const created = await prisma.promoCode.create({
+      data: {
+        code: data.code,
+        type: data.type,
+        value: new Prisma.Decimal(data.value),
+        minOrderAmount:
+          data.minOrderAmount != null
+            ? new Prisma.Decimal(data.minOrderAmount)
+            : null,
+        maxUses: data.maxUses ?? null,
+        validFrom: data.validFrom ? new Date(data.validFrom) : new Date(),
+        validUntil: data.validUntil ? new Date(data.validUntil) : null,
+        isActive: data.isActive,
+      },
+    })
+
+    return NextResponse.json({ promoCode: mapPromo(created) }, { status: 201 })
   } catch (error) {
     console.error('Error creating promo code:', error)
     return NextResponse.json(

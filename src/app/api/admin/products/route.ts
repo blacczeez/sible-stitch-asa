@@ -1,8 +1,19 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { mockProducts } from '@/lib/mock-data'
+import { Prisma } from '@prisma/client'
+import { requireAdmin } from '@/lib/admin-auth'
+import { prisma } from '@/lib/prisma'
+import { mapProduct } from '@/lib/data/mappers'
 import { createProductSchema } from '@/validations/product'
+const include = {
+  category: true,
+  variants: true,
+  reviews: { select: { rating: true } },
+} satisfies Prisma.ProductInclude
 
 export async function GET(request: NextRequest) {
+  const auth = await requireAdmin()
+  if ('error' in auth) return auth.error
+
   try {
     const { searchParams } = new URL(request.url)
     const status = searchParams.get('status')
@@ -10,36 +21,40 @@ export async function GET(request: NextRequest) {
     const page = parseInt(searchParams.get('page') || '1', 10)
     const limit = parseInt(searchParams.get('limit') || '20', 10)
 
-    let filtered = [...mockProducts]
-
-    // Filter by status
-    if (status) {
-      filtered = filtered.filter((p) => p.status === status)
+    const where: Prisma.ProductWhereInput = {
+      ...(status && status !== 'all'
+        ? { status: status as 'draft' | 'published' | 'archived' }
+        : {}),
+      ...(search
+        ? {
+            OR: [
+              { name: { contains: search, mode: 'insensitive' } },
+              { slug: { contains: search, mode: 'insensitive' } },
+            ],
+          }
+        : {}),
     }
 
-    // Filter by search term
-    if (search) {
-      const term = search.toLowerCase()
-      filtered = filtered.filter(
-        (p) =>
-          p.name.toLowerCase().includes(term) ||
-          p.slug.toLowerCase().includes(term)
-      )
-    }
+    const [totalItems, rows] = await prisma.$transaction([
+      prisma.product.count({ where }),
+      prisma.product.findMany({
+        where,
+        include,
+        orderBy: { updatedAt: 'desc' },
+        skip: (page - 1) * limit,
+        take: limit,
+      }),
+    ])
 
-    // Sort by most recently updated
-    filtered.sort(
-      (a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
-    )
-
-    // Pagination
-    const totalItems = filtered.length
     const totalPages = Math.ceil(totalItems / limit)
-    const startIndex = (page - 1) * limit
-    const paginatedProducts = filtered.slice(startIndex, startIndex + limit)
 
     return NextResponse.json({
-      products: paginatedProducts,
+      products: rows.map((p) =>
+        mapProduct({
+          ...p,
+          reviews: p.reviews.map((r) => ({ rating: r.rating })),
+        })
+      ),
       pagination: {
         page,
         limit,
@@ -58,6 +73,9 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
+  const auth = await requireAdmin()
+  if ('error' in auth) return auth.error
+
   try {
     const body = await request.json()
 
@@ -71,31 +89,42 @@ export async function POST(request: NextRequest) {
 
     const data = parsed.data
 
-    // In production, this would save to the database via Prisma
-    const mockCreatedProduct = {
-      id: `prod-${Date.now()}`,
-      slug: data.slug,
-      name: data.name,
-      description: data.description,
-      price: data.price,
-      comparePrice: data.comparePrice || null,
-      images: data.images,
-      isFeatured: data.isFeatured,
-      status: data.status,
-      categoryId: data.categoryId,
-      category: { id: data.categoryId, slug: 'unknown', name: 'Unknown', description: null, image: null, sortOrder: 0 },
-      variants: data.variants.map((v, i) => ({
-        id: `var-new-${i}`,
-        ...v,
-        price: v.price || null,
-      })),
-      averageRating: null,
-      reviewCount: 0,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-    }
+    const created = await prisma.product.create({
+      data: {
+        name: data.name,
+        slug: data.slug,
+        description: data.description,
+        price: new Prisma.Decimal(data.price),
+        comparePrice:
+          data.comparePrice != null
+            ? new Prisma.Decimal(data.comparePrice)
+            : null,
+        images: data.images,
+        isFeatured: data.isFeatured,
+        status: data.status,
+        categoryId: data.categoryId,
+        variants: {
+          create: data.variants.map((v) => ({
+            size: v.size,
+            color: v.color,
+            sku: v.sku,
+            stock: v.stock,
+            price: v.price != null ? new Prisma.Decimal(v.price) : null,
+          })),
+        },
+      },
+      include,
+    })
 
-    return NextResponse.json({ product: mockCreatedProduct }, { status: 201 })
+    return NextResponse.json(
+      {
+        product: mapProduct({
+          ...created,
+          reviews: created.reviews.map((r) => ({ rating: r.rating })),
+        }),
+      },
+      { status: 201 }
+    )
   } catch (error) {
     console.error('Error creating product:', error)
     return NextResponse.json(
