@@ -1,5 +1,6 @@
 'use client'
 
+import { useEffect, useState } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { Heart, ShoppingBag } from 'lucide-react'
@@ -45,7 +46,10 @@ export function ProductCard({ product }: ProductCardProps) {
   const { toggleWishlist, isInWishlist } = useWishlist()
   const addItem = useCartStore((s) => s.addItem)
   const setCartDrawerOpen = useUIStore((s) => s.setCartDrawerOpen)
-  const wishlisted = isInWishlist(product.id)
+  /** Avoid hydration mismatch: persisted wishlist only exists on the client after localStorage loads. */
+  const [mounted, setMounted] = useState(false)
+  useEffect(() => setMounted(true), [])
+  const wishlisted = mounted && isInWishlist(product.id)
 
   const defaultVariant = product.variants.find((v) => v.stock > 0)
   const badge = getBadge(product)
