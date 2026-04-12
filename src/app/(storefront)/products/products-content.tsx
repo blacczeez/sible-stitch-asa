@@ -9,6 +9,7 @@ import { ProductSort } from '@/components/product/product-sort'
 import { ActiveFilters } from '@/components/product/active-filters'
 import { PaginationControls } from '@/components/ui/pagination-controls'
 import { EmptyState } from '@/components/ui/empty-state'
+import { ProductsSkeleton } from './products-skeleton'
 import { Search } from 'lucide-react'
 
 const ITEMS_PER_PAGE = 12
@@ -82,11 +83,7 @@ export function ProductListingContent() {
   }, [category, search, products])
 
   if (loading) {
-    return (
-      <div className="container mx-auto px-4 py-16 text-center">
-        <p className="text-muted-foreground">Loading products...</p>
-      </div>
-    )
+    return <ProductsSkeleton />
   }
 
   return (

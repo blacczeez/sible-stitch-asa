@@ -88,7 +88,7 @@ export function ProductCard({ product }: ProductCardProps) {
   return (
     <div className="group relative">
       {/* Image Container */}
-      <div className="relative aspect-[3/4] overflow-hidden rounded-2xl bg-asa-cream">
+      <div className="relative aspect-[3/4] overflow-hidden rounded-xl md:rounded-2xl bg-asa-cream">
         <Link href={`/products/${product.slug}`}>
           <Image
             src={product.images[0] ?? '/placeholder.png'}

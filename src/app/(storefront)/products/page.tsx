@@ -1,15 +1,10 @@
 import { Suspense } from 'react'
 import { ProductListingContent } from './products-content'
+import { ProductsSkeleton } from './products-skeleton'
 
 export default function ProductsPage() {
   return (
-    <Suspense
-      fallback={
-        <div className="container mx-auto px-4 py-16 text-center">
-          <p className="text-muted-foreground">Loading products...</p>
-        </div>
-      }
-    >
+    <Suspense fallback={<ProductsSkeleton />}>
       <ProductListingContent />
     </Suspense>
   )
