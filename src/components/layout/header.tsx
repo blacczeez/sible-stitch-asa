@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
+import Image from 'next/image'
 import { usePathname } from 'next/navigation'
 import { ShoppingBag, Heart, Search, Menu } from 'lucide-react'
 import { useCart } from '@/hooks/use-cart'
@@ -75,13 +76,17 @@ export function Header() {
               </div>
 
               {/* Center: logo */}
-              <Link
-                href="/"
-                className={`text-3xl md:text-4xl font-serif font-bold tracking-wide transition-colors ${
-                  solid ? 'text-asa-charcoal' : 'text-white'
-                }`}
-              >
-                ÀṢÀ
+              <Link href="/" className="shrink-0">
+                <Image
+                  src="/images/sible-logo.webp"
+                  alt="Sible Couture"
+                  width={400}
+                  height={92}
+                  className={`h-9 md:h-11 w-auto transition-all ${
+                    solid ? '' : 'brightness-0 invert'
+                  }`}
+                  priority
+                />
               </Link>
 
               {/* Right: search pill, currency, wishlist, cart */}

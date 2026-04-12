@@ -16,6 +16,7 @@ import type { Category } from '@/types'
 import { adminGlassCard, adminPageTitleClass, adminPrimaryButtonClass } from '@/lib/admin-ui'
 import { cn, slugify } from '@/lib/utils'
 import { toast } from 'sonner'
+import { ImageUploader } from '@/components/admin/image-uploader'
 
 export default function NewProductPage() {
   const router = useRouter()
@@ -50,7 +51,7 @@ export default function NewProductPage() {
     defaultValues: {
       status: 'draft',
       isFeatured: false,
-      images: ['https://picsum.photos/seed/new/800/1000'],
+      images: [],
       variants: [
         { size: 'M', color: 'Default', sku: `NEW-${Date.now().toString(36)}`, stock: 10 },
       ],
@@ -108,6 +109,21 @@ export default function NewProductPage() {
               <Textarea id="description" {...register('description')} rows={4} className="mt-1" />
               {errors.description && <p className="text-xs text-destructive mt-1">{errors.description.message}</p>}
             </div>
+          </CardContent>
+        </Card>
+
+        <Card className={adminGlassCard}>
+          <CardHeader>
+            <CardTitle>Product Images</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <ImageUploader
+              value={watch('images') ?? []}
+              onChange={(urls) => setValue('images', urls, { shouldValidate: true })}
+            />
+            {errors.images && (
+              <p className="text-xs text-destructive mt-2">{errors.images.message}</p>
+            )}
           </CardContent>
         </Card>
 

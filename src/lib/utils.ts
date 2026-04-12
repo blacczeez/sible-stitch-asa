@@ -23,7 +23,7 @@ export function slugify(text: string): string {
 export function generateOrderNumber(): string {
   const timestamp = Date.now().toString(36).toUpperCase()
   const random = Math.random().toString(36).substring(2, 6).toUpperCase()
-  return `ASA-${timestamp}-${random}`
+  return `SBL-${timestamp}-${random}`
 }
 
 export function formatDate(date: Date | string): string {

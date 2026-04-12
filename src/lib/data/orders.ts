@@ -13,7 +13,7 @@ function money(n: number): Prisma.Decimal {
 async function generateUniqueOrderNumber(): Promise<string> {
   for (let i = 0; i < 8; i++) {
     const suffix = Math.random().toString(36).slice(2, 8).toUpperCase()
-    const orderNumber = `ASA-${Date.now().toString(36).toUpperCase()}-${suffix}`
+    const orderNumber = `SBL-${Date.now().toString(36).toUpperCase()}-${suffix}`
     const exists = await prisma.order.findUnique({
       where: { orderNumber },
       select: { id: true },

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { nanoid } from 'nanoid'
 import { requireAdmin } from '@/lib/admin-auth'
+import { isCloudinaryConfigured, uploadToCloudinary } from '@/lib/cloudinary'
 
 export async function POST(request: NextRequest) {
   const auth = await requireAdmin()
@@ -30,8 +31,14 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // In production, upload to Supabase Storage
-    // For now, return a mock URL
+    if (isCloudinaryConfigured()) {
+      const arrayBuffer = await file.arrayBuffer()
+      const buffer = Buffer.from(arrayBuffer)
+      const { url, publicId } = await uploadToCloudinary(buffer)
+      return NextResponse.json({ url, publicId, filename: file.name })
+    }
+
+    // Fallback: mock URL for local dev without Cloudinary credentials
     const ext = file.name.split('.').pop() || 'jpg'
     const filename = `${nanoid()}.${ext}`
     const mockUrl = `https://picsum.photos/seed/${filename}/800/800`

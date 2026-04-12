@@ -18,6 +18,7 @@ import type { Product } from '@/types'
 import { adminGlassCard, adminPageTitleClass, adminPrimaryButtonClass } from '@/lib/admin-ui'
 import { cn } from '@/lib/utils'
 import { toast } from 'sonner'
+import { ImageUploader } from '@/components/admin/image-uploader'
 
 export default function EditProductPage() {
   const router = useRouter()
@@ -30,6 +31,7 @@ export default function EditProductPage() {
   const [price, setPrice] = useState('')
   const [comparePrice, setComparePrice] = useState('')
   const [status, setStatus] = useState<'draft' | 'published' | 'archived'>('draft')
+  const [images, setImages] = useState<string[]>([])
 
   useEffect(() => {
     let cancelled = false
@@ -50,6 +52,7 @@ export default function EditProductPage() {
           setPrice(String(p.price))
           setComparePrice(p.comparePrice != null ? String(p.comparePrice) : '')
           setStatus(p.status)
+          setImages(p.images ?? [])
         }
       } finally {
         if (!cancelled) setLoading(false)
@@ -76,6 +79,7 @@ export default function EditProductPage() {
           price: parseFloat(price),
           comparePrice: comparePrice ? parseFloat(comparePrice) : null,
           status,
+          images,
         }),
       })
       if (!res.ok) throw new Error('Update failed')
@@ -129,6 +133,15 @@ export default function EditProductPage() {
                 required
               />
             </div>
+          </CardContent>
+        </Card>
+
+        <Card className={adminGlassCard}>
+          <CardHeader>
+            <CardTitle>Product Images</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <ImageUploader value={images} onChange={setImages} />
           </CardContent>
         </Card>
 

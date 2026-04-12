@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import Image from 'next/image'
 import { createClient } from '@/lib/supabase'
 import { resolveAdminLoginEmail } from '@/lib/admin-login'
 import { adminGlassCard, adminPrimaryButtonClass } from '@/lib/admin-ui'
@@ -68,8 +69,15 @@ export default function AdminLoginPage() {
     <div className="flex min-h-screen items-center justify-center bg-background p-4">
       <Card className={cn('w-full max-w-md', adminGlassCard)}>
         <CardHeader className="text-center">
-          <div className="mb-2 font-serif text-3xl font-bold text-asa-gold">
-            ÀṢÀ
+          <div className="mb-2 flex justify-center">
+            <Image
+              src="/images/sible-logo.webp"
+              alt="Sible Couture"
+              width={140}
+              height={48}
+              className="h-10 w-auto"
+              priority
+            />
           </div>
           <CardTitle>Admin sign in</CardTitle>
         </CardHeader>

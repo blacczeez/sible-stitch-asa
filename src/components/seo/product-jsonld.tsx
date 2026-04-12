@@ -15,7 +15,7 @@ export function ProductJsonLd({ product, url }: ProductJsonLdProps) {
     url,
     brand: {
       '@type': 'Brand',
-      name: 'ÀṢÀ',
+      name: 'Sible Couture',
     },
     offers: {
       '@type': 'AggregateOffer',

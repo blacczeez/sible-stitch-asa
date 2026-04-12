@@ -19,8 +19,8 @@ const cormorant = Cormorant_Garamond({
 
 export const metadata: Metadata = {
   title: {
-    default: 'ÀṢÀ - Premium African Fashion',
-    template: '%s | ÀṢÀ',
+    default: 'Sible Couture - Premium African Fashion',
+    template: '%s | Sible Couture',
   },
   description:
     'Discover premium African-inspired fashion. Shop Ankara prints, casual wear, and accessories for the modern global citizen.',

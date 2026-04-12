@@ -1,6 +1,7 @@
 'use client'
 
 import Link from 'next/link'
+import Image from 'next/image'
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet'
 import { useUIStore } from '@/store/ui-store'
 import { NAV_LINKS } from '@/lib/constants'
@@ -12,8 +13,14 @@ export function MobileNav() {
     <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
       <SheetContent side="left" className="w-80 bg-asa-cream">
         <SheetHeader>
-          <SheetTitle className="text-3xl font-serif font-bold text-asa-charcoal">
-            ÀṢÀ
+          <SheetTitle>
+            <Image
+              src="/images/sible-logo.webp"
+              alt="Sible Couture"
+              width={120}
+              height={40}
+              className="h-8 w-auto"
+            />
           </SheetTitle>
         </SheetHeader>
         <nav className="mt-10 flex flex-col gap-1">

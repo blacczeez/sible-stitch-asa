@@ -27,14 +27,14 @@ export const STOCK_THRESHOLDS = {
 export const ITEMS_PER_PAGE = 12
 
 export const BRAND = {
-  name: 'ÀṢÀ',
+  name: 'Sible Couture',
   tagline: 'Premium African-Inspired Fashion',
-  email: 'support@asa-fashion.com',
+  email: 'support@siblecouture.com',
   social: {
-    instagram: 'https://instagram.com/asa_fashion',
-    facebook: 'https://facebook.com/asafashion',
-    tiktok: 'https://tiktok.com/@asa_fashion',
-    twitter: 'https://twitter.com/asa_fashion',
+    instagram: 'https://instagram.com/siblecouture',
+    facebook: 'https://facebook.com/siblecouture',
+    tiktok: 'https://tiktok.com/@siblecouture',
+    twitter: 'https://twitter.com/siblecouture',
   },
 } as const
 

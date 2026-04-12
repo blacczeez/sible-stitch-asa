@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import Image from 'next/image'
 import { BRAND } from '@/lib/constants'
 
 const footerLinks = {
@@ -29,8 +30,14 @@ export function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-10">
           {/* Brand */}
           <div className="lg:col-span-2">
-            <Link href="/" className="text-3xl font-serif font-bold text-white">
-              ÀṢÀ
+            <Link href="/">
+              <Image
+                src="/images/sible-logo.webp"
+                alt="Sible Couture"
+                width={400}
+                height={92}
+                className="h-11 w-auto brightness-0 invert"
+              />
             </Link>
             <p className="mt-3 text-sm text-gray-400 max-w-xs leading-relaxed">
               {BRAND.tagline}. Celebrating African heritage through modern fashion.
@@ -108,7 +115,7 @@ export function Footer() {
 
         <div className="border-t border-white/10 mt-12 pt-6 flex flex-col md:flex-row justify-between items-center gap-4">
           <p className="text-xs text-gray-500">
-            &copy; {new Date().getFullYear()} ÀṢÀ Fashion. All rights reserved.
+            &copy; {new Date().getFullYear()} Sible Couture. All rights reserved.
           </p>
           <div className="flex gap-3 text-xs text-gray-500">
             <span>Visa</span>

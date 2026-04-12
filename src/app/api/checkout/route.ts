@@ -87,7 +87,7 @@ export async function POST(request: NextRequest) {
             currency: currency.toLowerCase(),
             product_data: {
               name: `Order ${pendingOrder.orderNumber}`,
-              description: 'ÀṢÀ — e-commerce order',
+              description: 'Sible Couture — e-commerce order',
             },
             unit_amount: totalCents,
           },

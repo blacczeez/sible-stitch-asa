@@ -59,7 +59,7 @@ export async function sendOrderConfirmation(params: OrderConfirmationParams) {
     to,
     from: {
       email: process.env.SENDGRID_FROM_EMAIL!,
-      name: 'ÀṢÀ Fashion',
+      name: 'Sible Couture',
     },
     subject: `Order Confirmed - ${orderNumber}`,
     html: `
@@ -68,7 +68,7 @@ export async function sendOrderConfirmation(params: OrderConfirmationParams) {
       <head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"></head>
       <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #1A1714; max-width: 600px; margin: 0 auto; padding: 20px;">
         <div style="text-align: center; margin-bottom: 30px;">
-          <h1 style="color: #D4AD5A; margin: 0;">ÀṢÀ</h1>
+          <h1 style="color: #D4AD5A; margin: 0;">Sible Couture</h1>
           <p style="color: #666; margin: 5px 0;">Premium African Fashion</p>
         </div>
         <div style="background: #F8F6F1; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
@@ -103,7 +103,7 @@ export async function sendOrderConfirmation(params: OrderConfirmationParams) {
         </p>
         <div style="text-align: center; margin-top: 30px; padding-top: 20px; border-top: 1px solid #eee;">
           <p style="color: #666; font-size: 14px;">
-            Questions? Reply to this email or contact us at support@asa-fashion.com
+            Questions? Reply to this email or contact us at support@siblecouture.com
           </p>
         </div>
       </body>
@@ -127,7 +127,7 @@ export async function sendShippingNotification(params: {
     to: params.to,
     from: {
       email: process.env.SENDGRID_FROM_EMAIL!,
-      name: 'ÀṢÀ Fashion',
+      name: 'Sible Couture',
     },
     subject: `Your Order Has Shipped - ${params.orderNumber}`,
     html: `
@@ -136,7 +136,7 @@ export async function sendShippingNotification(params: {
       <head><meta charset="utf-8"></head>
       <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #1A1714; max-width: 600px; margin: 0 auto; padding: 20px;">
         <div style="text-align: center; margin-bottom: 30px;">
-          <h1 style="color: #D4AD5A; margin: 0;">ÀṢÀ</h1>
+          <h1 style="color: #D4AD5A; margin: 0;">Sible Couture</h1>
         </div>
         <div style="background: #F8F6F1; padding: 20px; border-radius: 8px;">
           <h2 style="margin-top: 0;">Your order is on its way!</h2>
@@ -164,7 +164,7 @@ export async function sendLowStockAlert(params: {
     to: process.env.SENDGRID_FROM_EMAIL!,
     from: {
       email: process.env.SENDGRID_FROM_EMAIL!,
-      name: 'ÀṢÀ Inventory',
+      name: 'Sible Couture Inventory',
     },
     subject: `Low Stock Alert: ${params.productName}`,
     html: `

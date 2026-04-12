@@ -1,6 +1,7 @@
 'use client'
 
 import Link from 'next/link'
+import Image from 'next/image'
 import { usePathname } from 'next/navigation'
 import {
   LayoutDashboard,
@@ -28,8 +29,14 @@ export function AdminSidebar() {
   return (
     <aside className="flex min-h-screen w-64 shrink-0 flex-col border-r border-white/10 bg-asa-charcoal text-white shadow-[4px_0_24px_-12px_rgba(26,23,20,0.2)]">
       <div className="p-6">
-        <Link href="/admin" className="text-2xl font-serif font-bold text-asa-gold">
-          ÀṢÀ
+        <Link href="/admin">
+          <Image
+            src="/images/sible-logo.webp"
+            alt="Sible Couture"
+            width={100}
+            height={34}
+            className="h-7 w-auto brightness-0 invert"
+          />
         </Link>
         <p className="mt-1 text-xs text-white/50">Admin Dashboard</p>
       </div>

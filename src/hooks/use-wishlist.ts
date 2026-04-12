@@ -42,7 +42,7 @@ export const useWishlist = create<WishlistStore>()(
       clearWishlist: () => set({ items: [] }),
     }),
     {
-      name: 'asa-wishlist',
+      name: 'sible-wishlist',
     }
   )
 )
