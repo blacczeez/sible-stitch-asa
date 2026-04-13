@@ -33,7 +33,7 @@ export function AdminSidebar() {
           <Image
             src="/images/sible-logo.webp"
             alt="Sible Couture"
-            width={100}
+            width={400}
             height={34}
             className="h-7 w-auto brightness-0 invert"
           />

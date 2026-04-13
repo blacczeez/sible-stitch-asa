@@ -73,7 +73,7 @@ export default function AdminLoginPage() {
             <Image
               src="/images/sible-logo.webp"
               alt="Sible Couture"
-              width={140}
+              width={440}
               height={48}
               className="h-10 w-auto"
               priority
