@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import { useCart } from '@/hooks/use-cart'
 import { ShippingForm } from '@/components/checkout/shipping-form'
 import { OrderReview } from '@/components/checkout/order-review'
+import { CheckoutSkeleton } from '@/components/checkout/checkout-skeleton'
 
 export function CheckoutContent() {
   const router = useRouter()
@@ -16,12 +17,12 @@ export function CheckoutContent() {
     }
   }, [hydrated, items.length, router])
 
-  if (!hydrated || items.length === 0) {
-    return (
-      <div className="container mx-auto px-4 pb-16 text-center">
-        <p className="text-muted-foreground">Loading...</p>
-      </div>
-    )
+  if (!hydrated) {
+    return <CheckoutSkeleton />
+  }
+
+  if (items.length === 0) {
+    return null
   }
 
   return (

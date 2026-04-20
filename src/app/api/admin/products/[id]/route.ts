@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { revalidateTag } from 'next/cache'
 import { Prisma } from '@prisma/client'
 import { requireAdmin } from '@/lib/admin-auth'
 import { prisma } from '@/lib/prisma'
@@ -109,6 +110,8 @@ export async function PATCH(
       })
     })
 
+    revalidateTag('products')
+
     return NextResponse.json({
       product: mapProduct({
         ...updated,
@@ -140,6 +143,8 @@ export async function DELETE(
     }
 
     await prisma.product.delete({ where: { id } })
+
+    revalidateTag('products')
 
     return NextResponse.json({
       success: true,

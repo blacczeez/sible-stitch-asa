@@ -1,6 +1,6 @@
 'use client'
 
-import { useRouter, useSearchParams } from 'next/navigation'
+import { useFilterNavigation } from '@/hooks/use-filter-navigation'
 import {
   Select,
   SelectContent,
@@ -17,8 +17,7 @@ const SORT_OPTIONS = [
 ]
 
 export function ProductSort() {
-  const router = useRouter()
-  const searchParams = useSearchParams()
+  const { navigate, searchParams } = useFilterNavigation()
   const currentSort = searchParams.get('sort') ?? 'newest'
 
   function handleSortChange(value: string) {
@@ -30,7 +29,7 @@ export function ProductSort() {
       params.set('sort', value)
     }
 
-    router.push(`?${params.toString()}`, { scroll: false })
+    navigate(`?${params.toString()}`, { scroll: false })
   }
 
   return (

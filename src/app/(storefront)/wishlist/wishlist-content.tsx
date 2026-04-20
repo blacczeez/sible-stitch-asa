@@ -6,15 +6,18 @@ import { Heart } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { ProductCard } from '@/components/product/product-card'
 import { EmptyState } from '@/components/ui/empty-state'
+import { WishlistSkeleton } from '@/components/wishlist/wishlist-skeleton'
 import { useWishlist } from '@/hooks/use-wishlist'
 import type { Product } from '@/types'
 
 export function WishlistContent() {
-  const { items } = useWishlist()
+  const { items, hydrated } = useWishlist()
   const [products, setProducts] = useState<Product[]>([])
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
+    if (!hydrated) return
+
     let cancelled = false
 
     async function load() {
@@ -46,15 +49,15 @@ export function WishlistContent() {
     return () => {
       cancelled = true
     }
-  }, [items])
+  }, [items, hydrated])
 
-  if (loading) {
+  if (!hydrated || loading) {
     return (
       <div className="container mx-auto px-4 py-8">
         <h1 className="text-3xl font-serif font-bold text-asa-charcoal mb-8">
           My Wishlist
         </h1>
-        <p className="text-muted-foreground">Loading...</p>
+        <WishlistSkeleton />
       </div>
     )
   }

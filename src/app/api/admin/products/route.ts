@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { revalidateTag } from 'next/cache'
 import { Prisma } from '@prisma/client'
 import { requireAdmin } from '@/lib/admin-auth'
 import { prisma } from '@/lib/prisma'
@@ -115,6 +116,8 @@ export async function POST(request: NextRequest) {
       },
       include,
     })
+
+    revalidateTag('products')
 
     return NextResponse.json(
       {

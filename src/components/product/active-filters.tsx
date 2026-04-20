@@ -1,6 +1,6 @@
 'use client'
 
-import { useRouter, useSearchParams } from 'next/navigation'
+import { useFilterNavigation } from '@/hooks/use-filter-navigation'
 import { X } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -24,8 +24,7 @@ function getFilterLabel(key: string, value: string): string {
 }
 
 export function ActiveFilters() {
-  const router = useRouter()
-  const searchParams = useSearchParams()
+  const { navigate, searchParams } = useFilterNavigation()
 
   const filters: { key: string; value: string; label: string }[] = []
 
@@ -46,14 +45,14 @@ export function ActiveFilters() {
     const values = params.getAll(key).filter((v) => v !== value)
     params.delete(key)
     values.forEach((v) => params.append(key, v))
-    router.push(`?${params.toString()}`, { scroll: false })
+    navigate(`?${params.toString()}`, { scroll: false })
   }
 
   function clearAll() {
     const params = new URLSearchParams()
     const sort = searchParams.get('sort')
     if (sort) params.set('sort', sort)
-    router.push(`?${params.toString()}`, { scroll: false })
+    navigate(`?${params.toString()}`, { scroll: false })
   }
 
   return (

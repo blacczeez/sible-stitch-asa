@@ -4,10 +4,10 @@ import { ArrowRight } from 'lucide-react'
 
 export function HeroSection() {
   return (
-    <section className="relative h-[90vh] min-h-[600px] overflow-hidden bg-asa-charcoal">
+    <section className="relative h-screen min-h-[600px] overflow-hidden bg-asa-charcoal">
       {/* Background Image */}
       <Image
-        src="https://images.unsplash.com/photo-1663044022557-7d5d4c1d5318?w=1920&h=1080&fit=crop&crop=faces,center&q=80"
+        src="/images/sible-hero-1.webp"
         alt="African fashion model wearing vibrant Ankara print clothing"
         fill
         className="object-cover object-center"
@@ -28,8 +28,7 @@ export function HeroSection() {
           <h1 className="text-4xl md:text-5xl lg:text-7xl font-serif font-semibold leading-[1.1] text-white mb-6">
             Premium African{' '}
             <em className="italic font-light">Fashion</em>
-            <br />
-            for the Modern Citizen
+          
           </h1>
           <p className="text-base md:text-lg text-white/70 mb-8 max-w-lg leading-relaxed">
             Discover our curated collection of Ankara prints, casual wear, and

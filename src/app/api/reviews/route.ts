@@ -1,11 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { revalidateTag } from 'next/cache'
 import { z } from 'zod'
 import { listReviewsForProduct, createGuestProductReview } from '@/lib/data/reviews'
 
 const createReviewSchema = z.object({
   rating: z.number().int().min(1).max(5),
-  title: z.string().min(1).max(200),
-  body: z.string().min(1).max(2000),
+  title: z.string().trim().min(1).max(200),
+  body: z.string().trim().min(1).max(2000),
   productId: z.string().uuid(),
 })
 
@@ -54,6 +55,9 @@ export async function POST(request: NextRequest) {
     }
 
     const review = await createGuestProductReview(parsed.data)
+
+    revalidateTag(`reviews-${parsed.data.productId}`)
+    revalidateTag('products')
 
     return NextResponse.json({ review }, { status: 201 })
   } catch (error) {

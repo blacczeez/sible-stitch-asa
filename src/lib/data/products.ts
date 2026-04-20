@@ -88,7 +88,7 @@ export async function listProducts(
   const skip = isIdsMode ? 0 : (page - 1) * limit
   const take = isIdsMode ? Math.min(ids!.length, 50) : limit
 
-  const [totalItems, rows] = await prisma.$transaction([
+  const [totalItems, rows] = await Promise.all([
     prisma.product.count({ where }),
     prisma.product.findMany({
       where,

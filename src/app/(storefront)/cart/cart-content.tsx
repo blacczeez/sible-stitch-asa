@@ -7,16 +7,13 @@ import { useCart } from '@/hooks/use-cart'
 import { CartItemRow } from '@/components/cart/cart-item'
 import { CartSummary } from '@/components/cart/cart-summary'
 import { EmptyState } from '@/components/ui/empty-state'
+import { CartSkeleton } from '@/components/cart/cart-skeleton'
 
 export function CartContent() {
   const { items, hydrated } = useCart()
 
   if (!hydrated) {
-    return (
-      <div className="container mx-auto px-4 pb-16 text-center">
-        <p className="text-muted-foreground">Loading cart...</p>
-      </div>
-    )
+    return <CartSkeleton />
   }
 
   if (items.length === 0) {

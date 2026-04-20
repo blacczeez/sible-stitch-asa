@@ -1,6 +1,6 @@
 'use client'
 
-import { useRouter, useSearchParams } from 'next/navigation'
+import { useFilterNavigation } from '@/hooks/use-filter-navigation'
 import { Button } from '@/components/ui/button'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
 
@@ -10,15 +10,14 @@ interface PaginationControlsProps {
 }
 
 export function PaginationControls({ currentPage, totalPages }: PaginationControlsProps) {
-  const router = useRouter()
-  const searchParams = useSearchParams()
+  const { navigate, searchParams } = useFilterNavigation()
 
   if (totalPages <= 1) return null
 
   const goToPage = (page: number) => {
     const params = new URLSearchParams(searchParams.toString())
     params.set('page', page.toString())
-    router.push(`?${params.toString()}`)
+    navigate(`?${params.toString()}`)
   }
 
   const pages = []

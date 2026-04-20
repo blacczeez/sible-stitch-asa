@@ -34,11 +34,15 @@ export function ReviewForm({
   onSubmit,
   onReviewCreated,
 }: ReviewFormProps) {
+  const TITLE_MAX_LENGTH = 200
+  const BODY_MAX_LENGTH = 2000
+
   const [open, setOpen] = useState(false)
   const [rating, setRating] = useState(0)
   const [hoveredRating, setHoveredRating] = useState(0)
   const [title, setTitle] = useState('')
   const [body, setBody] = useState('')
+  const [errors, setErrors] = useState<{ title?: string; body?: string }>({})
   const [isSubmitting, setIsSubmitting] = useState(false)
 
   function resetForm() {
@@ -46,6 +50,7 @@ export function ReviewForm({
     setHoveredRating(0)
     setTitle('')
     setBody('')
+    setErrors({})
   }
 
   async function handleSubmit(e: React.FormEvent) {
@@ -56,20 +61,54 @@ export function ReviewForm({
       return
     }
 
+    const normalizedTitle = title.trim()
+    const normalizedBody = body.trim()
+    const nextErrors: { title?: string; body?: string } = {}
+
+    if (normalizedTitle.length === 0) {
+      nextErrors.title = 'Review title is required'
+    } else if (normalizedTitle.length > TITLE_MAX_LENGTH) {
+      nextErrors.title = `Review title must be ${TITLE_MAX_LENGTH} characters or fewer`
+    }
+
+    if (normalizedBody.length === 0) {
+      nextErrors.body = 'Review body is required'
+    } else if (normalizedBody.length > BODY_MAX_LENGTH) {
+      nextErrors.body = `Review body must be ${BODY_MAX_LENGTH} characters or fewer`
+    }
+
+    if (Object.keys(nextErrors).length > 0) {
+      setErrors(nextErrors)
+      return
+    }
+
+    setErrors({})
     setIsSubmitting(true)
 
     try {
       if (onSubmit) {
-        await onSubmit({ rating, title, body })
+        await onSubmit({ rating, title: normalizedTitle, body: normalizedBody })
       } else {
         const res = await fetch('/api/reviews', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ productId, rating, title, body }),
+          body: JSON.stringify({
+            productId,
+            rating,
+            title: normalizedTitle,
+            body: normalizedBody,
+          }),
         })
 
         if (!res.ok) {
-          throw new Error('Failed to submit review')
+          const responseBody = await res.json().catch(() => null)
+          const fieldErrors = responseBody?.details?.fieldErrors as
+            | Record<string, string[]>
+            | undefined
+          const firstFieldError = fieldErrors
+            ? Object.values(fieldErrors).flat()[0]
+            : undefined
+          throw new Error(firstFieldError || responseBody?.error || 'Failed to submit review')
         }
 
         const data = await res.json()
@@ -81,8 +120,10 @@ export function ReviewForm({
       toast.success('Review submitted successfully!')
       resetForm()
       setOpen(false)
-    } catch {
-      toast.error('Failed to submit review. Please try again.')
+    } catch (error) {
+      const message =
+        error instanceof Error ? error.message : 'Failed to submit review. Please try again.'
+      toast.error(message)
     } finally {
       setIsSubmitting(false)
     }
@@ -91,7 +132,15 @@ export function ReviewForm({
   const displayRating = hoveredRating || rating
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog
+      open={open}
+      onOpenChange={(nextOpen) => {
+        setOpen(nextOpen)
+        if (!nextOpen) {
+          resetForm()
+        }
+      }}
+    >
       <DialogTrigger asChild>
         <Button variant="outline">Write a Review</Button>
       </DialogTrigger>
@@ -143,8 +192,17 @@ export function ReviewForm({
               id="review-title"
               placeholder="Summarize your experience"
               value={title}
-              onChange={(e) => setTitle(e.target.value)}
+              onChange={(e) => {
+                setTitle(e.target.value)
+                if (errors.title) {
+                  setErrors((prev) => ({ ...prev, title: undefined }))
+                }
+              }}
+              aria-invalid={Boolean(errors.title)}
             />
+            {errors.title && (
+              <p className="text-xs text-destructive mt-1">{errors.title}</p>
+            )}
           </div>
 
           {/* Body */}
@@ -154,9 +212,18 @@ export function ReviewForm({
               id="review-body"
               placeholder="Tell us more about your experience with this product..."
               value={body}
-              onChange={(e) => setBody(e.target.value)}
+              onChange={(e) => {
+                setBody(e.target.value)
+                if (errors.body) {
+                  setErrors((prev) => ({ ...prev, body: undefined }))
+                }
+              }}
               rows={4}
+              aria-invalid={Boolean(errors.body)}
             />
+            {errors.body && (
+              <p className="text-xs text-destructive mt-1">{errors.body}</p>
+            )}
           </div>
 
           {/* Submit */}

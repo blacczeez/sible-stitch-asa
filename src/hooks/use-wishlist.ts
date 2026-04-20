@@ -5,6 +5,7 @@ import { persist } from 'zustand/middleware'
 
 interface WishlistStore {
   items: string[]
+  hydrated: boolean
   addItem: (productId: string) => void
   removeItem: (productId: string) => void
   toggleWishlist: (productId: string) => void
@@ -16,6 +17,7 @@ export const useWishlist = create<WishlistStore>()(
   persist(
     (set, get) => ({
       items: [],
+      hydrated: false,
 
       addItem: (productId) => {
         if (!get().items.includes(productId)) {
@@ -43,6 +45,9 @@ export const useWishlist = create<WishlistStore>()(
     }),
     {
       name: 'sible-wishlist',
+      onRehydrateStorage: () => (state) => {
+        if (state) state.hydrated = true
+      },
     }
   )
 )

@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { revalidateTag } from 'next/cache'
 import { requireAdmin } from '@/lib/admin-auth'
 import { prisma } from '@/lib/prisma'
 import { mapOrder } from '@/lib/data/mappers'
@@ -81,6 +82,8 @@ export async function PATCH(
       },
       include: { shippingAddress: true, items: true },
     })
+
+    revalidateTag(`order-${id}`)
 
     return NextResponse.json({ order: mapOrder(updated) })
   } catch (error) {

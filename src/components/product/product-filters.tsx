@@ -1,7 +1,7 @@
 'use client'
 
-import { useRouter, useSearchParams } from 'next/navigation'
 import { useCallback } from 'react'
+import { useFilterNavigation } from '@/hooks/use-filter-navigation'
 import { cn } from '@/lib/utils'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Button } from '@/components/ui/button'
@@ -25,8 +25,7 @@ const PRICE_RANGES = [
 const SIZES = ['S', 'M', 'L', 'XL', 'One Size']
 
 export function ProductFilters() {
-  const router = useRouter()
-  const searchParams = useSearchParams()
+  const { navigate, searchParams } = useFilterNavigation()
 
   const activeCategories = searchParams.getAll('category')
   const activePriceRange = searchParams.get('price')
@@ -66,14 +65,14 @@ export function ProductFilters() {
     const qs = createQueryString({
       category: current.length > 0 ? current : null,
     })
-    router.push(`?${qs}`, { scroll: false })
+    navigate(`?${qs}`, { scroll: false })
   }
 
   function setPriceRange(value: string) {
     const qs = createQueryString({
       price: activePriceRange === value ? null : value,
     })
-    router.push(`?${qs}`, { scroll: false })
+    navigate(`?${qs}`, { scroll: false })
   }
 
   function toggleSize(size: string) {
@@ -89,11 +88,11 @@ export function ProductFilters() {
     const qs = createQueryString({
       size: current.length > 0 ? current : null,
     })
-    router.push(`?${qs}`, { scroll: false })
+    navigate(`?${qs}`, { scroll: false })
   }
 
   function clearAll() {
-    router.push('?', { scroll: false })
+    navigate('?', { scroll: false })
   }
 
   const hasFilters =
