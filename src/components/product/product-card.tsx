@@ -6,12 +6,10 @@ import Link from 'next/link'
 import { Heart, ShoppingBag } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { useWishlist } from '@/hooks/use-wishlist'
-import { useCartStore } from '@/store/cart-store'
-import { useUIStore } from '@/store/ui-store'
 import { PriceDisplay } from '@/components/ui/price-display'
 import { Button } from '@/components/ui/button'
+import { QuickShopDialog } from '@/components/product/quick-shop-dialog'
 import type { Product } from '@/types'
-import { toast } from 'sonner'
 
 interface ProductCardProps {
   product: Product
@@ -44,39 +42,19 @@ function getBadge(product: Product): { label: string; className: string } | null
 
 export function ProductCard({ product }: ProductCardProps) {
   const { toggleWishlist, isInWishlist } = useWishlist()
-  const addItem = useCartStore((s) => s.addItem)
-  const setCartDrawerOpen = useUIStore((s) => s.setCartDrawerOpen)
   /** Avoid hydration mismatch: persisted wishlist only exists on the client after localStorage loads. */
   const [mounted, setMounted] = useState(false)
+  const [quickShopOpen, setQuickShopOpen] = useState(false)
   useEffect(() => setMounted(true), [])
   const wishlisted = mounted && isInWishlist(product.id)
 
-  const defaultVariant = product.variants.find((v) => v.stock > 0)
+  const hasStock = product.variants.some((v) => v.stock > 0)
   const badge = getBadge(product)
 
-  function handleQuickAdd(e: React.MouseEvent) {
+  function handleQuickShop(e: React.MouseEvent) {
     e.preventDefault()
     e.stopPropagation()
-
-    if (!defaultVariant) {
-      toast.error('This product is currently out of stock.')
-      return
-    }
-
-    addItem({
-      productId: product.id,
-      variantId: defaultVariant.id,
-      name: product.name,
-      image: product.images[0] ?? '',
-      price: defaultVariant.price ?? product.price,
-      size: defaultVariant.size,
-      color: defaultVariant.color,
-      quantity: 1,
-      slug: product.slug,
-    })
-
-    setCartDrawerOpen(true)
-    toast.success(`${product.name} added to cart`)
+    setQuickShopOpen(true)
   }
 
   function handleToggleWishlist(e: React.MouseEvent) {
@@ -129,16 +107,16 @@ export function ProductCard({ product }: ProductCardProps) {
           />
         </Button>
 
-        {/* Quick Add Button */}
+        {/* Quick Shop Button */}
         <div className="absolute inset-x-0 bottom-0 translate-y-full p-3 transition-transform duration-300 group-hover:translate-y-0">
           <Button
             className="w-full bg-asa-gold text-asa-charcoal hover:bg-asa-gold/90 rounded-full font-semibold"
             size="sm"
-            onClick={handleQuickAdd}
-            disabled={!defaultVariant}
+            onClick={handleQuickShop}
+            disabled={!hasStock}
           >
             <ShoppingBag className="size-4" />
-            Quick Add
+            Quick Shop
           </Button>
         </div>
       </div>
@@ -160,6 +138,13 @@ export function ProductCard({ product }: ProductCardProps) {
           className="text-sm"
         />
       </div>
+
+      {/* Quick Shop Dialog */}
+      <QuickShopDialog
+        product={product}
+        open={quickShopOpen}
+        onOpenChange={setQuickShopOpen}
+      />
     </div>
   )
 }
