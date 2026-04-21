@@ -10,16 +10,16 @@ import { Separator } from '@/components/ui/separator'
 import { X } from 'lucide-react'
 
 const CATEGORIES = [
-  { slug: 'ankara-prints', label: 'Ankara Prints' },
-  { slug: 'casual-wear', label: 'Casual Wear' },
+  { slug: 'ankara', label: 'Ankara Prints' },
+  { slug: 'casual', label: 'Casual Wear' },
   { slug: 'accessories', label: 'Accessories' },
 ]
 
 const PRICE_RANGES = [
-  { value: '0-100', label: 'Under $100' },
-  { value: '100-200', label: '$100 - $200' },
-  { value: '200-300', label: '$200 - $300' },
-  { value: '300+', label: '$300+' },
+  { min: '0', max: '100', label: 'Under $100' },
+  { min: '100', max: '200', label: '$100 - $200' },
+  { min: '200', max: '300', label: '$200 - $300' },
+  { min: '300', max: '', label: '$300+' },
 ]
 
 const SIZES = ['S', 'M', 'L', 'XL', 'One Size']
@@ -28,7 +28,8 @@ export function ProductFilters() {
   const { navigate, searchParams } = useFilterNavigation()
 
   const activeCategories = searchParams.getAll('category')
-  const activePriceRange = searchParams.get('price')
+  const activeMinPrice = searchParams.get('minPrice')
+  const activeMaxPrice = searchParams.get('maxPrice')
   const activeSizes = searchParams.getAll('size')
 
   const createQueryString = useCallback(
@@ -68,9 +69,11 @@ export function ProductFilters() {
     navigate(`?${qs}`, { scroll: false })
   }
 
-  function setPriceRange(value: string) {
+  function setPriceRange(min: string, max: string) {
+    const isActive = activeMinPrice === min && activeMaxPrice === (max || null)
     const qs = createQueryString({
-      price: activePriceRange === value ? null : value,
+      minPrice: isActive ? null : min,
+      maxPrice: isActive ? null : (max || null),
     })
     navigate(`?${qs}`, { scroll: false })
   }
@@ -96,7 +99,7 @@ export function ProductFilters() {
   }
 
   const hasFilters =
-    activeCategories.length > 0 || activePriceRange || activeSizes.length > 0
+    activeCategories.length > 0 || activeMinPrice || activeMaxPrice || activeSizes.length > 0
 
   return (
     <aside className="space-y-6">
@@ -146,21 +149,24 @@ export function ProductFilters() {
       <div className="space-y-3">
         <h4 className="text-sm font-medium text-asa-charcoal">Price Range</h4>
         <div className="space-y-2">
-          {PRICE_RANGES.map((range) => (
-            <div key={range.value} className="flex items-center gap-2">
-              <Checkbox
-                id={`price-${range.value}`}
-                checked={activePriceRange === range.value}
-                onCheckedChange={() => setPriceRange(range.value)}
-              />
-              <Label
-                htmlFor={`price-${range.value}`}
-                className="text-sm font-normal cursor-pointer"
-              >
-                {range.label}
-              </Label>
-            </div>
-          ))}
+          {PRICE_RANGES.map((range) => {
+            const isActive = activeMinPrice === range.min && activeMaxPrice === (range.max || null)
+            return (
+              <div key={range.min + range.max} className="flex items-center gap-2">
+                <Checkbox
+                  id={`price-${range.min}-${range.max}`}
+                  checked={isActive}
+                  onCheckedChange={() => setPriceRange(range.min, range.max)}
+                />
+                <Label
+                  htmlFor={`price-${range.min}-${range.max}`}
+                  className="text-sm font-normal cursor-pointer"
+                >
+                  {range.label}
+                </Label>
+              </div>
+            )
+          })}
         </div>
       </div>
 

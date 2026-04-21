@@ -7,16 +7,17 @@ import { Button } from '@/components/ui/button'
 
 const FILTER_LABELS: Record<string, Record<string, string>> = {
   category: {
-    'ankara-prints': 'Ankara Prints',
-    'casual-wear': 'Casual Wear',
+    ankara: 'Ankara Prints',
+    casual: 'Casual Wear',
     accessories: 'Accessories',
   },
-  price: {
-    '0-100': 'Under $100',
-    '100-200': '$100 - $200',
-    '200-300': '$200 - $300',
-    '300+': '$300+',
-  },
+}
+
+const PRICE_LABELS: Record<string, string> = {
+  '0': 'Under $100',
+  '100': '$100 - $200',
+  '200': '$200 - $300',
+  '300': '$300+',
 }
 
 function getFilterLabel(key: string, value: string): string {
@@ -29,7 +30,13 @@ export function ActiveFilters() {
   const filters: { key: string; value: string; label: string }[] = []
 
   searchParams.forEach((value, key) => {
-    if (key === 'sort') return
+    if (key === 'sort' || key === 'maxPrice' || key === 'page') return
+
+    if (key === 'minPrice') {
+      const label = PRICE_LABELS[value] ?? `$${value}+`
+      filters.push({ key: 'minPrice', value, label })
+      return
+    }
 
     filters.push({
       key,
@@ -42,9 +49,16 @@ export function ActiveFilters() {
 
   function removeFilter(key: string, value: string) {
     const params = new URLSearchParams(searchParams.toString())
-    const values = params.getAll(key).filter((v) => v !== value)
-    params.delete(key)
-    values.forEach((v) => params.append(key, v))
+
+    if (key === 'minPrice') {
+      params.delete('minPrice')
+      params.delete('maxPrice')
+    } else {
+      const values = params.getAll(key).filter((v) => v !== value)
+      params.delete(key)
+      values.forEach((v) => params.append(key, v))
+    }
+
     navigate(`?${params.toString()}`, { scroll: false })
   }
 

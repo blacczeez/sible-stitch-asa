@@ -56,7 +56,7 @@ export function HeroSection() {
   }, [prevIndex])
 
   return (
-    <section className="relative h-[50vh] md:h-screen min-h-[400px] overflow-hidden bg-asa-charcoal">
+    <section className="relative h-[50vh] md:h-screen min-h-[400px] overflow-hidden ">
       {/* Stacked slides with crossfade */}
       {HERO_SLIDES.map((slide, index) => {
         const isActive = index === activeIndex
@@ -89,9 +89,9 @@ export function HeroSection() {
                 <Image
                   src={slide.mobileSrc}
                   alt={slide.alt}
-                  width={9504}
-                  height={3072}
-                  className="object-contain object-top md:hidden"
+                  fill
+                  className="object-cover md:hidden"
+                  style={{ objectPosition: '0% 0%' }}
                   priority={index === 0}
                   sizes="100vw"
                 />
@@ -100,7 +100,8 @@ export function HeroSection() {
                   src={slide.src}
                   alt={slide.alt}
                   fill
-                  className="hidden md:block object-cover object-bottom md:object-center"
+                  className="hidden md:block object-cover"
+                  style={{ objectPosition: '0% 0%' }}
                   priority={index === 0}
                   sizes="100vw"
                 />
