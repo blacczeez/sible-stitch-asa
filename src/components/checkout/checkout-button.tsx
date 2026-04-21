@@ -14,7 +14,7 @@ interface CheckoutButtonProps {
 
 export function CheckoutButton({ onSubmit }: CheckoutButtonProps) {
   const router = useRouter()
-  const { items, subtotal, discount, clearCart, promoCode } = useCart()
+  const { items, promoCode } = useCart()
   const [loading, setLoading] = useState(false)
 
   const handleCheckout = onSubmit(async (data) => {
@@ -42,9 +42,15 @@ export function CheckoutButton({ onSubmit }: CheckoutButtonProps) {
       const result = await res.json()
 
       if (result.checkoutUrl) {
+        // Real Stripe: full-page redirect to hosted checkout.
+        // Cart is cleared on the order success page after Stripe redirects back.
         window.location.href = result.checkoutUrl
       } else if (result.orderId) {
-        clearCart()
+        // Mock mode: navigate to order success page.
+        // Cart is NOT cleared here — the order page clears it when isSuccess=true.
+        // This avoids a race condition where clearing the cart triggers the
+        // checkout-content's empty-cart guard (redirect to /cart) before the
+        // router.push navigation takes effect.
         router.push(`/orders/${result.orderId}?success=true`)
       }
     } catch {

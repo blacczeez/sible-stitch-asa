@@ -1,11 +1,13 @@
 'use client'
 
+import { useEffect } from 'react'
 import { CheckCircle, Package, Truck, MapPin } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Separator } from '@/components/ui/separator'
 import { Button } from '@/components/ui/button'
 import { formatCurrency, formatDate } from '@/lib/utils'
+import { useCartStore } from '@/store/cart-store'
 import type { Order } from '@/types'
 import Link from 'next/link'
 
@@ -34,6 +36,17 @@ interface OrderDetailContentProps {
 }
 
 export function OrderDetailContent({ order, isSuccess }: OrderDetailContentProps) {
+  const clearCart = useCartStore((s) => s.clearCart)
+
+  // Clear cart when arriving from a successful checkout.
+  // This runs on the order page (not checkout page) to avoid a race condition
+  // where clearing the cart on checkout triggers the empty-cart guard redirect.
+  useEffect(() => {
+    if (isSuccess) {
+      clearCart()
+    }
+  }, [isSuccess, clearCart])
+
   const currentStepIndex = statusOrder.indexOf(order.status)
   const statusInfo = statusConfig[order.status] || statusConfig.pending
 
