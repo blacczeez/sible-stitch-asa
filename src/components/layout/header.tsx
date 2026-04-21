@@ -93,7 +93,7 @@ export function Header() {
               <div className="flex items-center gap-2 flex-1 justify-end">
                 <button
                   onClick={() => setSearchOpen(true)}
-                  className={`hidden sm:flex items-center gap-2 px-4 py-1.5 rounded-full border text-xs transition-colors ${
+                  className={`hidden lg:flex items-center gap-2 px-4 py-1.5 rounded-full border text-xs transition-colors ${
                     solid
                       ? 'border-border text-muted-foreground hover:border-asa-charcoal'
                       : 'border-white/30 text-white/70 hover:border-white/60'
@@ -103,16 +103,9 @@ export function Header() {
                   <Search className="w-3.5 h-3.5" />
                   <span>Search</span>
                 </button>
-                <button
-                  onClick={() => setSearchOpen(true)}
-                  className={`sm:hidden p-2 rounded-full transition-colors ${
-                    solid ? 'text-asa-charcoal hover:bg-secondary' : 'text-white hover:bg-white/10'
-                  }`}
-                  aria-label="Search"
+                <div
+                  className={`hidden lg:block ${solid ? '' : '[&_button]:text-white'}`}
                 >
-                  <Search className="w-5 h-5" />
-                </button>
-                <div className={solid ? '' : '[&_button]:text-white'}>
                   <CurrencySelector />
                 </div>
                 <Link
