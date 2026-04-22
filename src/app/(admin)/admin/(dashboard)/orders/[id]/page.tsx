@@ -19,6 +19,13 @@ import { adminGlassCard, adminPrimaryButtonClass } from '@/lib/admin-ui'
 import { cn, formatCurrency, formatDate } from '@/lib/utils'
 import { toast } from 'sonner'
 import type { Order } from '@/types'
+import { LoadingSpinner } from '@/components/ui/loading-spinner'
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@/components/ui/tooltip'
 
 const statusOptions = [
   'pending',
@@ -50,6 +57,8 @@ export default function AdminOrderDetailPage() {
   const [status, setStatus] = useState<string>('')
   const [trackingNumber, setTrackingNumber] = useState('')
   const [trackingCarrier, setTrackingCarrier] = useState('')
+  const [updating, setUpdating] = useState(false)
+  const canUpdateOrder = status.trim().length > 0
 
   useEffect(() => {
     let cancelled = false
@@ -82,6 +91,7 @@ export default function AdminOrderDetailPage() {
 
   async function handleStatusUpdate() {
     if (!id || !order) return
+    setUpdating(true)
     try {
       const res = await fetch(`/api/admin/orders/${id}`, {
         method: 'PATCH',
@@ -99,6 +109,8 @@ export default function AdminOrderDetailPage() {
       toast.success('Order updated')
     } catch {
       toast.error('Could not update order')
+    } finally {
+      setUpdating(false)
     }
   }
 
@@ -197,7 +209,7 @@ export default function AdminOrderDetailPage() {
           <CardContent className="space-y-4">
             <div>
               <Label>Status</Label>
-              <Select value={status} onValueChange={setStatus}>
+              <Select value={status} onValueChange={setStatus} disabled={updating}>
                 <SelectTrigger className="mt-1">
                   <SelectValue />
                 </SelectTrigger>
@@ -216,6 +228,7 @@ export default function AdminOrderDetailPage() {
                 value={trackingNumber}
                 onChange={(e) => setTrackingNumber(e.target.value)}
                 className="mt-1"
+                disabled={updating}
               />
             </div>
             <div>
@@ -224,20 +237,42 @@ export default function AdminOrderDetailPage() {
                 value={trackingCarrier}
                 onChange={(e) => setTrackingCarrier(e.target.value)}
                 className="mt-1"
+                disabled={updating}
               />
             </div>
-            <Button
-              type="button"
-              onClick={handleStatusUpdate}
-              className={cn('w-full', adminPrimaryButtonClass)}
-            >
-              Update Order
-            </Button>
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <span className="inline-flex w-full">
+                    <Button
+                      type="button"
+                      onClick={handleStatusUpdate}
+                      className={cn('w-full', adminPrimaryButtonClass)}
+                      disabled={updating || !canUpdateOrder}
+                    >
+                      {updating ? (
+                        <span className="inline-flex items-center gap-2">
+                          <LoadingSpinner size="sm" /> Updating...
+                        </span>
+                      ) : (
+                        'Update Order'
+                      )}
+                    </Button>
+                  </span>
+                </TooltipTrigger>
+                {!updating && !canUpdateOrder && (
+                  <TooltipContent side="top">
+                    Select a valid status before saving.
+                  </TooltipContent>
+                )}
+              </Tooltip>
+            </TooltipProvider>
             <Button
               type="button"
               variant="outline"
               className="w-full"
               onClick={() => router.back()}
+              disabled={updating}
             >
               Back to Orders
             </Button>

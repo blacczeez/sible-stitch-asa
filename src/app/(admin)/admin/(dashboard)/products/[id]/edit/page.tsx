@@ -17,8 +17,16 @@ import {
 import type { Product } from '@/types'
 import { adminGlassCard, adminPageTitleClass, adminPrimaryButtonClass } from '@/lib/admin-ui'
 import { cn } from '@/lib/utils'
+import { extractApiErrorMessage } from '@/lib/api-errors'
 import { toast } from 'sonner'
 import { ImageUploader } from '@/components/admin/image-uploader'
+import { LoadingSpinner } from '@/components/ui/loading-spinner'
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@/components/ui/tooltip'
 
 export default function EditProductPage() {
   const router = useRouter()
@@ -32,6 +40,18 @@ export default function EditProductPage() {
   const [comparePrice, setComparePrice] = useState('')
   const [status, setStatus] = useState<'draft' | 'published' | 'archived'>('draft')
   const [images, setImages] = useState<string[]>([])
+  const [saving, setSaving] = useState(false)
+
+  const numericPrice = Number.parseFloat(price)
+  const numericComparePrice = comparePrice ? Number.parseFloat(comparePrice) : null
+  const canSubmit =
+    name.trim().length > 0 &&
+    description.trim().length > 0 &&
+    Number.isFinite(numericPrice) &&
+    numericPrice > 0 &&
+    images.length > 0 &&
+    (comparePrice.trim() === '' ||
+      (Number.isFinite(numericComparePrice) && (numericComparePrice ?? 0) > 0))
 
   useEffect(() => {
     let cancelled = false
@@ -68,25 +88,33 @@ export default function EditProductPage() {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     if (!id) return
+    setSaving(true)
     try {
+      const payload = {
+        name,
+        description,
+        price: numericPrice,
+        ...(comparePrice.trim() !== '' ? { comparePrice: numericComparePrice } : {}),
+        status,
+        images,
+      }
       const res = await fetch(`/api/admin/products/${id}`, {
         method: 'PATCH',
         credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          name,
-          description,
-          price: parseFloat(price),
-          comparePrice: comparePrice ? parseFloat(comparePrice) : null,
-          status,
-          images,
-        }),
+        body: JSON.stringify(payload),
       })
-      if (!res.ok) throw new Error('Update failed')
+      const data = await res.json().catch(() => ({}))
+      if (!res.ok) {
+        toast.error(extractApiErrorMessage(data, 'Could not update product'))
+        return
+      }
       toast.success('Product updated')
       router.push('/admin/products')
     } catch {
       toast.error('Could not update product')
+    } finally {
+      setSaving(false)
     }
   }
 
@@ -213,10 +241,38 @@ export default function EditProductPage() {
         </Card>
 
         <div className="flex gap-3">
-          <Button type="submit" className={cn(adminPrimaryButtonClass)}>
-            Save Changes
-          </Button>
-          <Button type="button" variant="outline" onClick={() => router.back()}>
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <span className="inline-flex">
+                  <Button
+                    type="submit"
+                    className={cn(adminPrimaryButtonClass)}
+                    disabled={saving || !canSubmit}
+                  >
+                    {saving ? (
+                      <span className="inline-flex items-center gap-2">
+                        <LoadingSpinner size="sm" /> Saving...
+                      </span>
+                    ) : (
+                      'Save Changes'
+                    )}
+                  </Button>
+                </span>
+              </TooltipTrigger>
+              {!saving && !canSubmit && (
+                <TooltipContent side="top">
+                  Complete all required fields with valid values.
+                </TooltipContent>
+              )}
+            </Tooltip>
+          </TooltipProvider>
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => router.back()}
+            disabled={saving}
+          >
             Cancel
           </Button>
         </div>

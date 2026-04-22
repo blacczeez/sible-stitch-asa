@@ -5,6 +5,7 @@ export interface Category {
   description: string | null
   image: string | null
   sortOrder: number
+  isActive: boolean
 }
 
 export interface ProductVariant {

@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { useCart } from '@/hooks/use-cart'
 import { Check, X } from 'lucide-react'
+import { LoadingSpinner } from '@/components/ui/loading-spinner'
 
 export function PromoCodeInput() {
   const { promoCode, applyPromoCode, clearPromo } = useCart()
@@ -52,6 +53,7 @@ export function PromoCodeInput() {
           }}
           onKeyDown={(e) => e.key === 'Enter' && handleApply()}
           className="text-sm"
+          disabled={loading}
         />
         <Button
           variant="outline"
@@ -59,7 +61,14 @@ export function PromoCodeInput() {
           onClick={handleApply}
           disabled={loading || !code.trim()}
         >
-          {loading ? '...' : 'Apply'}
+          {loading ? (
+            <span className="inline-flex items-center gap-2">
+              <LoadingSpinner size="sm" />
+              Applying...
+            </span>
+          ) : (
+            'Apply'
+          )}
         </Button>
       </div>
       {error && <p className="text-xs text-destructive mt-1">{error}</p>}

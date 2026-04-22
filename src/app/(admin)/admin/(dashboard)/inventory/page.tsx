@@ -26,6 +26,13 @@ import {
 } from '@/lib/admin-ui'
 import { cn } from '@/lib/utils'
 import { toast } from 'sonner'
+import { LoadingSpinner } from '@/components/ui/loading-spinner'
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@/components/ui/tooltip'
 
 type InventoryRow = {
   variantId: string
@@ -46,6 +53,9 @@ export default function AdminInventoryPage() {
   const [selected, setSelected] = useState<InventoryRow | null>(null)
   const [action, setAction] = useState<'set' | 'add' | 'remove'>('set')
   const [qty, setQty] = useState('0')
+  const [applying, setApplying] = useState(false)
+  const parsedQty = Number.parseInt(qty, 10)
+  const canApplyAdjustment = Number.isInteger(parsedQty) && parsedQty >= 0
 
   async function loadInventory() {
     setLoading(true)
@@ -97,6 +107,7 @@ export default function AdminInventoryPage() {
       toast.error('Invalid quantity')
       return
     }
+    setApplying(true)
     try {
       const res = await fetch('/api/admin/inventory', {
         method: 'PATCH',
@@ -114,6 +125,8 @@ export default function AdminInventoryPage() {
       await loadInventory()
     } catch {
       toast.error('Could not update stock')
+    } finally {
+      setApplying(false)
     }
   }
 
@@ -204,6 +217,7 @@ export default function AdminInventoryPage() {
                       setAction('set')
                       setAdjustOpen(true)
                     }}
+                    disabled={applying}
                   >
                     Adjust
                   </Button>
@@ -232,6 +246,7 @@ export default function AdminInventoryPage() {
                 <Select
                   value={action}
                   onValueChange={(v) => setAction(v as typeof action)}
+                  disabled={applying}
                 >
                   <SelectTrigger className="mt-1">
                     <SelectValue />
@@ -251,15 +266,36 @@ export default function AdminInventoryPage() {
                   value={qty}
                   onChange={(e) => setQty(e.target.value)}
                   className="mt-1"
+                  disabled={applying}
                 />
               </div>
-              <Button
-                className={cn('w-full', adminPrimaryButtonClass)}
-                type="button"
-                onClick={applyAdjustment}
-              >
-                Update Stock
-              </Button>
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <span className="inline-flex w-full">
+                      <Button
+                        className={cn('w-full', adminPrimaryButtonClass)}
+                        type="button"
+                        onClick={applyAdjustment}
+                        disabled={applying || !canApplyAdjustment}
+                      >
+                        {applying ? (
+                          <span className="inline-flex items-center gap-2">
+                            <LoadingSpinner size="sm" /> Updating...
+                          </span>
+                        ) : (
+                          'Update Stock'
+                        )}
+                      </Button>
+                    </span>
+                  </TooltipTrigger>
+                  {!applying && !canApplyAdjustment && (
+                    <TooltipContent side="top">
+                      Enter a valid non-negative quantity.
+                    </TooltipContent>
+                  )}
+                </Tooltip>
+              </TooltipProvider>
             </div>
           )}
         </DialogContent>

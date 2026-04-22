@@ -37,3 +37,19 @@ export const inventoryUpdateSchema = z.object({
 })
 
 export type InventoryUpdate = z.infer<typeof inventoryUpdateSchema>
+
+export const categorySchema = z.object({
+  name: z.string().trim().min(1).max(120),
+  slug: z
+    .string()
+    .trim()
+    .min(1)
+    .max(120)
+    .regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, 'Slug must be lowercase with hyphens'),
+  description: z.string().trim().max(500).nullable().optional(),
+  image: z.string().trim().url().max(2000).nullable().optional(),
+  sortOrder: z.number().int().min(0).max(9999).default(0),
+  isActive: z.boolean().default(true),
+})
+
+export type CategoryInput = z.infer<typeof categorySchema>

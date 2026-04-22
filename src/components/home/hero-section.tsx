@@ -16,12 +16,12 @@ const HERO_SLIDES: HeroSlide[] = [
     mobileSrc: '/images/sible-hero-1-mobile.webp',
     alt: 'African fashion model wearing vibrant Ankara print clothing',
   },
-  {
-    type: 'image',
-    src: '/images/sible-hero-2.webp',
-    mobileSrc: '/images/sible-hero-2-mobile.webp',
-    alt: 'African fashion model wearing vibrant Ankara print clothing',
-  },
+  // {
+  //   type: 'image',
+  //   src: '/images/sible-hero-2.webp',
+  //   mobileSrc: '/images/sible-hero-2-mobile.webp',
+  //   alt: 'African fashion model wearing vibrant Ankara print clothing',
+  // },
   // Add a video slide:
   // {
   //   type: 'video',

@@ -3,6 +3,11 @@ import { revalidateTag } from 'next/cache'
 import { Prisma } from '@prisma/client'
 import { requireAdmin } from '@/lib/admin-auth'
 import { prisma } from '@/lib/prisma'
+import {
+  deleteFromCloudinary,
+  extractCloudinaryPublicId,
+  isCloudinaryConfigured,
+} from '@/lib/cloudinary'
 import { mapProduct } from '@/lib/data/mappers'
 import { getProductById } from '@/lib/data/products'
 import { updateProductSchema } from '@/validations/product'
@@ -143,6 +148,31 @@ export async function DELETE(
     }
 
     await prisma.product.delete({ where: { id } })
+
+    if (isCloudinaryConfigured()) {
+      const uniqueUrls = [...new Set(existing.images)]
+      for (const imageUrl of uniqueUrls) {
+        const publicId = extractCloudinaryPublicId(imageUrl)
+        if (!publicId) continue
+
+        // Do not delete if another record still references this asset.
+        const [productsUsingImage, categoriesUsingImage] = await Promise.all([
+          prisma.product.count({ where: { images: { has: imageUrl } } }),
+          prisma.category.count({ where: { image: imageUrl } }),
+        ])
+
+        if (productsUsingImage > 0 || categoriesUsingImage > 0) continue
+
+        try {
+          await deleteFromCloudinary(publicId)
+        } catch (cloudinaryError) {
+          console.error(
+            `Failed to delete Cloudinary image for product ${id}:`,
+            cloudinaryError
+          )
+        }
+      }
+    }
 
     revalidateTag('products')
 

@@ -23,6 +23,7 @@ export function mapCategory(c: PrismaCategory): Category {
     description: c.description,
     image: c.image,
     sortOrder: c.sortOrder,
+    isActive: c.isActive,
   }
 }
 

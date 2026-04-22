@@ -23,6 +23,8 @@ import {
 } from '@/lib/admin-ui'
 import { cn, formatCurrency } from '@/lib/utils'
 import type { Product } from '@/types'
+import { LoadingSpinner } from '@/components/ui/loading-spinner'
+import { toast } from 'sonner'
 
 const statusColors: Record<string, string> = {
   published: 'bg-green-100 text-green-800',
@@ -35,6 +37,7 @@ export default function AdminProductsPage() {
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState('')
   const [statusFilter, setStatusFilter] = useState('all')
+  const [deletingId, setDeletingId] = useState<string | null>(null)
 
   useEffect(() => {
     let cancelled = false
@@ -61,6 +64,32 @@ export default function AdminProductsPage() {
       cancelled = true
     }
   }, [])
+
+  async function handleDelete(product: Product) {
+    const confirmed = window.confirm(
+      `Delete "${product.name}"? This cannot be undone.`
+    )
+    if (!confirmed) return
+
+    setDeletingId(product.id)
+    try {
+      const res = await fetch(`/api/admin/products/${product.id}`, {
+        method: 'DELETE',
+        credentials: 'include',
+      })
+      const data = await res.json().catch(() => ({}))
+      if (!res.ok) {
+        toast.error(data.error || 'Could not delete product')
+        return
+      }
+      setProducts((prev) => prev.filter((item) => item.id !== product.id))
+      toast.success('Product deleted')
+    } catch {
+      toast.error('Could not delete product')
+    } finally {
+      setDeletingId(null)
+    }
+  }
 
   const filtered = products.filter((p) => {
     const matchesSearch = p.name.toLowerCase().includes(search.toLowerCase())
@@ -154,8 +183,28 @@ export default function AdminProductsPage() {
                     </Badge>
                   </TableCell>
                   <TableCell className="text-right">
-                    <Button variant="ghost" size="sm" asChild>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      asChild
+                      disabled={deletingId === product.id}
+                    >
                       <Link href={`/admin/products/${product.id}/edit`}>Edit</Link>
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="ml-2"
+                      onClick={() => void handleDelete(product)}
+                      disabled={deletingId === product.id}
+                    >
+                      {deletingId === product.id ? (
+                        <span className="inline-flex items-center gap-2">
+                          <LoadingSpinner size="sm" /> Deleting...
+                        </span>
+                      ) : (
+                        'Delete'
+                      )}
                     </Button>
                   </TableCell>
                 </TableRow>

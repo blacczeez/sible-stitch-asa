@@ -15,6 +15,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { Label } from '@/components/ui/label'
+import { LoadingSpinner } from '@/components/ui/loading-spinner'
 import { toast } from 'sonner'
 
 interface ReviewFormProps {
@@ -232,6 +233,7 @@ export function ReviewForm({
               type="button"
               variant="outline"
               onClick={() => setOpen(false)}
+              disabled={isSubmitting}
             >
               Cancel
             </Button>
@@ -240,7 +242,14 @@ export function ReviewForm({
               disabled={isSubmitting || rating === 0}
               className="bg-asa-charcoal text-white hover:bg-asa-charcoal/90"
             >
-              {isSubmitting ? 'Submitting...' : 'Submit Review'}
+              {isSubmitting ? (
+                <span className="inline-flex items-center gap-2">
+                  <LoadingSpinner size="sm" />
+                  Submitting...
+                </span>
+              ) : (
+                'Submit Review'
+              )}
             </Button>
           </div>
         </form>

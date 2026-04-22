@@ -22,7 +22,15 @@ import {
   adminPrimaryButtonClass,
 } from '@/lib/admin-ui'
 import { cn, formatCurrency } from '@/lib/utils'
+import { extractApiErrorMessage } from '@/lib/api-errors'
 import { toast } from 'sonner'
+import { LoadingSpinner } from '@/components/ui/loading-spinner'
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@/components/ui/tooltip'
 
 type PromoRow = {
   id: string
@@ -46,6 +54,19 @@ export default function AdminPromoCodesPage() {
   const [value, setValue] = useState('')
   const [minOrder, setMinOrder] = useState('')
   const [maxUses, setMaxUses] = useState('')
+  const [creating, setCreating] = useState(false)
+
+  const parsedValue = Number.parseFloat(value)
+  const parsedMinOrder = minOrder ? Number.parseFloat(minOrder) : null
+  const parsedMaxUses = maxUses ? Number.parseInt(maxUses, 10) : null
+  const canCreate =
+    code.trim().length > 0 &&
+    Number.isFinite(parsedValue) &&
+    parsedValue > 0 &&
+    (minOrder.trim() === '' ||
+      (Number.isFinite(parsedMinOrder) && (parsedMinOrder ?? 0) > 0)) &&
+    (maxUses.trim() === '' ||
+      (Number.isFinite(parsedMaxUses) && (parsedMaxUses ?? 0) > 0))
 
   async function load() {
     setLoading(true)
@@ -73,6 +94,7 @@ export default function AdminPromoCodesPage() {
       toast.error('Invalid value')
       return
     }
+    setCreating(true)
     try {
       const res = await fetch('/api/admin/promo-codes', {
         method: 'POST',
@@ -87,7 +109,11 @@ export default function AdminPromoCodesPage() {
           isActive: true,
         }),
       })
-      if (!res.ok) throw new Error('Create failed')
+      const data = await res.json().catch(() => ({}))
+      if (!res.ok) {
+        toast.error(extractApiErrorMessage(data, 'Could not create promo code'))
+        return
+      }
       toast.success('Promo code created')
       setOpen(false)
       setCode('')
@@ -97,6 +123,8 @@ export default function AdminPromoCodesPage() {
       await load()
     } catch {
       toast.error('Could not create promo code')
+    } finally {
+      setCreating(false)
     }
   }
 
@@ -183,9 +211,32 @@ export default function AdminPromoCodesPage() {
                   className="mt-1"
                 />
               </div>
-              <Button type="submit" className={cn('w-full', adminPrimaryButtonClass)}>
-                Create
-              </Button>
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <span className="inline-flex w-full">
+                      <Button
+                        type="submit"
+                        className={cn('w-full', adminPrimaryButtonClass)}
+                        disabled={creating || !canCreate}
+                      >
+                        {creating ? (
+                          <span className="inline-flex items-center gap-2">
+                            <LoadingSpinner size="sm" /> Creating...
+                          </span>
+                        ) : (
+                          'Create'
+                        )}
+                      </Button>
+                    </span>
+                  </TooltipTrigger>
+                  {!creating && !canCreate && (
+                    <TooltipContent side="top">
+                      Provide valid code and numeric values to continue.
+                    </TooltipContent>
+                  )}
+                </Tooltip>
+              </TooltipProvider>
             </form>
           </DialogContent>
         </Dialog>

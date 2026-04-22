@@ -46,3 +46,30 @@ export async function uploadToCloudinary(
 export async function deleteFromCloudinary(publicId: string): Promise<void> {
   await cloudinary.uploader.destroy(publicId)
 }
+
+export function extractCloudinaryPublicId(url: string): string | null {
+  try {
+    const parsed = new URL(url)
+    if (!parsed.hostname.includes('res.cloudinary.com')) return null
+
+    const uploadToken = '/upload/'
+    const uploadIdx = parsed.pathname.indexOf(uploadToken)
+    if (uploadIdx === -1) return null
+
+    let rest = parsed.pathname.slice(uploadIdx + uploadToken.length)
+    rest = rest.replace(/^v\d+\//, '')
+
+    const segments = rest.split('/').filter(Boolean)
+    if (segments.length === 0) return null
+
+    const last = segments[segments.length - 1]
+    const dotIndex = last.lastIndexOf('.')
+    if (dotIndex > 0) {
+      segments[segments.length - 1] = last.slice(0, dotIndex)
+    }
+
+    return segments.join('/')
+  } catch {
+    return null
+  }
+}
