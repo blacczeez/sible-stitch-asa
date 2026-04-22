@@ -13,7 +13,7 @@ function mapCategoryRow(
     description: string | null
     image: string | null
     sortOrder: number
-    isActive: boolean
+    isActive?: boolean
     createdAt: Date
     updatedAt: Date
     _count?: { products: number }
@@ -26,7 +26,7 @@ function mapCategoryRow(
     description: category.description,
     image: category.image,
     sortOrder: category.sortOrder,
-    isActive: category.isActive,
+    isActive: category.isActive ?? true,
     productCount: category._count?.products ?? 0,
     createdAt: category.createdAt.toISOString(),
     updatedAt: category.updatedAt.toISOString(),
