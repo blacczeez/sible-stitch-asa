@@ -38,6 +38,12 @@ function mapCategoryRow(
   }
 }
 
+function isUnknownIsActiveArg(error: unknown): boolean {
+  return (
+    error instanceof Error && error.message.includes('Unknown argument `isActive`')
+  )
+}
+
 export async function PATCH(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
@@ -78,11 +84,26 @@ export async function PATCH(
       ;(updateData as Record<string, unknown>).isActive = parsed.data.isActive
     }
 
-    const updated = await prisma.category.update({
-      where: { id },
-      data: updateData,
-      include: { _count: { select: { products: true } } },
-    })
+    let updated: Prisma.CategoryGetPayload<{
+      include: { _count: { select: { products: true } } }
+    }>
+    try {
+      updated = await prisma.category.update({
+        where: { id },
+        data: updateData,
+        include: { _count: { select: { products: true } } },
+      })
+    } catch (error) {
+      if (!isUnknownIsActiveArg(error)) throw error
+
+      const { isActive: _ignored, ...withoutIsActive } =
+        updateData as Record<string, unknown>
+      updated = await prisma.category.update({
+        where: { id },
+        data: withoutIsActive as Prisma.CategoryUpdateInput,
+        include: { _count: { select: { products: true } } },
+      })
+    }
 
     revalidateTag('categories')
 

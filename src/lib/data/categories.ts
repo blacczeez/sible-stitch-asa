@@ -10,13 +10,29 @@ interface ListCategoriesOptions {
 export async function listCategories(
   options: ListCategoriesOptions = {}
 ): Promise<Category[]> {
-  const where = (options.includeInactive
-    ? {}
-    : ({ isActive: true } as Record<string, unknown>)) as Prisma.CategoryWhereInput
+  const includeInactive = options.includeInactive === true
+  const orderBy = { sortOrder: 'asc' } as Prisma.CategoryOrderByWithRelationInput
 
-  const rows = await prisma.category.findMany({
-    where,
-    orderBy: { sortOrder: 'asc' },
-  })
-  return rows.map(mapCategory)
+  try {
+    const where = includeInactive
+      ? {}
+      : ({ isActive: true } as Record<string, unknown>)
+
+    const rows = await prisma.category.findMany({
+      where: where as Prisma.CategoryWhereInput,
+      orderBy,
+    })
+    return rows.map(mapCategory)
+  } catch (error) {
+    // Compatibility fallback for environments where Prisma client was generated
+    // before Category.isActive existed.
+    const message = error instanceof Error ? error.message : ''
+    if (!message.includes('Unknown argument `isActive`')) {
+      throw error
+    }
+
+    const rows = await prisma.category.findMany({ orderBy })
+    const mapped = rows.map(mapCategory)
+    return includeInactive ? mapped : mapped.filter((c) => c.isActive)
+  }
 }

@@ -33,6 +33,12 @@ function mapCategoryRow(
   }
 }
 
+function isUnknownIsActiveArg(error: unknown): boolean {
+  return (
+    error instanceof Error && error.message.includes('Unknown argument `isActive`')
+  )
+}
+
 export async function GET(request: NextRequest) {
   const auth = await requireAdmin()
   if ('error' in auth) return auth.error
@@ -40,19 +46,42 @@ export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url)
     const active = searchParams.get('active')
-    const where = (active == null
-      ? {}
-      : ({ isActive: active === 'true' } as Record<string, unknown>)) as Prisma.CategoryWhereInput
+    const orderBy: Prisma.CategoryOrderByWithRelationInput[] = [
+      { sortOrder: 'asc' },
+      { createdAt: 'asc' },
+    ]
+    let rows: Array<
+      Prisma.CategoryGetPayload<{ include: { _count: { select: { products: true } } } }>
+    > = []
 
-    const rows = await prisma.category.findMany({
-      where,
-      include: { _count: { select: { products: true } } },
-      orderBy: [{ sortOrder: 'asc' }, { createdAt: 'asc' }],
-    })
+    try {
+      const where = (active == null
+        ? {}
+        : ({ isActive: active === 'true' } as Record<string, unknown>)) as Prisma.CategoryWhereInput
+
+      rows = await prisma.category.findMany({
+        where,
+        include: { _count: { select: { products: true } } },
+        orderBy,
+      })
+    } catch (error) {
+      if (!isUnknownIsActiveArg(error)) throw error
+
+      rows = await prisma.category.findMany({
+        include: { _count: { select: { products: true } } },
+        orderBy,
+      })
+    }
+
+    const mapped = rows.map(mapCategoryRow)
+    const filtered =
+      active == null
+        ? mapped
+        : mapped.filter((row) => row.isActive === (active === 'true'))
 
     return NextResponse.json({
-      categories: rows.map(mapCategoryRow),
-      total: rows.length,
+      categories: filtered,
+      total: filtered.length,
     })
   } catch (error) {
     console.error('Error fetching categories:', error)
@@ -77,19 +106,34 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    const createData = {
+    const baseCreateData = {
       name: parsed.data.name,
       slug: parsed.data.slug,
       description: parsed.data.description ?? null,
       image: parsed.data.image ?? null,
       sortOrder: parsed.data.sortOrder,
     } as Prisma.CategoryCreateInput
-    ;(createData as Record<string, unknown>).isActive = parsed.data.isActive
 
-    const created = await prisma.category.create({
-      data: createData,
-      include: { _count: { select: { products: true } } },
-    })
+    let created: Prisma.CategoryGetPayload<{
+      include: { _count: { select: { products: true } } }
+    }>
+    try {
+      const createData = {
+        ...baseCreateData,
+      } as Prisma.CategoryCreateInput
+      ;(createData as Record<string, unknown>).isActive = parsed.data.isActive
+
+      created = await prisma.category.create({
+        data: createData,
+        include: { _count: { select: { products: true } } },
+      })
+    } catch (error) {
+      if (!isUnknownIsActiveArg(error)) throw error
+      created = await prisma.category.create({
+        data: baseCreateData,
+        include: { _count: { select: { products: true } } },
+      })
+    }
 
     revalidateTag('categories')
 
