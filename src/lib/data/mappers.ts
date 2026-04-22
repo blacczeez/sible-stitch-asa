@@ -16,6 +16,7 @@ export function decimalToNumber(value: { toNumber(): number } | null | undefined
 }
 
 export function mapCategory(c: PrismaCategory): Category {
+  const withMaybeActive = c as PrismaCategory & { isActive?: boolean }
   return {
     id: c.id,
     slug: c.slug,
@@ -23,7 +24,7 @@ export function mapCategory(c: PrismaCategory): Category {
     description: c.description,
     image: c.image,
     sortOrder: c.sortOrder,
-    isActive: c.isActive,
+    isActive: withMaybeActive.isActive ?? true,
   }
 }
 

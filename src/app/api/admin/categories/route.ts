@@ -40,9 +40,12 @@ export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url)
     const active = searchParams.get('active')
+    const where = (active == null
+      ? {}
+      : ({ isActive: active === 'true' } as Record<string, unknown>)) as Prisma.CategoryWhereInput
 
     const rows = await prisma.category.findMany({
-      where: active == null ? {} : { isActive: active === 'true' },
+      where,
       include: { _count: { select: { products: true } } },
       orderBy: [{ sortOrder: 'asc' }, { createdAt: 'asc' }],
     })
@@ -74,15 +77,17 @@ export async function POST(request: NextRequest) {
       )
     }
 
+    const createData = {
+      name: parsed.data.name,
+      slug: parsed.data.slug,
+      description: parsed.data.description ?? null,
+      image: parsed.data.image ?? null,
+      sortOrder: parsed.data.sortOrder,
+    } as Prisma.CategoryCreateInput
+    ;(createData as Record<string, unknown>).isActive = parsed.data.isActive
+
     const created = await prisma.category.create({
-      data: {
-        name: parsed.data.name,
-        slug: parsed.data.slug,
-        description: parsed.data.description ?? null,
-        image: parsed.data.image ?? null,
-        sortOrder: parsed.data.sortOrder,
-        isActive: parsed.data.isActive,
-      },
+      data: createData,
       include: { _count: { select: { products: true } } },
     })
 

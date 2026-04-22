@@ -61,24 +61,26 @@ export async function PATCH(
       return NextResponse.json({ error: 'Category not found' }, { status: 404 })
     }
 
+    const updateData = {
+      ...(parsed.data.name !== undefined ? { name: parsed.data.name } : {}),
+      ...(parsed.data.slug !== undefined ? { slug: parsed.data.slug } : {}),
+      ...(parsed.data.description !== undefined
+        ? { description: parsed.data.description ?? null }
+        : {}),
+      ...(parsed.data.image !== undefined
+        ? { image: parsed.data.image ?? null }
+        : {}),
+      ...(parsed.data.sortOrder !== undefined
+        ? { sortOrder: parsed.data.sortOrder }
+        : {}),
+    } as Prisma.CategoryUpdateInput
+    if (parsed.data.isActive !== undefined) {
+      ;(updateData as Record<string, unknown>).isActive = parsed.data.isActive
+    }
+
     const updated = await prisma.category.update({
       where: { id },
-      data: {
-        ...(parsed.data.name !== undefined ? { name: parsed.data.name } : {}),
-        ...(parsed.data.slug !== undefined ? { slug: parsed.data.slug } : {}),
-        ...(parsed.data.description !== undefined
-          ? { description: parsed.data.description ?? null }
-          : {}),
-        ...(parsed.data.image !== undefined
-          ? { image: parsed.data.image ?? null }
-          : {}),
-        ...(parsed.data.sortOrder !== undefined
-          ? { sortOrder: parsed.data.sortOrder }
-          : {}),
-        ...(parsed.data.isActive !== undefined
-          ? { isActive: parsed.data.isActive }
-          : {}),
-      },
+      data: updateData,
       include: { _count: { select: { products: true } } },
     })
 
