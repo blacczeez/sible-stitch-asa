@@ -24,6 +24,15 @@ import {
 import { cn, formatCurrency } from '@/lib/utils'
 import type { Product } from '@/types'
 import { LoadingSpinner } from '@/components/ui/loading-spinner'
+import {
+  AlertDialog,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog'
 import { toast } from 'sonner'
 
 const statusColors: Record<string, string> = {
@@ -38,6 +47,7 @@ export default function AdminProductsPage() {
   const [search, setSearch] = useState('')
   const [statusFilter, setStatusFilter] = useState('all')
   const [deletingId, setDeletingId] = useState<string | null>(null)
+  const [productToDelete, setProductToDelete] = useState<Product | null>(null)
 
   useEffect(() => {
     let cancelled = false
@@ -65,15 +75,12 @@ export default function AdminProductsPage() {
     }
   }, [])
 
-  async function handleDelete(product: Product) {
-    const confirmed = window.confirm(
-      `Delete "${product.name}"? This cannot be undone.`
-    )
-    if (!confirmed) return
-
-    setDeletingId(product.id)
+  async function confirmDelete() {
+    if (!productToDelete) return
+    const target = productToDelete
+    setDeletingId(target.id)
     try {
-      const res = await fetch(`/api/admin/products/${product.id}`, {
+      const res = await fetch(`/api/admin/products/${target.id}`, {
         method: 'DELETE',
         credentials: 'include',
       })
@@ -82,7 +89,8 @@ export default function AdminProductsPage() {
         toast.error(data.error || 'Could not delete product')
         return
       }
-      setProducts((prev) => prev.filter((item) => item.id !== product.id))
+      setProducts((prev) => prev.filter((item) => item.id !== target.id))
+      setProductToDelete(null)
       toast.success('Product deleted')
     } catch {
       toast.error('Could not delete product')
@@ -195,16 +203,10 @@ export default function AdminProductsPage() {
                       variant="outline"
                       size="sm"
                       className="ml-2"
-                      onClick={() => void handleDelete(product)}
+                      onClick={() => setProductToDelete(product)}
                       disabled={deletingId === product.id}
                     >
-                      {deletingId === product.id ? (
-                        <span className="inline-flex items-center gap-2">
-                          <LoadingSpinner size="sm" /> Deleting...
-                        </span>
-                      ) : (
-                        'Delete'
-                      )}
+                      Delete
                     </Button>
                   </TableCell>
                 </TableRow>
@@ -213,6 +215,52 @@ export default function AdminProductsPage() {
           </TableBody>
         </Table>
       </div>
+
+      <AlertDialog
+        open={productToDelete !== null}
+        onOpenChange={(open) => {
+          if (!open && deletingId) return
+          if (!open) setProductToDelete(null)
+        }}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete product?</AlertDialogTitle>
+            <AlertDialogDescription asChild>
+              <div>
+                {productToDelete ? (
+                  <>
+                    <p>
+                      &quot;{productToDelete.name}&quot; will be permanently
+                      removed. This cannot be undone.
+                    </p>
+                    <p className="mt-2">
+                      If this product was ever purchased, deletion is blocked to
+                      preserve order history. Use archive or draft status instead.
+                    </p>
+                  </>
+                ) : null}
+              </div>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={!!deletingId}>Cancel</AlertDialogCancel>
+            <Button
+              variant="destructive"
+              disabled={!!deletingId}
+              onClick={() => void confirmDelete()}
+            >
+              {deletingId ? (
+                <span className="inline-flex items-center gap-2">
+                  <LoadingSpinner size="sm" /> Deleting...
+                </span>
+              ) : (
+                'Delete'
+              )}
+            </Button>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   )
 }

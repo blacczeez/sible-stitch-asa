@@ -147,7 +147,35 @@ export async function DELETE(
       return NextResponse.json({ error: 'Product not found' }, { status: 404 })
     }
 
-    await prisma.product.delete({ where: { id } })
+    const variants = await prisma.productVariant.findMany({
+      where: { productId: id },
+      select: { id: true },
+    })
+    const variantIds = variants.map((v) => v.id)
+
+    if (variantIds.length > 0) {
+      const orderItemCount = await prisma.orderItem.count({
+        where: { variantId: { in: variantIds } },
+      })
+      if (orderItemCount > 0) {
+        return NextResponse.json(
+          {
+            error:
+              'This product cannot be deleted because it appears on customer orders. Archive it or remove it from the storefront instead.',
+          },
+          { status: 409 }
+        )
+      }
+    }
+
+    await prisma.$transaction(async (tx) => {
+      if (variantIds.length > 0) {
+        await tx.cartItem.deleteMany({
+          where: { variantId: { in: variantIds } },
+        })
+      }
+      await tx.product.delete({ where: { id } })
+    })
 
     if (isCloudinaryConfigured()) {
       const uniqueUrls = [...new Set(existing.images)]
@@ -182,6 +210,18 @@ export async function DELETE(
     })
   } catch (error) {
     console.error('Error deleting product:', error)
+    if (
+      error instanceof Prisma.PrismaClientKnownRequestError &&
+      error.code === 'P2003'
+    ) {
+      return NextResponse.json(
+        {
+          error:
+            'Cannot delete this product because other records still reference it.',
+        },
+        { status: 409 }
+      )
+    }
     return NextResponse.json(
       { error: 'Failed to delete product' },
       { status: 500 }

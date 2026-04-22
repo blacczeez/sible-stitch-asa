@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { useForm } from 'react-hook-form'
+import { useForm, useFieldArray, Controller } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -25,6 +25,17 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from '@/components/ui/tooltip'
+import { Plus, Trash2 } from 'lucide-react'
+import { SIZE_GUIDE_ORDERED_SIZES } from '@/lib/size-guide'
+
+function newVariantRow(): CreateProduct['variants'][number] {
+  return {
+    size: 'M',
+    color: 'Default',
+    sku: `SKU-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`,
+    stock: 0,
+  }
+}
 
 export default function NewProductPage() {
   const router = useRouter()
@@ -51,6 +62,7 @@ export default function NewProductPage() {
   }, [])
   const {
     register,
+    control,
     handleSubmit,
     setValue,
     watch,
@@ -62,10 +74,13 @@ export default function NewProductPage() {
       status: 'draft',
       isFeatured: false,
       images: [],
-      variants: [
-        { size: 'M', color: 'Default', sku: `NEW-${Date.now().toString(36)}`, stock: 10 },
-      ],
+      variants: [newVariantRow()],
     },
+  })
+
+  const { fields, append, remove } = useFieldArray({
+    control,
+    name: 'variants',
   })
 
   const name = watch('name')
@@ -177,6 +192,11 @@ export default function NewProductPage() {
                   ))}
                 </SelectContent>
               </Select>
+              {errors.categoryId && (
+                <p className="text-xs text-destructive mt-1">
+                  {errors.categoryId.message}
+                </p>
+              )}
             </div>
             <div>
               <Label>Status</Label>
@@ -211,6 +231,168 @@ export default function NewProductPage() {
               />
               <Label htmlFor="featured">Featured Product</Label>
             </div>
+          </CardContent>
+        </Card>
+
+        <Card className={adminGlassCard}>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0">
+            <CardTitle>Variants</CardTitle>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              className="gap-1"
+              onClick={() => append(newVariantRow())}
+            >
+              <Plus className="size-4" />
+              Add variant
+            </Button>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            <p className="text-sm text-muted-foreground">
+              Sizes match the{' '}
+              <a
+                href="/size-guide"
+                target="_blank"
+                rel="noreferrer"
+                className="text-primary underline-offset-4 hover:underline"
+              >
+                size guide
+              </a>
+              . Each row is one sellable variant; size and color pairs must be
+              unique. Leave variant price empty to use the product price.
+            </p>
+            {fields.map((field, index) => (
+              <div
+                key={field.id}
+                className="rounded-lg border border-border/80 bg-background/40 p-4 space-y-4"
+              >
+                <div className="flex items-center justify-between gap-2">
+                  <span className="text-sm font-medium text-muted-foreground">
+                    Variant {index + 1}
+                  </span>
+                  {fields.length > 1 && (
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      className="text-destructive hover:text-destructive"
+                      onClick={() => remove(index)}
+                    >
+                      <Trash2 className="size-4 mr-1" />
+                      Remove
+                    </Button>
+                  )}
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <Label htmlFor={`variant-${field.id}-size`}>Size</Label>
+                    <Controller
+                      control={control}
+                      name={`variants.${index}.size`}
+                      render={({ field: sizeField }) => (
+                        <Select
+                          value={sizeField.value}
+                          onValueChange={sizeField.onChange}
+                        >
+                          <SelectTrigger
+                            id={`variant-${field.id}-size`}
+                            className="mt-1 w-full"
+                          >
+                            <SelectValue placeholder="Select size" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {SIZE_GUIDE_ORDERED_SIZES.map((s) => (
+                              <SelectItem key={s} value={s}>
+                                {s}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      )}
+                    />
+                    {errors.variants?.[index]?.size && (
+                      <p className="text-xs text-destructive mt-1">
+                        {errors.variants[index]?.size?.message}
+                      </p>
+                    )}
+                  </div>
+                  <div>
+                    <Label htmlFor={`variant-${field.id}-color`}>Color</Label>
+                    <Input
+                      id={`variant-${field.id}-color`}
+                      className="mt-1"
+                      {...register(`variants.${index}.color`)}
+                    />
+                    {errors.variants?.[index]?.color && (
+                      <p className="text-xs text-destructive mt-1">
+                        {errors.variants[index]?.color?.message}
+                      </p>
+                    )}
+                  </div>
+                  <div>
+                    <Label htmlFor={`variant-${field.id}-sku`}>SKU</Label>
+                    <Input
+                      id={`variant-${field.id}-sku`}
+                      className="mt-1 font-mono text-sm"
+                      {...register(`variants.${index}.sku`)}
+                    />
+                    {errors.variants?.[index]?.sku && (
+                      <p className="text-xs text-destructive mt-1">
+                        {errors.variants[index]?.sku?.message}
+                      </p>
+                    )}
+                  </div>
+                  <div>
+                    <Label htmlFor={`variant-${field.id}-stock`}>Stock</Label>
+                    <Input
+                      id={`variant-${field.id}-stock`}
+                      type="number"
+                      min={0}
+                      step={1}
+                      className="mt-1"
+                      {...register(`variants.${index}.stock`, {
+                        valueAsNumber: true,
+                      })}
+                    />
+                    {errors.variants?.[index]?.stock && (
+                      <p className="text-xs text-destructive mt-1">
+                        {errors.variants[index]?.stock?.message}
+                      </p>
+                    )}
+                  </div>
+                  <div className="sm:col-span-2">
+                    <Label htmlFor={`variant-${field.id}-price`}>
+                      Variant price override (optional)
+                    </Label>
+                    <Input
+                      id={`variant-${field.id}-price`}
+                      type="number"
+                      step="0.01"
+                      min={0}
+                      placeholder="Uses product price above"
+                      className="mt-1"
+                      {...register(`variants.${index}.price`, {
+                        setValueAs: (v) => {
+                          if (v === '' || v == null) return undefined
+                          const n =
+                            typeof v === 'number' ? v : Number.parseFloat(String(v))
+                          return Number.isFinite(n) && n > 0 ? n : undefined
+                        },
+                      })}
+                    />
+                    {errors.variants?.[index]?.price && (
+                      <p className="text-xs text-destructive mt-1">
+                        {errors.variants[index]?.price?.message}
+                      </p>
+                    )}
+                  </div>
+                </div>
+              </div>
+            ))}
+            {typeof errors.variants?.message === 'string' && (
+              <p className="text-xs text-destructive">{errors.variants.message}</p>
+            )}
           </CardContent>
         </Card>
 
