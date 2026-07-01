@@ -17,20 +17,38 @@ import { NAV_LINKS } from '@/lib/constants'
 export function Header() {
   const { itemCount } = useCart()
   const { setMobileMenuOpen, setSearchOpen, setCartDrawerOpen } = useUIStore()
-  const [scrolled, setScrolled] = useState(false)
   const pathname = usePathname()
-  const isHome = pathname === '/'
-
-  // On non-homepage pages, always use solid header styling
-  const solid = scrolled || !isHome
+  // Default transparent so SSR + hydration match on the homepage (Vercel static
+  // prerender can disagree with client pathname; solid styling is applied after mount).
+  const [solid, setSolid] = useState(false)
 
   useEffect(() => {
-    const handleScroll = () => {
-      setScrolled(window.scrollY > 50)
+    const isHome =
+      pathname === '/' ||
+      pathname === '' ||
+      window.location.pathname === '/'
+
+    if (!isHome) {
+      setSolid(true)
+      return
     }
-    window.addEventListener('scroll', handleScroll, { passive: true })
-    return () => window.removeEventListener('scroll', handleScroll)
-  }, [])
+
+    const hero = document.getElementById('home-hero')
+    if (!hero) {
+      setSolid(false)
+      return
+    }
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        setSolid(!entry.isIntersecting)
+      },
+      { threshold: 0 },
+    )
+
+    observer.observe(hero)
+    return () => observer.disconnect()
+  }, [pathname])
 
   return (
     <>

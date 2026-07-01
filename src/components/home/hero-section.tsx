@@ -56,7 +56,10 @@ export function HeroSection() {
   }, [prevIndex])
 
   return (
-    <section className="relative h-[50vh] md:h-screen min-h-[400px] overflow-hidden ">
+    <section
+      id="home-hero"
+      className="relative h-[50vh] md:h-screen min-h-[400px] overflow-hidden "
+    >
       {/* Stacked slides with crossfade */}
       {HERO_SLIDES.map((slide, index) => {
         const isActive = index === activeIndex
