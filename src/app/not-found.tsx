@@ -14,7 +14,10 @@ export default function NotFound() {
         <p className="text-muted-foreground mb-6">
           The page you&apos;re looking for doesn&apos;t exist.
         </p>
-        <Button asChild className="bg-asa-charcoal">
+        <Button
+          asChild
+          className="bg-asa-charcoal text-white hover:bg-asa-charcoal/90"
+        >
           <Link href="/">Go Home</Link>
         </Button>
       </div>

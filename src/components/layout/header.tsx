@@ -14,41 +14,63 @@ import { SearchDialog } from './search-dialog'
 import { CurrencySelector } from './currency-selector'
 import { NAV_LINKS } from '@/lib/constants'
 
-export function Header() {
+interface HeaderProps {
+  isHome?: boolean
+}
+
+export function Header({ isHome: initialIsHome = false }: HeaderProps) {
   const { itemCount } = useCart()
   const { setMobileMenuOpen, setSearchOpen, setCartDrawerOpen } = useUIStore()
   const pathname = usePathname()
-  // Default transparent so SSR + hydration match on the homepage (Vercel static
-  // prerender can disagree with client pathname; solid styling is applied after mount).
-  const [solid, setSolid] = useState(false)
+  const isHome = pathname === '/' || pathname === ''
+  const [solid, setSolid] = useState(() => !initialIsHome)
 
   useEffect(() => {
-    const isHome =
-      pathname === '/' ||
-      pathname === '' ||
-      window.location.pathname === '/'
-
     if (!isHome) {
       setSolid(true)
       return
     }
 
+    setSolid(false)
+
     const hero = document.getElementById('home-hero')
-    if (!hero) {
-      setSolid(false)
-      return
+    if (!hero) return
+
+    let heroSeen = false
+
+    const updateFromHero = () => {
+      const rect = hero.getBoundingClientRect()
+      if (rect.height > 0 && rect.top < window.innerHeight && rect.bottom > 0) {
+        heroSeen = true
+        setSolid(false)
+        return
+      }
+
+      if (heroSeen || rect.bottom <= 0) {
+        setSolid(true)
+      }
     }
 
     const observer = new IntersectionObserver(
       ([entry]) => {
-        setSolid(!entry.isIntersecting)
+        if (entry.isIntersecting) {
+          heroSeen = true
+          setSolid(false)
+        } else if (heroSeen) {
+          setSolid(true)
+        }
       },
       { threshold: 0 },
     )
 
     observer.observe(hero)
+    requestAnimationFrame(() => {
+      updateFromHero()
+      requestAnimationFrame(updateFromHero)
+    })
+
     return () => observer.disconnect()
-  }, [pathname])
+  }, [isHome])
 
   return (
     <>

@@ -74,7 +74,10 @@ export function WishlistContent() {
           title="Your wishlist is empty"
           description="Save items you love by clicking the heart icon on any product."
         >
-          <Button asChild className="mt-4 bg-asa-charcoal">
+          <Button
+            asChild
+            className="mt-4 bg-asa-charcoal text-white hover:bg-asa-charcoal/90"
+          >
             <Link href="/products">Browse Products</Link>
           </Button>
         </EmptyState>
