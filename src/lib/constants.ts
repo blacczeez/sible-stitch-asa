@@ -18,6 +18,16 @@ export const DEFAULT_EXCHANGE_RATES: Record<Currency, number> = {
 }
 
 export const FREE_SHIPPING_THRESHOLD = 150
+export const STANDARD_SHIPPING = 15
+export const RETURN_WINDOW_DAYS = 30
+export const MADE_TO_ORDER_LEAD_TIME = '2–3 weeks'
+export const MAX_ORDER_QUANTITY = 10
+
+export const MADE_TO_ORDER = {
+  label: 'Made to Order',
+  shortDescription: 'Each piece is crafted after you order',
+  leadTime: `Ships in ${MADE_TO_ORDER_LEAD_TIME}`,
+} as const
 
 export const STOCK_THRESHOLDS = {
   LOW: 5,
@@ -43,6 +53,16 @@ export const NAV_LINKS = [
   { label: 'Casual Wear', href: '/products?category=casual' },
   { label: 'Accessories', href: '/products?category=accessories' },
   { label: 'Size Guide', href: '/size-guide' },
+  { label: 'Customer Stories', href: '/customer-reviews' },
+] as const
+
+export const QUICK_LINKS = [
+  { label: 'Ankara Prints', href: '/products?category=ankara' },
+  { label: 'Casual Wear', href: '/products?category=casual' },
+  { label: 'Accessories', href: '/products?category=accessories' },
+  { label: 'New Arrivals', href: '/products?sort=newest' },
+  { label: 'Size Guide', href: '/size-guide' },
+  { label: 'Customer Stories', href: '/customer-reviews' },
 ] as const
 
 export const PAYMENT_METHODS = ['Visa', 'Mastercard', 'Amex', 'Apple Pay', 'Google Pay'] as const

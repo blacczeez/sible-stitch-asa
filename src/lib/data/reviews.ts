@@ -28,7 +28,7 @@ export async function listReviewsForProduct(productId: string): Promise<Review[]
 export async function createGuestProductReview(input: {
   productId: string
   rating: number
-  title: string
+  name: string
   body: string
 }): Promise<Review> {
   const userId = await getGuestReviewUserId()
@@ -44,7 +44,7 @@ export async function createGuestProductReview(input: {
   const row = await prisma.review.create({
     data: {
       rating: input.rating,
-      title: input.title,
+      title: input.name,
       body: input.body,
       productId: input.productId,
       userId,

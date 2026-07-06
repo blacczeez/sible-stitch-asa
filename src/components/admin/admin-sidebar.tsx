@@ -12,6 +12,7 @@ import {
   Tag,
   Warehouse,
   LogOut,
+  MessageSquareHeart,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
@@ -21,6 +22,7 @@ const navItems = [
   { href: '/admin/categories', label: 'Categories', icon: Shapes },
   { href: '/admin/orders', label: 'Orders', icon: ShoppingCart },
   { href: '/admin/customers', label: 'Customers', icon: Users },
+  { href: '/admin/customer-reviews', label: 'Customer Reviews', icon: MessageSquareHeart },
   { href: '/admin/promo-codes', label: 'Promo Codes', icon: Tag },
   { href: '/admin/inventory', label: 'Inventory', icon: Warehouse },
 ]

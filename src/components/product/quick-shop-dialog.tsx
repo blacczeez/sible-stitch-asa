@@ -16,6 +16,7 @@ import {
 } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
 import { PriceDisplay } from '@/components/ui/price-display'
+import { SizeGuideModal } from '@/components/size-guide/size-guide-modal'
 import { toast } from 'sonner'
 import type { Product } from '@/types'
 
@@ -46,7 +47,6 @@ export function QuickShopDialog({
     [product.variants]
   )
 
-  // Auto-select color if only one exists
   const effectiveColor = colors.length === 1 ? colors[0] : selectedColor
 
   const selectedVariant = useMemo(() => {
@@ -55,12 +55,6 @@ export function QuickShopDialog({
       (v) => v.size === selectedSize && v.color === effectiveColor
     )
   }, [product.variants, selectedSize, effectiveColor])
-
-  function getStockForSize(size: string): number {
-    return product.variants
-      .filter((v) => v.size === size && (effectiveColor ? v.color === effectiveColor : true))
-      .reduce((total, v) => total + v.stock, 0)
-  }
 
   const handleAddToCart = useCallback(() => {
     if (!selectedVariant) return
@@ -81,12 +75,9 @@ export function QuickShopDialog({
     setCartDrawerOpen(true)
     toast.success(`${product.name} added to cart`)
 
-    // Reset selections for next open
     setSelectedSize(null)
     setSelectedColor(null)
   }, [selectedVariant, product, addItem, setCartDrawerOpen, onOpenChange])
-
-  const isOutOfStock = selectedVariant?.stock === 0
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -94,7 +85,6 @@ export function QuickShopDialog({
         className="sm:max-w-md p-0 gap-0 overflow-hidden max-h-[85vh] fixed bottom-0 left-0 right-0 top-auto translate-x-0 translate-y-0 sm:bottom-auto sm:left-[50%] sm:right-auto sm:top-[50%] sm:translate-x-[-50%] sm:translate-y-[-50%] rounded-t-2xl sm:rounded-2xl max-w-full data-[state=open]:animate-in data-[state=open]:slide-in-from-bottom sm:data-[state=open]:slide-in-from-bottom-0 sm:data-[state=open]:fade-in-0 sm:data-[state=open]:zoom-in-95 data-[state=closed]:animate-out data-[state=closed]:slide-out-to-bottom sm:data-[state=closed]:slide-out-to-bottom-0 sm:data-[state=closed]:fade-out-0 sm:data-[state=closed]:zoom-out-95"
         showCloseButton={false}
       >
-        {/* Mobile drag indicator */}
         <div className="sm:hidden flex justify-center pt-3 pb-1">
           <div className="w-10 h-1 rounded-full bg-muted-foreground/30" />
         </div>
@@ -107,7 +97,6 @@ export function QuickShopDialog({
         </DialogHeader>
 
         <div className="flex flex-col sm:flex-row">
-          {/* Product Image */}
           <div className="relative w-full sm:w-2/5 aspect-square sm:aspect-[3/4] bg-asa-cream shrink-0">
             <Image
               src={product.images[0] ?? '/placeholder.png'}
@@ -118,9 +107,7 @@ export function QuickShopDialog({
             />
           </div>
 
-          {/* Selectors */}
           <div className="flex-1 p-5 flex flex-col gap-4">
-            {/* Product Info */}
             <div>
               <p className="text-[10px] font-semibold tracking-[0.15em] uppercase text-asa-gold">
                 {product.category.name}
@@ -137,7 +124,6 @@ export function QuickShopDialog({
               </div>
             </div>
 
-            {/* Color Selector - only if multiple colors */}
             {colors.length > 1 && (
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
@@ -169,35 +155,42 @@ export function QuickShopDialog({
               </div>
             )}
 
-            {/* Size Selector */}
             <div className="space-y-2">
               <div className="flex items-center justify-between">
                 <span className="text-xs font-medium text-asa-charcoal">
                   Size
                 </span>
-                {selectedSize && (
-                  <span className="text-xs text-muted-foreground">
-                    {selectedSize}
-                  </span>
-                )}
+                <div className="flex items-center gap-2">
+                  {selectedSize && (
+                    <span className="text-xs text-muted-foreground">
+                      {selectedSize}
+                    </span>
+                  )}
+                  <SizeGuideModal
+                    trigger={
+                      <button
+                        type="button"
+                        className="text-xs text-asa-gold hover:underline"
+                      >
+                        Size Guide
+                      </button>
+                    }
+                  />
+                </div>
               </div>
               <div className="flex flex-wrap gap-2">
                 {sizes.map((size) => {
-                  const stock = getStockForSize(size)
-                  const outOfStock = stock === 0
                   const isSelected = selectedSize === size
 
                   return (
                     <button
                       key={size}
-                      disabled={outOfStock}
                       onClick={() => setSelectedSize(size)}
                       className={cn(
                         'min-w-[2.75rem] px-3 py-1.5 text-xs border rounded-full transition-all',
                         isSelected
                           ? 'border-asa-charcoal bg-asa-charcoal text-white font-medium'
-                          : 'border-border hover:border-asa-charcoal/40',
-                        outOfStock && 'opacity-30 line-through cursor-not-allowed'
+                          : 'border-border hover:border-asa-charcoal/40'
                       )}
                     >
                       {size}
@@ -207,21 +200,18 @@ export function QuickShopDialog({
               </div>
             </div>
 
-            {/* Actions */}
             <div className="flex flex-col gap-2 mt-auto pt-2">
               <Button
                 className="w-full bg-asa-gold text-asa-charcoal hover:bg-asa-gold/90 rounded-full font-semibold h-11"
                 onClick={handleAddToCart}
-                disabled={!selectedVariant || isOutOfStock}
+                disabled={!selectedVariant}
               >
                 <ShoppingBag className="size-4" />
                 {!selectedSize
                   ? 'Select a Size'
                   : colors.length > 1 && !selectedColor
                     ? 'Select a Color'
-                    : isOutOfStock
-                      ? 'Out of Stock'
-                      : 'Add to Cart'}
+                    : 'Add to Cart'}
               </Button>
 
               <Link

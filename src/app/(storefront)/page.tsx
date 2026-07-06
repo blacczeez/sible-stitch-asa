@@ -6,8 +6,10 @@ import { CategoryShowcase } from '@/components/home/category-showcase'
 import { ValueProps } from '@/components/home/value-props'
 import { NewsletterSignup } from '@/components/home/newsletter-signup'
 import { FeaturedProducts } from '@/components/home/featured-products'
+import { CustomerStoriesPreview } from '@/components/home/customer-stories-preview'
 import { getFeaturedProducts } from '@/lib/data/products'
 import { listCategories } from '@/lib/data/categories'
+import { listPublishedCustomerStories } from '@/lib/data/customer-stories'
 
 const getCachedFeatured = unstable_cache(
   () => getFeaturedProducts(8),
@@ -20,6 +22,17 @@ const getCachedCategories = unstable_cache(
   ['categories'],
   { revalidate: 120, tags: ['categories'] }
 )
+
+const getCachedStories = unstable_cache(
+  () => listPublishedCustomerStories(),
+  ['home-customer-stories'],
+  { revalidate: 120, tags: ['customer-stories'] }
+)
+
+async function CustomerStoriesSection() {
+  const stories = await getCachedStories()
+  return <CustomerStoriesPreview stories={stories} />
+}
 
 async function FeaturedSection() {
   const products = await getCachedFeatured()
@@ -79,6 +92,9 @@ export default function HomePage() {
       </Suspense>
       <Suspense fallback={<CategoriesSkeleton />}>
         <CategoriesSection />
+      </Suspense>
+      <Suspense fallback={null}>
+        <CustomerStoriesSection />
       </Suspense>
       <ValueProps />
       <NewsletterSignup />

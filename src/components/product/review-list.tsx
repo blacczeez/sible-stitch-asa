@@ -90,16 +90,12 @@ export function ReviewList({ reviews }: ReviewListProps) {
             </div>
 
             <div className="flex items-center gap-2">
-              <span className="text-sm font-medium text-asa-charcoal">
-                {review.userName}
-              </span>
+              {review.customerName && (
+                <span className="text-sm font-medium text-asa-charcoal">
+                  {review.customerName}
+                </span>
+              )}
             </div>
-
-            {review.title && (
-              <h4 className="text-sm font-semibold text-asa-charcoal">
-                {review.title}
-              </h4>
-            )}
 
             {review.body && (
               <p className="text-sm text-muted-foreground leading-relaxed">

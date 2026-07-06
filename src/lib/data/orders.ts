@@ -1,10 +1,8 @@
 import { Prisma } from '@prisma/client'
 import { prisma } from '@/lib/prisma'
 import { mapOrder } from '@/lib/data/mappers'
-import { FREE_SHIPPING_THRESHOLD } from '@/lib/constants'
+import { FREE_SHIPPING_THRESHOLD, STANDARD_SHIPPING } from '@/lib/constants'
 import type { Order } from '@/types'
-
-const STANDARD_SHIPPING = 9.99
 
 function money(n: number): Prisma.Decimal {
   return new Prisma.Decimal(Number(n.toFixed(2)))
@@ -73,9 +71,6 @@ export async function resolveCheckoutLines(
 
     if (!variant || variant.product.status !== 'published') {
       throw new Error(`Invalid variant: ${line.variantId}`)
-    }
-    if (variant.stock < line.quantity) {
-      throw new Error(`Insufficient stock for ${variant.sku}`)
     }
 
     const base = variant.price ?? variant.product.price

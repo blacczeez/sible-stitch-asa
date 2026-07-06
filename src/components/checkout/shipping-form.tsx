@@ -15,10 +15,10 @@ const countries = [
   { code: 'AU', name: 'Australia' },
   { code: 'DE', name: 'Germany' },
   { code: 'FR', name: 'France' },
-  { code: 'NG', name: 'Nigeria' },
-  { code: 'GH', name: 'Ghana' },
-  { code: 'KE', name: 'Kenya' },
-  { code: 'ZA', name: 'South Africa' },
+  // { code: 'NG', name: 'Nigeria' },
+  // { code: 'GH', name: 'Ghana' },
+  // { code: 'KE', name: 'Kenya' },
+  // { code: 'ZA', name: 'South Africa' },
 ]
 
 export function ShippingForm() {

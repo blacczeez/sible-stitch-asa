@@ -15,18 +15,34 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'No file provided' }, { status: 400 })
     }
 
-    const allowedTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/avif']
+    const allowedTypes = [
+      'image/jpeg',
+      'image/png',
+      'image/webp',
+      'image/avif',
+      'video/mp4',
+      'video/webm',
+      'video/quicktime',
+    ]
     if (!allowedTypes.includes(file.type)) {
       return NextResponse.json(
-        { error: 'Invalid file type. Only JPEG, PNG, WebP, and AVIF are allowed.' },
+        {
+          error:
+            'Invalid file type. Allowed: JPEG, PNG, WebP, AVIF, MP4, WebM, MOV.',
+        },
         { status: 400 }
       )
     }
 
-    const maxSize = 5 * 1024 * 1024 // 5MB
+    const isVideo = file.type.startsWith('video/')
+    const maxSize = isVideo ? 50 * 1024 * 1024 : 5 * 1024 * 1024
     if (file.size > maxSize) {
       return NextResponse.json(
-        { error: 'File too large. Maximum size is 5MB.' },
+        {
+          error: isVideo
+            ? 'Video too large. Maximum size is 50MB.'
+            : 'File too large. Maximum size is 5MB.',
+        },
         { status: 400 }
       )
     }
@@ -34,16 +50,30 @@ export async function POST(request: NextRequest) {
     if (isCloudinaryConfigured()) {
       const arrayBuffer = await file.arrayBuffer()
       const buffer = Buffer.from(arrayBuffer)
-      const { url, publicId } = await uploadToCloudinary(buffer)
-      return NextResponse.json({ url, publicId, filename: file.name })
+      const { url, publicId } = await uploadToCloudinary(buffer, {
+        folder: isVideo ? 'sible-stories' : 'sible-products',
+        resourceType: isVideo ? 'video' : 'image',
+      })
+      return NextResponse.json({
+        url,
+        publicId,
+        filename: file.name,
+        mediaType: isVideo ? 'video' : 'image',
+      })
     }
 
     // Fallback: mock URL for local dev without Cloudinary credentials
-    const ext = file.name.split('.').pop() || 'jpg'
+    const ext = file.name.split('.').pop() || (isVideo ? 'mp4' : 'jpg')
     const filename = `${nanoid()}.${ext}`
-    const mockUrl = `https://picsum.photos/seed/${filename}/800/800`
+    const mockUrl = isVideo
+      ? `https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4`
+      : `https://picsum.photos/seed/${filename}/800/800`
 
-    return NextResponse.json({ url: mockUrl, filename })
+    return NextResponse.json({
+      url: mockUrl,
+      filename,
+      mediaType: isVideo ? 'video' : 'image',
+    })
   } catch {
     return NextResponse.json(
       { error: 'Upload failed' },

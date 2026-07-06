@@ -2,39 +2,30 @@
 
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
-import type { ProductVariant } from '@/types'
 
 interface SizeSelectorProps {
   sizes: string[]
   selectedSize: string | null
   onSelect: (size: string) => void
-  variants: ProductVariant[]
 }
 
 export function SizeSelector({
   sizes,
   selectedSize,
   onSelect,
-  variants,
 }: SizeSelectorProps) {
-  function getStockForSize(size: string): number {
-    return variants
-      .filter((v) => v.size === size)
-      .reduce((total, v) => total + v.stock, 0)
-  }
-
   return (
     <div className="space-y-2">
       <div className="flex items-center justify-between">
-        <span className="text-sm font-medium text-asa-charcoal">Size</span>
+        <span className="text-sm font-medium text-asa-charcoal">
+          {selectedSize ? 'Size' : 'Select Size'}
+        </span>
         {selectedSize && (
-          <span className="text-sm text-muted-foreground">{selectedSize}</span>
+          <span className="text-sm font-semibold text-asa-gold">{selectedSize}</span>
         )}
       </div>
       <div className="flex flex-wrap gap-2">
         {sizes.map((size) => {
-          const stock = getStockForSize(size)
-          const isOutOfStock = stock === 0
           const isSelected = selectedSize === size
 
           return (
@@ -42,13 +33,13 @@ export function SizeSelector({
               key={size}
               variant="outline"
               size="sm"
-              disabled={isOutOfStock}
               onClick={() => onSelect(size)}
+              aria-pressed={isSelected}
               className={cn(
-                'min-w-[3rem] relative',
-                isSelected &&
-                  'border-asa-charcoal bg-asa-charcoal text-white hover:bg-asa-charcoal/90 hover:text-white',
-                isOutOfStock && 'opacity-40 line-through'
+                'min-w-12 transition-all',
+                isSelected
+                  ? 'border-2 border-asa-charcoal bg-asa-cream text-asa-charcoal font-semibold ring-2 ring-asa-gold ring-offset-2 shadow-sm hover:bg-asa-cream hover:text-asa-charcoal'
+                  : 'border border-border/80 text-asa-charcoal/55 hover:border-asa-charcoal/35 hover:bg-background hover:text-asa-charcoal'
               )}
             >
               {size}

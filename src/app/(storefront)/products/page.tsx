@@ -16,14 +16,7 @@ interface ProductsPageProps {
 
 export default async function ProductsPage({ searchParams }: ProductsPageProps) {
   const raw = await searchParams
-
-  // Flatten arrays to single values for the schema
-  const flat: Record<string, string | undefined> = {}
-  for (const [key, value] of Object.entries(raw)) {
-    flat[key] = Array.isArray(value) ? value[0] : value
-  }
-
-  const query = productQuerySchema.parse(flat)
+  const query = productQuerySchema.parse(raw)
 
   // Cache key includes the serialized query so different filter combos are cached independently
   const queryKey = JSON.stringify(query)
@@ -44,11 +37,19 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
   let categoryTitle = 'All Products'
   if (query.search) {
     categoryTitle = `Search: "${query.search}"`
-  } else if (query.category) {
-    const match = categories.find((c) => c.slug === query.category)
-    categoryTitle =
-      match?.name ||
-      query.category.charAt(0).toUpperCase() + query.category.slice(1)
+  } else if (query.category?.length) {
+    if (query.category.length === 1) {
+      const match = categories.find((c) => c.slug === query.category![0])
+      categoryTitle =
+        match?.name ||
+        query.category[0].charAt(0).toUpperCase() + query.category[0].slice(1)
+    } else {
+      const names = query.category.map((slug) => {
+        const match = categories.find((c) => c.slug === slug)
+        return match?.name || slug.charAt(0).toUpperCase() + slug.slice(1)
+      })
+      categoryTitle = names.join(', ')
+    }
   }
 
   return (

@@ -130,7 +130,7 @@ export function HeroSection() {
           </h1>
           <p className="text-sm md:text-lg text-white/70 mb-6 md:mb-8 max-w-lg leading-relaxed">
             Discover our curated collection of Ankara prints, casual wear, and
-            handcrafted accessories for the modern global citizen.
+            made-to-order pieces for the modern global citizen.
           </p>
           <Link
             href="/products"
@@ -145,7 +145,7 @@ export function HeroSection() {
         <div className="hidden lg:block absolute right-12 bottom-24">
           <div className="bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl p-6 text-white min-w-[200px]">
             <p className="text-3xl font-serif font-bold">500+</p>
-            <p className="text-sm text-white/70 mt-1">Handcrafted pieces</p>
+            <p className="text-sm text-white/70 mt-1">Made to order</p>
             <div className="h-px bg-white/20 my-3" />
             <p className="text-3xl font-serif font-bold">30+</p>
             <p className="text-sm text-white/70 mt-1">Countries shipped</p>

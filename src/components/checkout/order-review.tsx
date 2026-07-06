@@ -4,12 +4,12 @@ import Image from 'next/image'
 import { Separator } from '@/components/ui/separator'
 import { useCart } from '@/hooks/use-cart'
 import { formatCurrency } from '@/lib/utils'
-import { FREE_SHIPPING_THRESHOLD } from '@/lib/constants'
+import { FREE_SHIPPING_THRESHOLD, STANDARD_SHIPPING } from '@/lib/constants'
 
 export function OrderReview() {
   const { items, subtotal, discount, promoCode } = useCart()
 
-  const shippingCost = subtotal >= FREE_SHIPPING_THRESHOLD ? 0 : 15
+  const shippingCost = subtotal >= FREE_SHIPPING_THRESHOLD ? 0 : STANDARD_SHIPPING
   const total = subtotal - discount + shippingCost
 
   return (

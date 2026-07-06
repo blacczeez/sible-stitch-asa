@@ -5,6 +5,8 @@ import {
   resolveCheckoutLines,
   validatePromoDiscount,
 } from '@/lib/data/orders'
+import { sendOrderConfirmation } from '@/lib/sendgrid'
+import { sendOrderNotification } from '@/lib/slack'
 
 export async function POST(request: NextRequest) {
   try {
@@ -46,6 +48,21 @@ export async function POST(request: NextRequest) {
         promoCodeId,
         mode: 'paid_mock',
       })
+
+      sendOrderNotification(order).catch(() => {})
+      sendOrderConfirmation({
+        to: order.email,
+        orderId: order.id,
+        orderNumber: order.orderNumber,
+        items: order.items.map((item) => ({
+          productName: item.productName,
+          variantName: item.variantName,
+          quantity: item.quantity,
+          unitPrice: item.unitPrice,
+        })),
+        total: order.total,
+        shippingAddress: order.shippingAddress,
+      }).catch(() => {})
 
       return NextResponse.json({
         checkoutUrl: null,

@@ -1,6 +1,7 @@
 import type {
   Address as PrismaAddress,
   Category as PrismaCategory,
+  CustomerStory as PrismaCustomerStory,
   Order as PrismaOrder,
   OrderItem as PrismaOrderItem,
   Product as PrismaProduct,
@@ -8,7 +9,16 @@ import type {
   Review as PrismaReview,
   User as PrismaUser,
 } from '@prisma/client'
-import type { Address, Category, Order, OrderItem, Product, ProductVariant, Review } from '@/types'
+import type {
+  Address,
+  Category,
+  CustomerStory,
+  Order,
+  OrderItem,
+  Product,
+  ProductVariant,
+  Review,
+} from '@/types'
 
 export function decimalToNumber(value: { toNumber(): number } | null | undefined): number {
   if (value == null) return 0
@@ -75,21 +85,38 @@ export function mapProduct(
 export function mapReview(
   r: PrismaReview & { user: Pick<PrismaUser, 'name' | 'email'> }
 ): Review {
-  const displayName =
-    r.user.name?.trim() ||
-    r.user.email.split('@')[0] ||
-    'Customer'
-
   return {
     id: r.id,
     rating: r.rating,
-    title: r.title,
+    customerName: r.title,
     body: r.body,
     isVerified: r.isVerified,
     userId: r.userId,
-    userName: displayName,
     productId: r.productId,
     createdAt: r.createdAt.toISOString(),
+  }
+}
+
+export function mapCustomerStory(
+  s: PrismaCustomerStory & {
+    product: Pick<PrismaProduct, 'id' | 'name' | 'slug' | 'images'>
+  }
+): CustomerStory {
+  return {
+    id: s.id,
+    customerName: s.customerName,
+    description: s.description,
+    mediaUrl: s.mediaUrl,
+    mediaType: s.mediaType,
+    status: s.status,
+    sortOrder: s.sortOrder,
+    productId: s.productId,
+    productName: s.product.name,
+    productSlug: s.product.slug,
+    productImage: s.product.images[0] ?? null,
+    sourceReviewId: s.sourceReviewId,
+    createdAt: s.createdAt.toISOString(),
+    updatedAt: s.updatedAt.toISOString(),
   }
 }
 

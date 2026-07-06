@@ -1,7 +1,11 @@
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { SizeChart } from '@/components/size-guide/size-chart'
-import { MeasurementGuide } from '@/components/size-guide/measurement-guide'
-import { sizeGuideCharts } from '@/lib/size-guide'
+import { SizeGuideContent } from '@/components/size-guide/size-guide-content'
+import type { Metadata } from 'next'
+
+export const metadata: Metadata = {
+  title: 'Size Guide — International Sizing (US, UK, EU) | ASA',
+  description:
+    'Find your perfect ASA fit with our comprehensive size guide. Includes US, UK, and EU size equivalents, centimeter and inch measurements, brand comparisons, and an interactive size finder.',
+}
 
 export default function SizeGuidePage() {
   return (
@@ -10,42 +14,10 @@ export default function SizeGuidePage() {
         Size Guide
       </h1>
       <p className="text-muted-foreground mb-8">
-        Find your perfect fit with our comprehensive size charts.
+        Find your perfect fit with our comprehensive size charts — available in US, UK, and EU sizes with inch and centimeter measurements.
       </p>
 
-      <Tabs defaultValue="tops">
-        <TabsList className="mb-6">
-          <TabsTrigger value="tops">Tops & Shirts</TabsTrigger>
-          <TabsTrigger value="bottoms">Bottoms</TabsTrigger>
-          <TabsTrigger value="dresses">Dresses</TabsTrigger>
-        </TabsList>
-
-        <TabsContent value="tops">
-          <SizeChart
-            data={[...sizeGuideCharts.tops]}
-            columns={['Size', 'Bust', 'Waist', 'Shoulders', 'Length']}
-            keys={['size', 'bust', 'waist', 'shoulders', 'length']}
-          />
-        </TabsContent>
-
-        <TabsContent value="bottoms">
-          <SizeChart
-            data={[...sizeGuideCharts.bottoms]}
-            columns={['Size', 'Waist', 'Hips', 'Length']}
-            keys={['size', 'waist', 'hips', 'length']}
-          />
-        </TabsContent>
-
-        <TabsContent value="dresses">
-          <SizeChart
-            data={[...sizeGuideCharts.dresses]}
-            columns={['Size', 'Bust', 'Waist', 'Hips', 'Length']}
-            keys={['size', 'bust', 'waist', 'hips', 'length']}
-          />
-        </TabsContent>
-      </Tabs>
-
-      <MeasurementGuide />
+      <SizeGuideContent />
     </div>
   )
 }

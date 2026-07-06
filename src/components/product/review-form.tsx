@@ -23,7 +23,7 @@ interface ReviewFormProps {
   productName: string
   onSubmit?: (data: {
     rating: number
-    title: string
+    name: string
     body: string
   }) => Promise<void>
   onReviewCreated?: (review: import('@/types').Review) => void
@@ -35,21 +35,21 @@ export function ReviewForm({
   onSubmit,
   onReviewCreated,
 }: ReviewFormProps) {
-  const TITLE_MAX_LENGTH = 200
+  const NAME_MAX_LENGTH = 100
   const BODY_MAX_LENGTH = 2000
 
   const [open, setOpen] = useState(false)
   const [rating, setRating] = useState(0)
   const [hoveredRating, setHoveredRating] = useState(0)
-  const [title, setTitle] = useState('')
+  const [name, setName] = useState('')
   const [body, setBody] = useState('')
-  const [errors, setErrors] = useState<{ title?: string; body?: string }>({})
+  const [errors, setErrors] = useState<{ name?: string; body?: string }>({})
   const [isSubmitting, setIsSubmitting] = useState(false)
 
   function resetForm() {
     setRating(0)
     setHoveredRating(0)
-    setTitle('')
+    setName('')
     setBody('')
     setErrors({})
   }
@@ -62,14 +62,14 @@ export function ReviewForm({
       return
     }
 
-    const normalizedTitle = title.trim()
+    const normalizedName = name.trim()
     const normalizedBody = body.trim()
-    const nextErrors: { title?: string; body?: string } = {}
+    const nextErrors: { name?: string; body?: string } = {}
 
-    if (normalizedTitle.length === 0) {
-      nextErrors.title = 'Review title is required'
-    } else if (normalizedTitle.length > TITLE_MAX_LENGTH) {
-      nextErrors.title = `Review title must be ${TITLE_MAX_LENGTH} characters or fewer`
+    if (normalizedName.length === 0) {
+      nextErrors.name = 'Name is required'
+    } else if (normalizedName.length > NAME_MAX_LENGTH) {
+      nextErrors.name = `Name must be ${NAME_MAX_LENGTH} characters or fewer`
     }
 
     if (normalizedBody.length === 0) {
@@ -88,7 +88,7 @@ export function ReviewForm({
 
     try {
       if (onSubmit) {
-        await onSubmit({ rating, title: normalizedTitle, body: normalizedBody })
+        await onSubmit({ rating, name: normalizedName, body: normalizedBody })
       } else {
         const res = await fetch('/api/reviews', {
           method: 'POST',
@@ -96,7 +96,7 @@ export function ReviewForm({
           body: JSON.stringify({
             productId,
             rating,
-            title: normalizedTitle,
+            name: normalizedName,
             body: normalizedBody,
           }),
         })
@@ -186,23 +186,23 @@ export function ReviewForm({
             </div>
           </div>
 
-          {/* Title */}
+          {/* Name */}
           <div className="space-y-2">
-            <Label htmlFor="review-title">Title</Label>
+            <Label htmlFor="review-name">Name</Label>
             <Input
-              id="review-title"
-              placeholder="Summarize your experience"
-              value={title}
+              id="review-name"
+              placeholder="Your name"
+              value={name}
               onChange={(e) => {
-                setTitle(e.target.value)
-                if (errors.title) {
-                  setErrors((prev) => ({ ...prev, title: undefined }))
+                setName(e.target.value)
+                if (errors.name) {
+                  setErrors((prev) => ({ ...prev, name: undefined }))
                 }
               }}
-              aria-invalid={Boolean(errors.title)}
+              aria-invalid={Boolean(errors.name)}
             />
-            {errors.title && (
-              <p className="text-xs text-destructive mt-1">{errors.title}</p>
+            {errors.name && (
+              <p className="text-xs text-destructive mt-1">{errors.name}</p>
             )}
           </div>
 

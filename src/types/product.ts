@@ -39,11 +39,11 @@ export interface Product {
 export interface Review {
   id: string
   rating: number
-  title: string | null
+  /** Customer display name (stored in DB `title` column). */
+  customerName: string | null
   body: string | null
   isVerified: boolean
   userId: string
-  userName: string
   productId: string
   createdAt: string
 }

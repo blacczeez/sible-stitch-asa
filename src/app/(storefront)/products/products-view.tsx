@@ -41,7 +41,7 @@ export function ProductsView({
       <ActiveFilters />
 
       <div className="flex flex-col lg:flex-row gap-8">
-        <aside className="w-full lg:w-64 flex-shrink-0">
+        <aside className="w-full shrink-0 lg:sticky lg:w-64 lg:self-start lg:top-(--storefront-header-offset-md) lg:max-h-[calc(100vh-var(--storefront-header-offset-md)-1rem)] lg:overflow-y-auto">
           <ProductFilters />
         </aside>
 
@@ -64,7 +64,7 @@ export function ProductsView({
               <>
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-6">
                   {products.map((product) => (
-                    <ProductCard key={product.id} product={product} />
+                    <ProductCard key={product.id} product={product} hoverSecondImage />
                   ))}
                 </div>
                 <PaginationControls currentPage={currentPage} totalPages={totalPages} />

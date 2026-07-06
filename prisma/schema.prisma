@@ -69,6 +69,7 @@ model Product {
   variants      ProductVariant[]
   reviews       Review[]
   wishlistItems WishlistItem[]
+  customerStories CustomerStory[]
 
   @@index([categoryId])
   @@index([status])
@@ -290,8 +291,46 @@ model Review {
   productId String
   product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
 
+  customerStory CustomerStory?
+
   @@unique([userId, productId])
   @@index([productId])
+}
+
+// ============================================
+// CUSTOMER STORIES (showcase)
+// ============================================
+
+enum CustomerStoryStatus {
+  draft
+  published
+}
+
+enum CustomerStoryMediaType {
+  image
+  video
+}
+
+model CustomerStory {
+  id           String                 @id @default(uuid())
+  customerName String
+  description  String
+  mediaUrl     String
+  mediaType    CustomerStoryMediaType @default(image)
+  status       CustomerStoryStatus    @default(draft)
+  sortOrder    Int                    @default(0)
+  createdAt    DateTime               @default(now())
+  updatedAt    DateTime               @updatedAt
+
+  productId String
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  sourceReviewId String? @unique
+  sourceReview   Review? @relation(fields: [sourceReviewId], references: [id], onDelete: SetNull)
+
+  @@index([status])
+  @@index([productId])
+  @@index([sortOrder])
 }
 
 // ============================================

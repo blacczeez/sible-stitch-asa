@@ -12,14 +12,7 @@ import {
   CommandItem,
 } from '@/components/ui/command'
 import { useUIStore } from '@/store/ui-store'
-
-const QUICK_LINKS = [
-  { label: 'Ankara Prints', href: '/products?category=ankara' },
-  { label: 'Casual Wear', href: '/products?category=casual' },
-  { label: 'Accessories', href: '/products?category=accessories' },
-  { label: 'New Arrivals', href: '/products?sort=newest' },
-  { label: 'Size Guide', href: '/size-guide' },
-]
+import { QUICK_LINKS } from '@/lib/constants'
 
 export function SearchDialog() {
   const router = useRouter()

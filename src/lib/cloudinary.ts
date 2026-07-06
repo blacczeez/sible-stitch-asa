@@ -18,18 +18,19 @@ export function isCloudinaryConfigured(): boolean {
 
 export async function uploadToCloudinary(
   buffer: Buffer,
-  options?: { folder?: string; publicId?: string }
+  options?: { folder?: string; publicId?: string; resourceType?: 'image' | 'video' | 'auto' }
 ): Promise<{ url: string; publicId: string }> {
   const folder = options?.folder ?? 'sible-products'
+  const resourceType = options?.resourceType ?? 'image'
 
   return new Promise((resolve, reject) => {
     const stream = cloudinary.uploader.upload_stream(
       {
         folder,
         public_id: options?.publicId,
-        resource_type: 'image',
+        resource_type: resourceType,
         quality: 'auto',
-        fetch_format: 'auto',
+        fetch_format: resourceType === 'image' ? 'auto' : undefined,
       },
       (error, result) => {
         if (error || !result) {
@@ -43,8 +44,13 @@ export async function uploadToCloudinary(
   })
 }
 
-export async function deleteFromCloudinary(publicId: string): Promise<void> {
-  await cloudinary.uploader.destroy(publicId)
+export async function deleteFromCloudinary(
+  publicId: string,
+  options?: { resourceType?: 'image' | 'video' }
+): Promise<void> {
+  await cloudinary.uploader.destroy(publicId, {
+    resource_type: options?.resourceType ?? 'image',
+  })
 }
 
 export function extractCloudinaryPublicId(url: string): string | null {

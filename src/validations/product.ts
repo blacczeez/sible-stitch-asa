@@ -1,11 +1,18 @@
 import { z } from 'zod'
 
+const toStringArray = z.preprocess((val) => {
+  if (val === undefined || val === null || val === '') return undefined
+  const arr = Array.isArray(val) ? val : [val]
+  const filtered = arr.map(String).filter(Boolean)
+  return filtered.length > 0 ? filtered : undefined
+}, z.array(z.string()).optional())
+
 export const productQuerySchema = z.object({
-  category: z.string().optional(),
+  category: toStringArray,
   search: z.string().optional(),
   minPrice: z.coerce.number().optional(),
   maxPrice: z.coerce.number().optional(),
-  size: z.string().optional(),
+  size: toStringArray,
   color: z.string().optional(),
   sort: z.enum(['newest', 'price-asc', 'price-desc', 'popular']).optional(),
   /** Comma-separated product UUIDs (e.g. wishlist). */

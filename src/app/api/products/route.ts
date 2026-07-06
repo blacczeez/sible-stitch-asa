@@ -7,11 +7,11 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url)
 
     const parsed = productQuerySchema.safeParse({
-      category: searchParams.get('category') || undefined,
+      category: searchParams.getAll('category'),
       search: searchParams.get('search') || undefined,
       minPrice: searchParams.get('minPrice') || undefined,
       maxPrice: searchParams.get('maxPrice') || undefined,
-      size: searchParams.get('size') || undefined,
+      size: searchParams.getAll('size'),
       color: searchParams.get('color') || undefined,
       sort: searchParams.get('sort') || undefined,
       ids: searchParams.get('ids') || undefined,

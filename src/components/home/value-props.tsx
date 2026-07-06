@@ -1,15 +1,16 @@
-import { Truck, Shield, RotateCcw, Lock } from 'lucide-react'
+import { Truck, Shield, RotateCcw, Scissors } from 'lucide-react'
+import { MADE_TO_ORDER } from '@/lib/constants'
 
 const props = [
+  {
+    icon: Scissors,
+    title: MADE_TO_ORDER.label,
+    description: MADE_TO_ORDER.shortDescription,
+  },
   {
     icon: Truck,
     title: 'Free Shipping',
     description: 'On all orders over $150 worldwide',
-  },
-  {
-    icon: Shield,
-    title: 'Premium Quality',
-    description: 'Handcrafted with authentic African fabrics',
   },
   {
     icon: RotateCcw,
@@ -17,7 +18,7 @@ const props = [
     description: '30-day hassle-free return policy',
   },
   {
-    icon: Lock,
+    icon: Shield,
     title: 'Secure Checkout',
     description: 'SSL encrypted payment processing',
   },

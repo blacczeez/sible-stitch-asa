@@ -5,7 +5,7 @@ import { listReviewsForProduct, createGuestProductReview } from '@/lib/data/revi
 
 const createReviewSchema = z.object({
   rating: z.number().int().min(1).max(5),
-  title: z.string().trim().min(1).max(200),
+  name: z.string().trim().min(1, 'Name is required').max(100),
   body: z.string().trim().min(1).max(2000),
   productId: z.string().uuid(),
 })

@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { markOrderPaidFromStripe } from '@/lib/data/orders'
+import { getOrderById, markOrderPaidFromStripe } from '@/lib/data/orders'
+import { sendOrderConfirmation } from '@/lib/sendgrid'
+import { sendOrderNotification } from '@/lib/slack'
 
 export async function POST(request: NextRequest) {
   try {
@@ -56,6 +58,25 @@ export async function POST(request: NextRequest) {
               : session.id
 
         await markOrderPaidFromStripe({ orderId, stripePaymentId: paymentId })
+
+        const paidOrder = await getOrderById(orderId)
+        if (paidOrder) {
+          sendOrderNotification(paidOrder).catch(() => {})
+          sendOrderConfirmation({
+            to: paidOrder.email,
+            orderId: paidOrder.id,
+            orderNumber: paidOrder.orderNumber,
+            items: paidOrder.items.map((item) => ({
+              productName: item.productName,
+              variantName: item.variantName,
+              quantity: item.quantity,
+              unitPrice: item.unitPrice,
+            })),
+            total: paidOrder.total,
+            shippingAddress: paidOrder.shippingAddress,
+          }).catch(() => {})
+        }
+
         break
       }
 

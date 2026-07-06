@@ -14,11 +14,11 @@ export async function listProducts(
   query: ProductQuery
 ): Promise<{ products: Product[]; totalItems: number }> {
   const {
-    category,
+    category: categories,
     search,
     minPrice,
     maxPrice,
-    size,
+    size: sizes,
     color,
     sort,
     page,
@@ -36,7 +36,9 @@ export async function listProducts(
     ...(ids?.length
       ? { id: { in: ids } }
       : {
-          ...(category ? { category: { slug: category } } : {}),
+          ...(categories?.length
+            ? { category: { slug: { in: categories } } }
+            : {}),
           ...(search
             ? {
                 OR: [
@@ -57,12 +59,12 @@ export async function listProducts(
                 ],
               }
             : {}),
-          ...(size || color
+          ...(sizes?.length || color
             ? {
                 variants: {
                   some: {
-                    ...(size
-                      ? { size: { equals: size, mode: 'insensitive' } }
+                    ...(sizes?.length
+                      ? { size: { in: sizes, mode: 'insensitive' as const } }
                       : {}),
                     ...(color
                       ? { color: { equals: color, mode: 'insensitive' } }

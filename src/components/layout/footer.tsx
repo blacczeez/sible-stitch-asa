@@ -11,9 +11,10 @@ const footerLinks = {
   ],
   help: [
     { label: 'Size Guide', href: '/size-guide' },
-    { label: 'Shipping & Returns', href: '#' },
-    { label: 'Contact Us', href: '#' },
-    { label: 'FAQ', href: '#' },
+    { label: 'Customer Stories', href: '/customer-reviews' },
+    { label: 'Shipping & Returns', href: '/shipping' },
+    { label: 'Contact Us', href: '/contact' },
+    { label: 'FAQ', href: '/faq' },
   ],
   company: [
     { label: 'About Us', href: '#' },

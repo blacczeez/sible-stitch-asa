@@ -29,9 +29,7 @@ export function ProductJsonLd({ product, url }: ProductJsonLdProps) {
         ...product.variants.map((v) => v.price ?? product.price)
       ),
       offerCount: product.variants.length,
-      availability: product.variants.some((v) => v.stock > 0)
-        ? 'https://schema.org/InStock'
-        : 'https://schema.org/OutOfStock',
+      availability: 'https://schema.org/PreOrder',
     },
     ...(product.averageRating && {
       aggregateRating: {

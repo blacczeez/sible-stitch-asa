@@ -1,8 +1,24 @@
-export function MeasurementGuide() {
+import { MeasurementDiagram } from '@/components/size-guide/measurement-diagram'
+import type { MeasurementUnit } from '@/lib/size-guide'
+
+interface MeasurementGuideProps {
+  unit: MeasurementUnit
+}
+
+export function MeasurementGuide({ unit }: MeasurementGuideProps) {
+  const tapeExample = unit === 'cm' ? 'centimeters' : 'inches'
+
   return (
     <div className="mt-12">
       <h2 className="text-2xl font-serif font-bold mb-4">How to Measure</h2>
+
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {/* Diagram */}
+        <div className="flex items-start justify-center">
+          <MeasurementDiagram />
+        </div>
+
+        {/* Instructions */}
         <div className="space-y-4">
           <div>
             <h3 className="font-semibold mb-1">Bust</h3>
@@ -31,33 +47,41 @@ export function MeasurementGuide() {
               Measure from one shoulder point to the other across the back.
             </p>
           </div>
+          <div>
+            <h3 className="font-semibold mb-1">Length</h3>
+            <p className="text-sm text-muted-foreground">
+              Measure from the highest point of the shoulder down to the desired
+              hemline.
+            </p>
+          </div>
         </div>
-        <div className="bg-muted rounded-lg p-6">
-          <h3 className="font-semibold mb-3">Tips for Best Results</h3>
-          <ul className="space-y-2 text-sm text-muted-foreground">
-            <li className="flex gap-2">
-              <span className="text-asa-gold font-bold">1.</span>
-              Use a soft measuring tape, not a metal one.
-            </li>
-            <li className="flex gap-2">
-              <span className="text-asa-gold font-bold">2.</span>
-              Stand relaxed in your normal posture.
-            </li>
-            <li className="flex gap-2">
-              <span className="text-asa-gold font-bold">3.</span>
-              Wear lightweight clothing or measure directly on skin.
-            </li>
-            <li className="flex gap-2">
-              <span className="text-asa-gold font-bold">4.</span>
-              If between sizes, we recommend sizing up for a more comfortable
-              fit.
-            </li>
-            <li className="flex gap-2">
-              <span className="text-asa-gold font-bold">5.</span>
-              Our Ankara pieces are designed with a slightly relaxed fit.
-            </li>
-          </ul>
-        </div>
+      </div>
+
+      {/* Tips */}
+      <div className="bg-muted rounded-lg p-6 mt-6">
+        <h3 className="font-semibold mb-3">Tips for Best Results</h3>
+        <ul className="space-y-2 text-sm text-muted-foreground">
+          <li className="flex gap-2">
+            <span className="text-asa-gold font-bold">1.</span>
+            Use a soft measuring tape, not a metal one. Read the {tapeExample} side.
+          </li>
+          <li className="flex gap-2">
+            <span className="text-asa-gold font-bold">2.</span>
+            Stand relaxed in your normal posture.
+          </li>
+          <li className="flex gap-2">
+            <span className="text-asa-gold font-bold">3.</span>
+            Wear lightweight clothing or measure directly on skin.
+          </li>
+          <li className="flex gap-2">
+            <span className="text-asa-gold font-bold">4.</span>
+            If between sizes, we recommend sizing up for a more comfortable fit.
+          </li>
+          <li className="flex gap-2">
+            <span className="text-asa-gold font-bold">5.</span>
+            Our Ankara pieces are designed with a slightly relaxed fit.
+          </li>
+        </ul>
       </div>
     </div>
   )

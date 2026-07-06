@@ -9,6 +9,7 @@ if (isConfigured) {
 
 interface OrderConfirmationParams {
   to: string
+  orderId: string
   orderNumber: string
   items: Array<{
     productName: string
@@ -34,7 +35,9 @@ export async function sendOrderConfirmation(params: OrderConfirmationParams) {
     return
   }
 
-  const { to, orderNumber, items, total, shippingAddress } = params
+  const { to, orderId, orderNumber, items, total, shippingAddress } = params
+  const siteUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
+  const orderUrl = `${siteUrl}/orders/${orderId}`
 
   const itemsHtml = items
     .map(
@@ -101,6 +104,9 @@ export async function sendOrderConfirmation(params: OrderConfirmationParams) {
           ${shippingAddress.city}, ${shippingAddress.state} ${shippingAddress.postalCode}<br>
           ${shippingAddress.country}
         </p>
+        <div style="text-align: center; margin-top: 30px;">
+          <a href="${orderUrl}" style="display: inline-block; background: #6B2D3C; color: white; padding: 14px 28px; border-radius: 6px; text-decoration: none; font-weight: bold;">Track Your Order</a>
+        </div>
         <div style="text-align: center; margin-top: 30px; padding-top: 20px; border-top: 1px solid #eee;">
           <p style="color: #666; font-size: 14px;">
             Questions? Reply to this email or contact us at support@siblecouture.com
@@ -146,6 +152,37 @@ export async function sendShippingNotification(params: {
         </div>
       </body>
       </html>
+    `,
+  })
+}
+
+export async function sendContactMessage(params: {
+  name: string
+  email: string
+  subject: string
+  message: string
+}) {
+  if (!isConfigured) {
+    console.log('[SendGrid Mock] Contact message:', params.subject, 'from', params.email)
+    return
+  }
+
+  const { name, email, subject, message } = params
+
+  await sgMail.send({
+    to: process.env.SENDGRID_FROM_EMAIL!,
+    from: {
+      email: process.env.SENDGRID_FROM_EMAIL!,
+      name: 'Sible Couture',
+    },
+    replyTo: { email, name },
+    subject: `Contact: ${subject}`,
+    html: `
+      <h2>New Contact Form Submission</h2>
+      <p><strong>From:</strong> ${name} (${email})</p>
+      <p><strong>Subject:</strong> ${subject}</p>
+      <hr>
+      <p style="white-space: pre-wrap;">${message}</p>
     `,
   })
 }

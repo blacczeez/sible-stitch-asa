@@ -10,11 +10,14 @@ import { AddToCartButton } from '@/components/product/add-to-cart-button'
 import { ReviewList } from '@/components/product/review-list'
 import { ReviewForm } from '@/components/product/review-form'
 import { RelatedProducts } from '@/components/product/related-products'
+import { SizeGuideModal } from '@/components/size-guide/size-guide-modal'
 import { PriceDisplay } from '@/components/ui/price-display'
 import { RatingStars } from '@/components/ui/rating-stars'
 import { Badge } from '@/components/ui/badge'
 import { Separator } from '@/components/ui/separator'
-import { Truck, RotateCcw, Shield } from 'lucide-react'
+import Link from 'next/link'
+import { Truck, RotateCcw, Scissors, Users } from 'lucide-react'
+import { MADE_TO_ORDER, FREE_SHIPPING_THRESHOLD, MAX_ORDER_QUANTITY } from '@/lib/constants'
 
 interface ProductDetailContentProps {
   product: Product
@@ -112,24 +115,29 @@ export function ProductDetailContent({
           <div className="mb-6">
             <div className="flex items-center justify-between mb-2">
               <label className="text-sm font-medium">Size</label>
-              <a href="/size-guide" className="text-sm text-asa-gold hover:underline">
-                Size Guide
-              </a>
+              <SizeGuideModal
+                trigger={
+                  <button
+                    type="button"
+                    className="text-sm text-asa-gold underline underline-offset-2 hover:text-asa-gold/80"
+                  >
+                    Checkout Size Guide
+                  </button>
+                }
+              />
             </div>
             <SizeSelector
               sizes={sizes}
               selectedSize={selectedSize}
               onSelect={setSelectedSize}
-              variants={product.variants}
             />
           </div>
 
           <div className="mb-6">
-            <label className="text-sm font-medium mb-2 block">Quantity</label>
             <QuantitySelector
               quantity={quantity}
               onQuantityChange={setQuantity}
-              max={selectedVariant?.stock || 10}
+              max={MAX_ORDER_QUANTITY}
             />
           </div>
 
@@ -141,24 +149,41 @@ export function ProductDetailContent({
 
           <div className="mt-8 space-y-3">
             <div className="flex items-center gap-3 text-sm text-muted-foreground">
-              <Truck className="w-4 h-4" />
-              <span>Free shipping on orders over $150</span>
+              <Scissors className="w-4 h-4 shrink-0" />
+              <span>
+                {MADE_TO_ORDER.label} — {MADE_TO_ORDER.leadTime.toLowerCase()}
+              </span>
             </div>
             <div className="flex items-center gap-3 text-sm text-muted-foreground">
-              <RotateCcw className="w-4 h-4" />
+              <Truck className="w-4 h-4 shrink-0" />
+              <span>Free shipping on orders over ${FREE_SHIPPING_THRESHOLD}</span>
+            </div>
+            <div className="flex items-center gap-3 text-sm text-muted-foreground">
+              <RotateCcw className="w-4 h-4 shrink-0" />
               <span>30-day easy returns</span>
             </div>
-            <div className="flex items-center gap-3 text-sm text-muted-foreground">
-              <Shield className="w-4 h-4" />
-              <span>Secure checkout with Stripe</span>
-            </div>
+            <Link
+              href="/customer-reviews"
+              className="flex items-center gap-3 text-sm text-asa-wine hover:underline pt-1"
+            >
+              <Users className="w-4 h-4 shrink-0" />
+              <span>See how customers style our pieces</span>
+            </Link>
           </div>
         </div>
       </div>
 
       <div className="mt-16">
-        <div className="flex items-center justify-between mb-6">
-          <h2 className="text-2xl font-serif font-bold">Customer Reviews</h2>
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between mb-6">
+          <div>
+            <h2 className="text-2xl font-serif font-bold">Customer Reviews</h2>
+            <Link
+              href="/customer-reviews"
+              className="mt-1 inline-block text-sm text-asa-wine hover:underline"
+            >
+              Browse customer stories &rarr;
+            </Link>
+          </div>
           <ReviewForm
             productId={product.id}
             productName={product.name}

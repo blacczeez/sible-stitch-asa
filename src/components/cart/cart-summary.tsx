@@ -6,12 +6,12 @@ import { Separator } from '@/components/ui/separator'
 import { PromoCodeInput } from '@/components/cart/promo-code-input'
 import { useCart } from '@/hooks/use-cart'
 import { formatCurrency } from '@/lib/utils'
-import { FREE_SHIPPING_THRESHOLD } from '@/lib/constants'
+import { FREE_SHIPPING_THRESHOLD, STANDARD_SHIPPING } from '@/lib/constants'
 
 export function CartSummary() {
   const { subtotal, discount, total, promoCode } = useCart()
 
-  const shippingCost = subtotal >= FREE_SHIPPING_THRESHOLD ? 0 : 15
+  const shippingCost = subtotal >= FREE_SHIPPING_THRESHOLD ? 0 : STANDARD_SHIPPING
   const finalTotal = total + shippingCost
 
   return (

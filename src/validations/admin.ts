@@ -53,3 +53,16 @@ export const categorySchema = z.object({
 })
 
 export type CategoryInput = z.infer<typeof categorySchema>
+
+export const customerStorySchema = z.object({
+  customerName: z.string().trim().min(1).max(100),
+  description: z.string().trim().min(1).max(2000),
+  mediaUrl: z.string().trim().url().max(2000),
+  mediaType: z.enum(['image', 'video']).default('image'),
+  productId: z.string().uuid(),
+  status: z.enum(['draft', 'published']).default('draft'),
+  sortOrder: z.number().int().min(0).max(9999).default(0),
+  sourceReviewId: z.string().uuid().nullable().optional(),
+})
+
+export type CustomerStoryInput = z.infer<typeof customerStorySchema>
