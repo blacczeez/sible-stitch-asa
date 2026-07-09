@@ -98,12 +98,12 @@ export function Header({ isHome: initialIsHome = false }: HeaderProps) {
                     }`}
                   />
                 </button>
-                <nav className="hidden lg:flex items-center gap-6">
+                <nav className="hidden lg:flex items-center gap-3 xl:gap-6">
                   {NAV_LINKS.map((link) => (
                     <Link
                       key={link.href}
                       href={link.href}
-                      className={`text-[11px] font-medium tracking-[0.15em] uppercase transition-colors ${
+                      className={`text-[10px] xl:text-[11px] font-medium tracking-[0.1em] xl:tracking-[0.15em] uppercase transition-colors whitespace-nowrap ${
                         solid
                           ? 'text-asa-charcoal hover:text-asa-gold'
                           : 'text-white/90 hover:text-white'
@@ -116,7 +116,7 @@ export function Header({ isHome: initialIsHome = false }: HeaderProps) {
               </div>
 
               {/* Center: logo */}
-              <Link href="/" className="shrink-0">
+              <Link href="/" className="shrink-0 mx-6 lg:mx-8 xl:mx-12">
                 <Image
                 src="/images/tivaram-logo.webp"
                 alt={BRAND.name}
@@ -130,21 +130,21 @@ export function Header({ isHome: initialIsHome = false }: HeaderProps) {
               </Link>
 
               {/* Right: search pill, currency, wishlist, cart */}
-              <div className="flex items-center gap-2 flex-1 justify-end">
+              <div className="flex items-center gap-1 xl:gap-2 flex-1 justify-end">
                 <button
                   onClick={() => setSearchOpen(true)}
-                  className={`hidden lg:flex items-center gap-2 px-4 py-1.5 rounded-full border text-xs transition-colors ${
+                  className={`hidden lg:flex items-center gap-2 p-2 xl:px-4 xl:py-1.5 rounded-full xl:border text-xs transition-colors ${
                     solid
-                      ? 'border-border text-muted-foreground hover:border-asa-charcoal'
-                      : 'border-white/30 text-white/70 hover:border-white/60'
+                      ? 'text-asa-charcoal hover:bg-secondary xl:border-border xl:text-muted-foreground xl:hover:border-asa-charcoal xl:hover:bg-transparent'
+                      : 'text-white hover:bg-white/10 xl:border-white/30 xl:text-white/70 xl:hover:border-white/60 xl:hover:bg-transparent'
                   }`}
                   aria-label="Search"
                 >
-                  <Search className="w-3.5 h-3.5" />
-                  <span>Search</span>
+                  <Search className="w-4 h-4 xl:w-3.5 xl:h-3.5" />
+                  <span className="hidden xl:inline">Search</span>
                 </button>
                 <div
-                  className={`hidden lg:block ${solid ? '' : '[&_button]:text-white'}`}
+                  className={`hidden xl:block ${solid ? '' : '[&_button]:text-white'}`}
                 >
                   <CurrencySelector />
                 </div>
