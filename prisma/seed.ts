@@ -5,9 +5,9 @@ const prisma = new PrismaClient()
 async function main() {
   // Anonymous product reviews are stored under this system user (no customer login).
   await prisma.user.upsert({
-    where: { email: 'guest-reviews@sible.local' },
+    where: { email: 'guest-reviews@tivaram.local' },
     create: {
-      email: 'guest-reviews@sible.local',
+      email: 'guest-reviews@tivaram.local',
       name: 'Guest',
       role: 'customer',
     },
@@ -286,7 +286,7 @@ async function main() {
   // Create admin user
   await prisma.user.create({
     data: {
-      email: 'admin@siblecouture.com',
+      email: 'admin@tivaram.com',
       name: 'Admin',
       role: 'admin',
     },

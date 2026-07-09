@@ -1,4 +1,5 @@
 import type { Product } from '@/types'
+import { BRAND } from '@/lib/constants'
 
 interface ProductJsonLdProps {
   product: Product
@@ -15,7 +16,7 @@ export function ProductJsonLd({ product, url }: ProductJsonLdProps) {
     url,
     brand: {
       '@type': 'Brand',
-      name: 'Sible Couture',
+      name: BRAND.name,
     },
     offers: {
       '@type': 'AggregateOffer',

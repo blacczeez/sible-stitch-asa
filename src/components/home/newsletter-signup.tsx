@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { BRAND } from '@/lib/constants'
 
 export function NewsletterSignup() {
   const [email, setEmail] = useState('')
@@ -18,7 +19,7 @@ export function NewsletterSignup() {
       <div className="container mx-auto px-4 py-20 text-center">
         <h2 className="text-3xl md:text-4xl font-serif font-semibold mb-3">
           Join the{' '}
-          <em className="italic text-asa-gold">Sible Couture</em>{' '}
+          <em className="italic text-asa-gold">{BRAND.name}</em>{' '}
           Community
         </h2>
         <p className="text-white/60 mb-8 max-w-md mx-auto text-sm leading-relaxed">
@@ -27,7 +28,7 @@ export function NewsletterSignup() {
         </p>
         {submitted ? (
           <p className="text-asa-gold font-serif font-medium text-lg italic">
-            Thank you for subscribing! Welcome to the Sible Couture family.
+            Thank you for subscribing! Welcome to the {BRAND.name} family.
           </p>
         ) : (
           <form

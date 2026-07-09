@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import { DM_Sans, Cormorant_Garamond } from 'next/font/google'
 import { Providers } from '@/components/providers'
 import { AnalyticsProvider } from '@/components/analytics/analytics-provider'
+import { BRAND } from '@/lib/constants'
 import './globals.css'
 
 const dmSans = DM_Sans({
@@ -19,8 +20,8 @@ const cormorant = Cormorant_Garamond({
 
 export const metadata: Metadata = {
   title: {
-    default: 'Sible Couture - Premium African Fashion',
-    template: '%s | Sible Couture',
+    default: `${BRAND.name} - ${BRAND.tagline}`,
+    template: `%s | ${BRAND.name}`,
   },
   description:
     'Discover premium African-inspired fashion. Shop Ankara prints, casual wear, and accessories for the modern global citizen.',

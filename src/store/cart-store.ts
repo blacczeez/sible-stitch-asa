@@ -87,7 +87,7 @@ export const useCartStore = create<CartStore>()(
       },
     }),
     {
-      name: 'sible-cart',
+      name: 'tivaram-cart',
     }
   )
 )

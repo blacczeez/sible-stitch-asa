@@ -2,11 +2,12 @@ import type { Metadata } from 'next'
 import { unstable_cache } from 'next/cache'
 import { listPublishedCustomerStories } from '@/lib/data/customer-stories'
 import { StoryCard } from '@/components/customer-stories/story-card'
+import { BRAND } from '@/lib/constants'
 
 export const metadata: Metadata = {
   title: 'Customer Reviews',
   description:
-    'Real stories from Sible Couture customers celebrating African-inspired fabrics and made-to-order fashion.',
+    `Real stories from ${BRAND.name} customers celebrating African-inspired fabrics and made-to-order fashion.`,
 }
 
 const getStories = unstable_cache(
@@ -26,7 +27,7 @@ export default async function CustomerReviewsPage() {
         </h1>
         <p className="text-muted-foreground">
           Hear from our community about the fabrics, the fit, and the feeling of
-          wearing Sible Couture. Every piece is made to order — find your
+          wearing {BRAND.name}. Every piece is made to order — find your
           inspiration and shop the look.
         </p>
       </div>

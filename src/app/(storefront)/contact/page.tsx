@@ -1,9 +1,10 @@
 import type { Metadata } from 'next'
 import { ContactForm } from '@/components/contact/contact-form'
+import { BRAND } from '@/lib/constants'
 
 export const metadata: Metadata = {
   title: 'Contact Us',
-  description: 'Get in touch with the Sible Couture team for order support, sizing help, and general inquiries.',
+  description: `Get in touch with the ${BRAND.name} team for order support, sizing help, and general inquiries.`,
 }
 
 export default function ContactPage() {

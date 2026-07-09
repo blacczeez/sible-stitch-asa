@@ -20,7 +20,7 @@ export async function uploadToCloudinary(
   buffer: Buffer,
   options?: { folder?: string; publicId?: string; resourceType?: 'image' | 'video' | 'auto' }
 ): Promise<{ url: string; publicId: string }> {
-  const folder = options?.folder ?? 'sible-products'
+  const folder = options?.folder ?? 'tivaram-products'
   const resourceType = options?.resourceType ?? 'image'
 
   return new Promise((resolve, reject) => {

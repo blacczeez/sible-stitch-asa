@@ -37,14 +37,14 @@ export const STOCK_THRESHOLDS = {
 export const ITEMS_PER_PAGE = 12
 
 export const BRAND = {
-  name: 'Sible Couture',
+  name: 'Tivaram',
   tagline: 'Premium African-Inspired Fashion',
-  email: 'support@siblecouture.com',
+  email: 'support@tivaram.com',
   social: {
-    instagram: 'https://instagram.com/siblecouture',
-    facebook: 'https://facebook.com/siblecouture',
-    tiktok: 'https://tiktok.com/@siblecouture',
-    twitter: 'https://twitter.com/siblecouture',
+    instagram: 'https://instagram.com/tivaram',
+    facebook: 'https://facebook.com/tivaram',
+    tiktok: 'https://tiktok.com/@tivaram',
+    twitter: 'https://twitter.com/tivaram',
   },
 } as const
 

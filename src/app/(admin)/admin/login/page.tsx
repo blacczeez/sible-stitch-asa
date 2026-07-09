@@ -11,6 +11,7 @@ import { createClient } from '@/lib/supabase'
 import { resolveAdminLoginEmail } from '@/lib/admin-login'
 import { adminGlassCard, adminPrimaryButtonClass } from '@/lib/admin-ui'
 import { cn } from '@/lib/utils'
+import { BRAND } from '@/lib/constants'
 
 function AdminLoginContent() {
   const router = useRouter()
@@ -71,11 +72,11 @@ function AdminLoginContent() {
         <CardHeader className="text-center">
           <div className="mb-2 flex justify-center">
             <Image
-              src="/images/sible-logo.webp"
-              alt="Sible Couture"
-              width={440}
-              height={48}
-              className="h-10 w-auto"
+              src="/images/tivaram-logo.webp"
+              alt={BRAND.name}
+              width={766}
+              height={149}
+              className="h-7 w-auto"
               priority
             />
           </div>

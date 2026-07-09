@@ -48,7 +48,7 @@ export const FAQ_ITEMS = [
 export const SHIPPING_SECTIONS = [
   {
     title: 'Made to Order',
-    content: `All Sible Couture pieces are made to order. After you place your order, our artisans begin crafting your garment. Please allow ${MADE_TO_ORDER_LEAD_TIME} for production before your order ships. You will receive a confirmation email when your order is placed and a shipping notification with tracking once it is on its way.`,
+    content: `All ${BRAND.name} pieces are made to order. After you place your order, our artisans begin crafting your garment. Please allow ${MADE_TO_ORDER_LEAD_TIME} for production before your order ships. You will receive a confirmation email when your order is placed and a shipping notification with tracking once it is on its way.`,
   },
   {
     title: 'Shipping Rates',

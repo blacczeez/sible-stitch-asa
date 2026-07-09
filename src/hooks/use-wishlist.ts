@@ -44,7 +44,7 @@ export const useWishlist = create<WishlistStore>()(
       clearWishlist: () => set({ items: [] }),
     }),
     {
-      name: 'sible-wishlist',
+      name: 'tivaram-wishlist',
       onRehydrateStorage: () => (state) => {
         if (state) state.hydrated = true
       },

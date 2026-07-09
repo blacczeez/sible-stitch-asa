@@ -33,11 +33,11 @@ export function Footer() {
           <div className="lg:col-span-2">
             <Link href="/">
               <Image
-                src="/images/sible-logo.webp"
-                alt="Sible Couture"
-                width={400}
-                height={92}
-                className="h-11 w-auto brightness-0 invert"
+                src="/images/tivaram-logo.webp"
+                alt={BRAND.name}
+                width={766}
+                height={149}
+                className="h-8 w-auto brightness-0 invert"
               />
             </Link>
             <p className="mt-3 text-sm text-gray-400 max-w-xs leading-relaxed">
@@ -116,7 +116,7 @@ export function Footer() {
 
         <div className="border-t border-white/10 mt-12 pt-6 flex flex-col md:flex-row justify-between items-center gap-4">
           <p className="text-xs text-gray-500">
-            &copy; {new Date().getFullYear()} Sible Couture. All rights reserved.
+            &copy; {new Date().getFullYear()} {BRAND.name}. All rights reserved.
           </p>
           <div className="flex gap-3 text-xs text-gray-500">
             <span>Visa</span>

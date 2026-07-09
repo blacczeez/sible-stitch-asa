@@ -15,6 +15,7 @@ import {
   MessageSquareHeart,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { BRAND } from '@/lib/constants'
 
 const navItems = [
   { href: '/admin', label: 'Dashboard', icon: LayoutDashboard },
@@ -35,11 +36,11 @@ export function AdminSidebar() {
       <div className="p-6">
         <Link href="/admin">
           <Image
-            src="/images/sible-logo.webp"
-            alt="Sible Couture"
-            width={400}
-            height={34}
-            className="h-7 w-auto brightness-0 invert"
+            src="/images/tivaram-logo.webp"
+            alt={BRAND.name}
+            width={766}
+            height={149}
+            className="h-6 w-auto brightness-0 invert"
           />
         </Link>
         <p className="mt-1 text-xs text-white/50">Admin Dashboard</p>

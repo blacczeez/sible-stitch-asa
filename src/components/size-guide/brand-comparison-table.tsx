@@ -7,6 +7,7 @@ import {
   TableRow,
 } from '@/components/ui/table'
 import { brandComparisons } from '@/lib/size-guide'
+import { BRAND } from '@/lib/constants'
 
 export function BrandComparisonTable() {
   return (
@@ -19,7 +20,7 @@ export function BrandComparisonTable() {
           <Table>
             <TableHeader>
               <TableRow className="bg-asa-charcoal hover:bg-asa-charcoal">
-                <TableHead className="text-white font-semibold">ASA Size</TableHead>
+                <TableHead className="text-white font-semibold">{BRAND.name} Size</TableHead>
                 <TableHead className="text-white font-semibold">Zara</TableHead>
                 <TableHead className="text-white font-semibold">H&amp;M</TableHead>
                 <TableHead className="text-white font-semibold">ASOS</TableHead>

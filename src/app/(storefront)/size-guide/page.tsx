@@ -1,10 +1,11 @@
 import { SizeGuideContent } from '@/components/size-guide/size-guide-content'
 import type { Metadata } from 'next'
+import { BRAND } from '@/lib/constants'
 
 export const metadata: Metadata = {
-  title: 'Size Guide — International Sizing (US, UK, EU) | ASA',
+  title: `Size Guide — International Sizing (US, UK, EU) | ${BRAND.name}`,
   description:
-    'Find your perfect ASA fit with our comprehensive size guide. Includes US, UK, and EU size equivalents, centimeter and inch measurements, brand comparisons, and an interactive size finder.',
+    `Find your perfect ${BRAND.name} fit with our comprehensive size guide. Includes US, UK, and EU size equivalents, centimeter and inch measurements, brand comparisons, and an interactive size finder.`,
 }
 
 export default function SizeGuidePage() {

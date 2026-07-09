@@ -7,6 +7,7 @@ import {
 } from '@/lib/data/orders'
 import { sendOrderConfirmation } from '@/lib/sendgrid'
 import { sendOrderNotification } from '@/lib/slack'
+import { BRAND } from '@/lib/constants'
 
 export async function POST(request: NextRequest) {
   try {
@@ -104,7 +105,7 @@ export async function POST(request: NextRequest) {
             currency: currency.toLowerCase(),
             product_data: {
               name: `Order ${pendingOrder.orderNumber}`,
-              description: 'Sible Couture — e-commerce order',
+              description: `${BRAND.name} — e-commerce order`,
             },
             unit_amount: totalCents,
           },

@@ -12,21 +12,21 @@ type HeroSlide =
 const HERO_SLIDES: HeroSlide[] = [
   {
     type: 'image',
-    src: '/images/sible-hero-1.webp',
-    mobileSrc: '/images/sible-hero-1-mobile.webp',
+    src: '/images/tivaram-hero-1.webp',
+    mobileSrc: '/images/tivaram-hero-1-mobile.webp',
     alt: 'African fashion model wearing vibrant Ankara print clothing',
   },
   // {
   //   type: 'image',
-  //   src: '/images/sible-hero-2.webp',
-  //   mobileSrc: '/images/sible-hero-2-mobile.webp',
+  //   src: '/images/tivaram-hero-2.webp',
+  //   mobileSrc: '/images/tivaram-hero-2-mobile.webp',
   //   alt: 'African fashion model wearing vibrant Ankara print clothing',
   // },
   // Add a video slide:
   // {
   //   type: 'video',
-  //   src: '/videos/sible-hero.mp4',
-  //   poster: '/images/sible-hero-1.webp',
+  //   src: '/videos/tivaram-hero.mp4',
+  //   poster: '/images/tivaram-hero-1.webp',
   // },
 ]
 

@@ -51,7 +51,7 @@ export async function POST(request: NextRequest) {
       const arrayBuffer = await file.arrayBuffer()
       const buffer = Buffer.from(arrayBuffer)
       const { url, publicId } = await uploadToCloudinary(buffer, {
-        folder: isVideo ? 'sible-stories' : 'sible-products',
+        folder: isVideo ? 'tivaram-stories' : 'tivaram-products',
         resourceType: isVideo ? 'video' : 'image',
       })
       return NextResponse.json({

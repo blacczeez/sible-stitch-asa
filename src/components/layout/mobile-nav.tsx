@@ -5,7 +5,7 @@ import Image from 'next/image'
 import { Search } from 'lucide-react'
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet'
 import { useUIStore } from '@/store/ui-store'
-import { NAV_LINKS } from '@/lib/constants'
+import { NAV_LINKS, BRAND } from '@/lib/constants'
 import { CurrencySelector } from './currency-selector'
 
 export function MobileNav() {
@@ -22,11 +22,11 @@ export function MobileNav() {
         <SheetHeader>
           <SheetTitle>
             <Image
-              src="/images/sible-logo.webp"
-              alt="Sible Couture"
-              width={120}
-              height={40}
-              className="h-8 w-auto"
+                src="/images/tivaram-logo.webp"
+                alt={BRAND.name}
+              width={766}
+              height={149}
+              className="h-6 w-auto"
             />
           </SheetTitle>
         </SheetHeader>

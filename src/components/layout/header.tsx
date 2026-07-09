@@ -12,7 +12,7 @@ import { MobileNav } from './mobile-nav'
 import { CartDrawer } from './cart-drawer'
 import { SearchDialog } from './search-dialog'
 import { CurrencySelector } from './currency-selector'
-import { NAV_LINKS } from '@/lib/constants'
+import { NAV_LINKS, BRAND } from '@/lib/constants'
 
 interface HeaderProps {
   isHome?: boolean
@@ -118,11 +118,11 @@ export function Header({ isHome: initialIsHome = false }: HeaderProps) {
               {/* Center: logo */}
               <Link href="/" className="shrink-0">
                 <Image
-                  src="/images/sible-logo.webp"
-                  alt="Sible Couture"
-                  width={400}
-                  height={92}
-                  className={`h-9 md:h-11 w-auto transition-all ${
+                src="/images/tivaram-logo.webp"
+                alt={BRAND.name}
+                  width={766}
+                  height={149}
+                  className={`h-6 md:h-8 w-auto transition-all ${
                     solid ? '' : 'brightness-0 invert'
                   }`}
                   priority

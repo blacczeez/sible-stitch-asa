@@ -5,7 +5,7 @@ import { BRAND } from '@/lib/constants'
 
 export const metadata: Metadata = {
   title: 'FAQ',
-  description: 'Frequently asked questions about shipping, returns, sizing, and payments at Sible Couture.',
+  description: `Frequently asked questions about shipping, returns, sizing, and payments at ${BRAND.name}.`,
 }
 
 export default function FaqPage() {

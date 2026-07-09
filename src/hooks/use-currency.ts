@@ -34,7 +34,7 @@ export const useCurrency = create<CurrencyStore>()(
       },
     }),
     {
-      name: 'sible-currency',
+      name: 'tivaram-currency',
     }
   )
 )

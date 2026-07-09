@@ -6,7 +6,7 @@ import { BRAND, FREE_SHIPPING_THRESHOLD } from '@/lib/constants'
 
 export const metadata: Metadata = {
   title: 'Shipping & Returns',
-  description: `Shipping rates, delivery times, and return policy for Sible Couture. Free shipping on orders over $${FREE_SHIPPING_THRESHOLD}.`,
+  description: `Shipping rates, delivery times, and return policy for ${BRAND.name}. Free shipping on orders over $${FREE_SHIPPING_THRESHOLD}.`,
 }
 
 function PolicySection({
