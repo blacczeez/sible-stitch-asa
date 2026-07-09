@@ -50,7 +50,7 @@ export const BRAND = {
 
 export const NAV_LINKS = [
   { label: 'Ankara Prints', href: '/products?category=ankara' },
-  { label: 'Casual Wear', href: '/products?category=casual' },
+  // { label: 'Casual Wear', href: '/products?category=casual' },
   { label: 'Accessories', href: '/products?category=accessories' },
   { label: 'Size Guide', href: '/size-guide' },
   { label: 'Customer Stories', href: '/customer-reviews' },
@@ -58,7 +58,7 @@ export const NAV_LINKS = [
 
 export const QUICK_LINKS = [
   { label: 'Ankara Prints', href: '/products?category=ankara' },
-  { label: 'Casual Wear', href: '/products?category=casual' },
+  // { label: 'Casual Wear', href: '/products?category=casual' },
   { label: 'Accessories', href: '/products?category=accessories' },
   { label: 'New Arrivals', href: '/products?sort=newest' },
   { label: 'Size Guide', href: '/size-guide' },
