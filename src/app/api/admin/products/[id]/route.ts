@@ -124,6 +124,16 @@ export async function PATCH(
       }),
     })
   } catch (error) {
+    if (
+      error instanceof Prisma.PrismaClientKnownRequestError &&
+      error.code === 'P2002'
+    ) {
+      return NextResponse.json(
+        { error: 'A product with this slug already exists' },
+        { status: 409 }
+      )
+    }
+
     console.error('Error updating product:', error)
     return NextResponse.json(
       { error: 'Failed to update product' },
