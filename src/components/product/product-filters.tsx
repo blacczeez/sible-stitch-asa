@@ -11,7 +11,7 @@ import { X } from 'lucide-react'
 
 const CATEGORIES = [
   { slug: 'ankara', label: 'Ankara Prints' },
-  { slug: 'casual', label: 'Casual Wear' },
+  { slug: 'adire', label: 'Adire' },
   { slug: 'accessories', label: 'Accessories' },
 ]
 
@@ -22,7 +22,7 @@ const PRICE_RANGES = [
   { min: '300', max: '', label: '$300+' },
 ]
 
-const SIZES = ['S', 'M', 'L', 'XL', 'One Size']
+const SIZES = ['XS', 'S', 'M', 'L', 'XL', 'XXL']
 
 export function ProductFilters() {
   const { navigate, searchParams } = useFilterNavigation()
@@ -47,6 +47,9 @@ export function ProductFilters() {
           params.set(key, value)
         }
       })
+
+      // Infinite scroll always starts from page 1 after filter changes.
+      params.delete('page')
 
       return params.toString()
     },

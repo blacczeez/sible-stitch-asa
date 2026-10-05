@@ -86,6 +86,23 @@ function CategoriesSkeleton() {
 export default function HomePage() {
   return (
     <>
+      {/* Preload only the viewport-matching hero so LCP starts immediately */}
+      <link
+        rel="preload"
+        as="image"
+        href="/images/tivaram-hero-1-mobile.webp"
+        type="image/webp"
+        media="(max-width: 767px)"
+        fetchPriority="high"
+      />
+      <link
+        rel="preload"
+        as="image"
+        href="/images/tivaram-hero-1.webp"
+        type="image/webp"
+        media="(min-width: 768px)"
+        fetchPriority="high"
+      />
       <HeroSection />
       <Suspense fallback={<FeaturedSkeleton />}>
         <FeaturedSection />

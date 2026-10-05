@@ -1,31 +1,105 @@
 'use client'
 
-import { useTransition } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
+import { useSearchParams } from 'next/navigation'
 import type { Product } from '@/types'
 import { ProductCard } from '@/components/product/product-card'
 import { ProductFilters } from '@/components/product/product-filters'
 import { ProductSort } from '@/components/product/product-sort'
 import { ActiveFilters } from '@/components/product/active-filters'
-import { PaginationControls } from '@/components/ui/pagination-controls'
 import { EmptyState } from '@/components/ui/empty-state'
+import { LoadingSpinner } from '@/components/ui/loading-spinner'
+import { Button } from '@/components/ui/button'
 import { Search } from 'lucide-react'
 
 interface ProductsViewProps {
   products: Product[]
   totalPages: number
   totalItems: number
-  currentPage: number
   categoryTitle: string
 }
 
 export function ProductsView({
-  products,
+  products: initialProducts,
   totalPages,
   totalItems,
-  currentPage,
   categoryTitle,
 }: ProductsViewProps) {
-  const [isPending] = useTransition()
+  const searchParams = useSearchParams()
+  const filterKey = (() => {
+    const params = new URLSearchParams(searchParams.toString())
+    params.delete('page')
+    return params.toString()
+  })()
+
+  const [items, setItems] = useState(initialProducts)
+  const [page, setPage] = useState(1)
+  const [hasMore, setHasMore] = useState(totalPages > 1)
+  const [loadingMore, setLoadingMore] = useState(false)
+  const [loadError, setLoadError] = useState<string | null>(null)
+
+  const sentinelRef = useRef<HTMLDivElement>(null)
+  const loadingRef = useRef(false)
+
+  useEffect(() => {
+    setItems(initialProducts)
+    setPage(1)
+    setHasMore(totalPages > 1)
+    setLoadError(null)
+  }, [initialProducts, totalPages, filterKey])
+
+  const loadMore = useCallback(async () => {
+    if (loadingRef.current || !hasMore) return
+
+    loadingRef.current = true
+    setLoadingMore(true)
+    setLoadError(null)
+
+    const nextPage = page + 1
+    const params = new URLSearchParams(searchParams.toString())
+    params.delete('page')
+    params.set('page', String(nextPage))
+
+    try {
+      const res = await fetch(`/api/products?${params.toString()}`)
+      if (!res.ok) throw new Error('Failed to load more products')
+
+      const data = (await res.json()) as {
+        products: Product[]
+        pagination: { hasMore: boolean }
+      }
+
+      setItems((prev) => {
+        const seen = new Set(prev.map((p) => p.id))
+        const next = data.products.filter((p) => !seen.has(p.id))
+        return [...prev, ...next]
+      })
+      setPage(nextPage)
+      setHasMore(Boolean(data.pagination?.hasMore))
+    } catch {
+      setLoadError('Could not load more products')
+    } finally {
+      loadingRef.current = false
+      setLoadingMore(false)
+    }
+  }, [hasMore, page, searchParams])
+
+  useEffect(() => {
+    const node = sentinelRef.current
+    if (!node || !hasMore) return
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          void loadMore()
+        }
+      },
+      { rootMargin: '240px' }
+    )
+
+    observer.observe(node)
+    return () => observer.disconnect()
+  }, [hasMore, loadMore])
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -50,27 +124,41 @@ export function ProductsView({
             <ProductSort />
           </div>
 
-          <div
-            className="transition-opacity duration-200"
-            style={{ opacity: isPending ? 0.6 : 1 }}
-          >
-            {products.length === 0 ? (
-              <EmptyState
-                icon={Search}
-                title="No products found"
-                description="Try adjusting your filters or search terms."
-              />
-            ) : (
-              <>
-                <div className="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-6">
-                  {products.map((product) => (
-                    <ProductCard key={product.id} product={product} hoverSecondImage />
-                  ))}
-                </div>
-                <PaginationControls currentPage={currentPage} totalPages={totalPages} />
-              </>
-            )}
-          </div>
+          {items.length === 0 ? (
+            <EmptyState
+              icon={Search}
+              title="No products found"
+              description="Try adjusting your filters or search terms."
+            />
+          ) : (
+            <>
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-6">
+                {items.map((product) => (
+                  <ProductCard key={product.id} product={product} hoverSecondImage />
+                ))}
+              </div>
+
+              <div className="mt-8 flex flex-col items-center gap-3">
+                {loadingMore && <LoadingSpinner size="md" />}
+                {loadError && (
+                  <div className="flex flex-col items-center gap-2">
+                    <p className="text-sm text-muted-foreground">{loadError}</p>
+                    <Button variant="outline" size="sm" onClick={() => void loadMore()}>
+                      Try again
+                    </Button>
+                  </div>
+                )}
+                {hasMore && !loadError && (
+                  <div ref={sentinelRef} className="h-8 w-full" aria-hidden />
+                )}
+                {!hasMore && items.length > 0 && (
+                  <p className="text-sm text-muted-foreground">
+                    You&apos;ve reached the end
+                  </p>
+                )}
+              </div>
+            </>
+          )}
         </div>
       </div>
     </div>

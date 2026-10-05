@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect } from 'react'
+import { useEffect, useRef } from 'react'
 import { CheckCircle, Package, Truck, MapPin } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
@@ -8,6 +8,7 @@ import { Separator } from '@/components/ui/separator'
 import { Button } from '@/components/ui/button'
 import { formatCurrency, formatDate } from '@/lib/utils'
 import { useCartStore } from '@/store/cart-store'
+import { analytics } from '@/lib/analytics'
 import type { Order } from '@/types'
 import Link from 'next/link'
 
@@ -37,6 +38,7 @@ interface OrderDetailContentProps {
 
 export function OrderDetailContent({ order, isSuccess }: OrderDetailContentProps) {
   const clearCart = useCartStore((s) => s.clearCart)
+  const purchaseTracked = useRef(false)
 
   // Clear cart when arriving from a successful checkout.
   // This runs on the order page (not checkout page) to avoid a race condition
@@ -46,6 +48,24 @@ export function OrderDetailContent({ order, isSuccess }: OrderDetailContentProps
       clearCart()
     }
   }, [isSuccess, clearCart])
+
+  // Analytics: Order Completed — real order totals/items from DB when ?success=true
+  useEffect(() => {
+    if (!isSuccess || purchaseTracked.current) return
+    purchaseTracked.current = true
+    analytics.purchase({
+      orderId: order.id,
+      orderNumber: order.orderNumber,
+      value: Number(order.total),
+      currency: order.currency || 'USD',
+      items: order.items.map((item) => ({
+        id: item.id,
+        name: item.productName,
+        price: Number(item.unitPrice),
+        quantity: item.quantity,
+      })),
+    })
+  }, [isSuccess, order])
 
   const currentStepIndex = statusOrder.indexOf(order.status)
   const statusInfo = statusConfig[order.status] || statusConfig.pending

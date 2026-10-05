@@ -1,21 +1,39 @@
 'use client'
 
-import { useEffect } from 'react'
+import { useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { useCart } from '@/hooks/use-cart'
 import { ShippingForm } from '@/components/checkout/shipping-form'
 import { OrderReview } from '@/components/checkout/order-review'
 import { CheckoutSkeleton } from '@/components/checkout/checkout-skeleton'
+import { analytics } from '@/lib/analytics'
 
 export function CheckoutContent() {
   const router = useRouter()
-  const { items, hydrated } = useCart()
+  const { items, hydrated, total } = useCart()
+  const checkoutTracked = useRef(false)
 
   useEffect(() => {
     if (hydrated && items.length === 0) {
       router.push('/cart')
     }
   }, [hydrated, items.length, router])
+
+  // Analytics: Checkout Started — once per visit when cart has real line items
+  useEffect(() => {
+    if (!hydrated || items.length === 0 || checkoutTracked.current) return
+    checkoutTracked.current = true
+    analytics.initiateCheckout(
+      total,
+      items.map((i) => ({
+        id: i.productId,
+        name: i.name,
+        price: i.price,
+        quantity: i.quantity,
+        variant: `${i.size} / ${i.color}`,
+      }))
+    )
+  }, [hydrated, items, total])
 
   if (!hydrated) {
     return <CheckoutSkeleton />

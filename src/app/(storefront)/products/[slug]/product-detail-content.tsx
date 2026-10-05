@@ -18,6 +18,7 @@ import { Separator } from '@/components/ui/separator'
 import Link from 'next/link'
 import { Truck, RotateCcw, Scissors, Users } from 'lucide-react'
 import { MADE_TO_ORDER, FREE_SHIPPING_THRESHOLD, MAX_ORDER_QUANTITY } from '@/lib/constants'
+import { analytics } from '@/lib/analytics'
 
 interface ProductDetailContentProps {
   product: Product
@@ -43,6 +44,16 @@ export function ProductDetailContent({
     () => [...new Set(product.variants.map((v) => v.color))],
     [product]
   )
+
+  // Analytics: Product Viewed — fires once per product page load with DB product data
+  useEffect(() => {
+    analytics.viewContent({
+      id: product.id,
+      name: product.name,
+      price: Number(product.price),
+      category: product.category?.name,
+    })
+  }, [product.id, product.name, product.price, product.category?.name])
 
   useEffect(() => {
     if (colors.length === 1 && !selectedColor) {

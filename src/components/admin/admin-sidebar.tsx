@@ -32,8 +32,8 @@ export function AdminSidebar() {
   const pathname = usePathname()
 
   return (
-    <aside className="flex min-h-screen w-64 shrink-0 flex-col border-r border-white/10 bg-asa-charcoal text-white shadow-[4px_0_24px_-12px_rgba(26,23,20,0.2)]">
-      <div className="p-6">
+    <aside className="flex h-full w-64 shrink-0 flex-col border-r border-white/10 bg-asa-charcoal text-white shadow-[4px_0_24px_-12px_rgba(26,23,20,0.2)]">
+      <div className="shrink-0 p-6">
         <Link href="/admin">
           <Image
             src="/images/tivaram-logo.webp"
@@ -46,7 +46,7 @@ export function AdminSidebar() {
         <p className="mt-1 text-xs text-white/50">Admin Dashboard</p>
       </div>
 
-      <nav className="flex-1 space-y-1 px-3">
+      <nav className="min-h-0 flex-1 space-y-1 overflow-y-auto px-3">
         {navItems.map((item) => {
           const isActive =
             pathname === item.href ||
@@ -69,7 +69,7 @@ export function AdminSidebar() {
         })}
       </nav>
 
-      <div className="border-t border-white/10 p-3">
+      <div className="shrink-0 border-t border-white/10 p-3">
         <Link
           href="/"
           className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm text-white/55 transition-colors hover:bg-white/5 hover:text-white"

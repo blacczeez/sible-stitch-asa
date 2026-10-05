@@ -29,6 +29,7 @@ export function ProductSort() {
       params.set('sort', value)
     }
 
+    params.delete('page')
     navigate(`?${params.toString()}`, { scroll: false })
   }
 

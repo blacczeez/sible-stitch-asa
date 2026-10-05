@@ -5,6 +5,7 @@ import { useCartStore } from '@/store/cart-store'
 import { useUIStore } from '@/store/ui-store'
 import { Button } from '@/components/ui/button'
 import { toast } from 'sonner'
+import { analytics } from '@/lib/analytics'
 import type { Product, ProductVariant } from '@/types'
 
 interface AddToCartButtonProps {
@@ -24,16 +25,28 @@ export function AddToCartButton({
   function handleAddToCart() {
     if (!selectedVariant) return
 
+    const price = selectedVariant.price ?? product.price
+
     addItem({
       productId: product.id,
       variantId: selectedVariant.id,
       name: product.name,
       image: product.images[0] || '',
-      price: selectedVariant.price ?? product.price,
+      price,
       size: selectedVariant.size,
       color: selectedVariant.color,
       quantity,
       slug: product.slug,
+    })
+
+    // Analytics: Product Added to Cart — uses real product/variant from this page
+    analytics.addToCart({
+      id: product.id,
+      name: product.name,
+      price,
+      quantity,
+      category: product.category?.name,
+      variant: `${selectedVariant.size} / ${selectedVariant.color}`,
     })
 
     setCartDrawerOpen(true)

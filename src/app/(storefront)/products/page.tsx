@@ -16,7 +16,8 @@ interface ProductsPageProps {
 
 export default async function ProductsPage({ searchParams }: ProductsPageProps) {
   const raw = await searchParams
-  const query = productQuerySchema.parse(raw)
+  // Infinite scroll always starts from page 1; later pages load client-side.
+  const query = productQuerySchema.parse({ ...raw, page: 1 })
 
   // Cache key includes the serialized query so different filter combos are cached independently
   const queryKey = JSON.stringify(query)
@@ -57,7 +58,6 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
       products={products}
       totalPages={totalPages}
       totalItems={totalItems}
-      currentPage={query.page}
       categoryTitle={categoryTitle}
     />
   )

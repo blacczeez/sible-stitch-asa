@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button'
 const FILTER_LABELS: Record<string, Record<string, string>> = {
   category: {
     ankara: 'Ankara Prints',
-    casual: 'Casual Wear',
+    adire: 'Adire',
     accessories: 'Accessories',
   },
 }
@@ -59,6 +59,7 @@ export function ActiveFilters() {
       values.forEach((v) => params.append(key, v))
     }
 
+    params.delete('page')
     navigate(`?${params.toString()}`, { scroll: false })
   }
 

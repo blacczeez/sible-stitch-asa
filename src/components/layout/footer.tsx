@@ -5,7 +5,7 @@ import { BRAND } from '@/lib/constants'
 const footerLinks = {
   shop: [
     { label: 'Ankara Prints', href: '/products?category=ankara' },
-    { label: 'Casual Wear', href: '/products?category=casual' },
+    { label: 'Adire', href: '/products?category=adire' },
     { label: 'Accessories', href: '/products?category=accessories' },
     { label: 'New Arrivals', href: '/products?sort=newest' },
   ],

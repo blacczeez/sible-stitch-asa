@@ -134,6 +134,19 @@ export async function PATCH(
       )
     }
 
+    if (
+      error instanceof Prisma.PrismaClientKnownRequestError &&
+      error.code === 'P2003'
+    ) {
+      return NextResponse.json(
+        {
+          error:
+            'Cannot replace variants that appear on customer orders. Update stock on existing variants instead of removing them.',
+        },
+        { status: 409 }
+      )
+    }
+
     console.error('Error updating product:', error)
     return NextResponse.json(
       { error: 'Failed to update product' },
